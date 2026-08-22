@@ -53,3 +53,7 @@ proceede with ecide search strategy up front (§6): two-tier (fast search + one 
 ---
 
 are steps 4 and 5 done? the plan shows them as open
+
+---
+
+step 5 now
