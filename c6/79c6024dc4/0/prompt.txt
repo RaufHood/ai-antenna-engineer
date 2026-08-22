@@ -19,3 +19,12 @@ now you need to create the requirements.txt and create a venv and download openE
 ---
 
 update the C:\Users\hohih\Documents\projekte\challenge\rf\progress_simulation.md
+
+---
+
+TODO(openEMS): from CSXCAD import ContinuousStructure; build FDTD +
+    CSX, add ground-plane metal box from device['board']['size_mm'],
+    add feed/short pins + arm sized from candidate.feed_point_mm /
+    candidate.length_mm, mesh at lambda/20 for band.f_high_ghz (coarser
+    if sim.mesh_res == "coarse").
+    """ now implement the build_ifa_geometry with openems
