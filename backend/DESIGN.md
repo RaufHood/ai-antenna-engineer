@@ -443,8 +443,10 @@ Rule: **always demoable** — every milestone ends in a run that completes.
 - **M0 — walking skeleton: DONE 2026-08-22.** `POST /runs` → mock agent →
   reference sims → WS events (contiguous seq + replay verified) → report.
   Result on canned spec: IFA @ right edge, L=31.2 mm, −17.7 dB, all pass.
-- **M1 — Devin wired: code DONE 2026-08-22, awaiting credentials for a live
-  run.** `DevinAgent` (v3 sessions/messages/polling, 429 backoff, ≥30 s send
+- **M1 — Devin wired: LIVE-VERIFIED 2026-08-22** (run #3: 3 iterations,
+  32 sims, clean `done` through the gate; final IFA @ e_r6 L=31.25 mm gap
+  5.5 mm, S11 −21.5 dB, VSWR 1.24, full band < −10 dB; structured_output
+  populated; 0.0 ACUs billed across all three test sessions). `DevinAgent` (v3 sessions/messages/polling, 429 backoff, ≥30 s send
   spacing, fenced-JSON parse with 2 corrective retries, session-end → forced
   best-so-far done). Devin is the DEFAULT agent; `agent="mock"` explicit
   fallback. Playbook deferred: protocol text ships in the create prompt for
