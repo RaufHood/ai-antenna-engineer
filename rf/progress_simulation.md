@@ -51,18 +51,23 @@ mock swap-out (`frontend/src/lib/runner.ts` / `rf.ts`), Devin agent loop later.
   `cython`. `rf/openems_env.py` adds `rf/vendor/openEMS/` as a DLL search
   directory before import — required on Python 3.8+/Windows, which no
   longer searches PATH for an extension module's sibling DLLs. Verified:
-  `rf/.venv/Scripts/python rf/openems_env.py` imports both modules cleanly.
+  `rf/.venv/Scripts/python -m rf.openems_env` imports both modules cleanly.
 - **Geometry-loading hand-off built and tested (step 6, early):**
-  `backend/load_blend.py` (runs in `backend/.venv`, has `bpy`) opens a
-  `.blend`, reads its `materials.json` sidecar, parses each part's
-  `node_path`/`material_key`, pulls `eps_r`/`sigma_S_per_m` per part,
-  flags the steel `mu_r` gap materials.json itself calls out, computes
-  bbox_mm, and exports one STL per part to a `device.json` manifest. Ran
-  against `data/bellota_hunting_axe_8133/` (a materials-schema test
-  fixture, not phone geometry) — 3 parts loaded correctly. `rf/
-  run_simulation.py`'s new `load_device()` reads that `device.json` via
+  `rf/blend_loader/load_blend.py` (runs in `rf/blend_loader/.venv`, has
+  `bpy`) opens a `.blend`, reads its `materials.json` sidecar, parses each
+  part's `node_path`/`material_key`, pulls `eps_r`/`sigma_S_per_m` per
+  part, flags the steel `mu_r` gap materials.json itself calls out,
+  computes bbox_mm, and exports one STL per part to a `device.json`
+  manifest. Ran against `data/bellota_hunting_axe_8133/` (a
+  materials-schema test fixture, not phone geometry) — 3 parts loaded
+  correctly. `rf/device.py`'s `load_device()` reads that `device.json` via
   `config.device.manifest_path`, plain JSON, no `bpy` import — keeps the
-  bpy venv and the openEMS venv from ever needing to mix.
+  bpy venv and the openEMS venv from ever needing to mix. (This folder was
+  originally a top-level `backend/`; moved under `rf/` and renamed to
+  `blend_loader` on 2026-08-22 to avoid clashing with "the backend"
+  meaning the FastAPI service a teammate is building separately, and to
+  keep the sim workstream's Python code in one place — see "Module
+  layout" below.)
 - **PyNEC could not be installed in `rf/.venv`.** It has no prebuilt wheel
   (sdist only) and needs the MSVC C++ Build Tools; this machine has the
   VS2022 Build Tools installer shell but not the actual "Desktop
@@ -128,6 +133,41 @@ already the shared contract with the frontend/agent workstreams):
 }
 ```
 
+## Module layout
+
+`rf/` was one file (`run_simulation.py`) through the first working version;
+split on 2026-08-22 once it had three real classes of content mixed
+together (data shapes, geometry construction, solver mechanics) plus a
+sibling tool (`blend_loader/`) that a colleague is going to keep building
+on:
+
+```
+rf/
+├── __init__.py        # `from rf import run_simulation`
+├── models.py           # Candidate, Band, SimOptions, SimResult, FDTDStructure, IFA_* constants
+├── device.py            # load_device() — reads blend_loader-produced device.json
+├── geometry.py           # build_ifa_geometry()
+├── solve.py               # run_fdtd()
+├── postprocess.py         # postprocess()
+├── run_simulation.py      # run_simulation() orchestrator + __main__ CLI demo
+├── openems_env.py         # unchanged — DLL-path setup
+├── validate_dipole.py      # unchanged — PyNEC oracle
+├── bench_scaling.py        # unchanged — PyNEC oracle
+├── vendor/                 # unchanged, gitignored — vendored openEMS build
+├── .venv/                  # unchanged, gitignored
+└── blend_loader/            # moved from top-level backend/, renamed (see above)
+    ├── __init__.py
+    ├── load_blend.py
+    ├── requirements.txt     # bpy
+    ├── .venv/                # gitignored — separate bpy env, python -m rf.blend_loader.load_blend
+    └── out/                  # generated device.json + STLs, gitignored
+```
+
+All sibling modules use plain relative imports (`from .models import ...`).
+That means invocation is **always `python -m rf.<module>`**, never
+`python rf/<module>.py` directly — the latter doesn't set up the package
+context the relative imports need.
+
 ## Setup (done — reproducible)
 
 ```sh
@@ -142,42 +182,69 @@ unzip -q -o rf/vendor/openEMS_v0.0.36.zip -d rf/vendor/
 cd rf && .venv/Scripts/pip install -r requirements.txt   # cwd matters: wheel
                                                            # paths in the file
                                                            # are relative to it
-cd .. && rf/.venv/Scripts/python rf/openems_env.py        # smoke test
+cd .. && rf/.venv/Scripts/python -m rf.openems_env        # smoke test
+
+# blend_loader has its own venv (needs bpy, not openEMS)
+py -3.11 -m venv rf/blend_loader/.venv
+rf/blend_loader/.venv/Scripts/pip install -r rf/blend_loader/requirements.txt
 ```
 
 ## Steps
 
 1. ~~Get openEMS installed and runnable.~~ **Done** — see Setup above.
    Verified `import openEMS, CSXCAD` via `rf/openems_env.py`.
-2. **Run an unmodified openEMS tutorial** — next up. Bundled at
+2. **Run an unmodified openEMS tutorial** — still not done (skipped ahead
+   to 3/5 instead; worth circling back to for an independent known-result
+   check). Bundled at
    `rf/vendor/openEMS/python/Tutorials/Simple_Patch_Antenna.py` (there's
    also `Bent_Patch_Antenna.py` and `Helical_Antenna.py`, no bare-IFA
-   tutorial, so Simple_Patch_Antenna is the closest match). Run it exactly
-   as published and check its output resonance/impedance against the
-   tutorial's own documented result. This is the "known result" checkpoint
-   — nothing downstream is trusted until this passes, same principle as
-   `validate_dipole.py` for PyNEC.
-3. **Parametrize the tutorial into a geometry builder**,
-   `build_ifa(candidate, band, sim_opts) -> CSXCAD structure`: ground
-   plane box + feed pin + short pin + horizontal radiating arm, all as PEC,
-   positioned/sized from `candidate.position_mm` / `feed_point_mm` /
-   `length_mm`. No dielectrics yet — this is the direct openEMS analogue of
-   `rf/bench_scaling.py`'s wire model, so it's cross-checkable against
-   PyNEC at the same geometry before adding materials.
+   tutorial, so Simple_Patch_Antenna is the closest match).
+3. ~~Parametrize the tutorial into a geometry builder~~ **Done** —
+   `build_ifa_geometry()` in `rf/geometry.py`: ground plane + short pin +
+   radiating arm as CSXCAD PEC boxes, fed by an `AddLumpedPort`, no
+   dielectrics yet. Geometry conventions (Candidate has no dedicated
+   short-pin field) are documented as `IFA_*` constants in `rf/models.py`
+   + inline comments in that function.
+5. ~~Wrap end-to-end as `run_simulation(config) -> result dict`~~ **Done**
+   — `rf/solve.py`'s `run_fdtd()` + `rf/postprocess.py`'s `postprocess()`
+   also implemented (S11 curve, resonance,
+   bandwidth, VSWR from `CalcPort`; gain/efficiency from `CalcNF2FF` vs.
+   `port.P_acc`; SAR still stubbed `0.0`, no tissue phantom yet). **Ran
+   end-to-end against the GPS-L1 demo candidate and it produced a complete
+   result** — but getting it running surfaced three real bugs, now fixed,
+   worth knowing about if this geometry gets extended:
+   - The pin height (5 mm) and arm width (2 mm) are far smaller than the
+     general lambda/N mesh (~19 mm coarse), so nothing bracketed them and
+     the solver silently dropped the port (`Lumped Element snapping
+     failed! Dimension is: 0` — *every* primitive logged "Unused"). Fixed
+     with explicit `mesh.AddLine('z', [..., 0, h, ...])` plus
+     `metal_edge_res` on every `AddEdges2Grid` call, mirroring the
+     official tutorial's pattern for resolving sub-wavelength features.
+   - The arm direction, first derived from an arbitrary feed/short offset,
+     could point the arm straight off the board into free space for an
+     edge-placed candidate. Fixed by deriving arm direction from the board
+     geometry (short pin → board interior) instead.
+   - The feed pin was offset *perpendicular* to the arm so its top end
+     never touched the arm conductor — the port drove a stub connected to
+     nothing (S11 flat at -0.05 dB, VSWR 314, across the whole band: total
+     reflection, no coupling at all). Fixed by offsetting the feed *along*
+     the arm axis instead, between the short pin and the open end.
+   - **Current state after all three fixes:** the port now genuinely
+     couples into the structure (VSWR dropped from 314 to ~24), but S11 is
+     still only about -0.7 dB and monotonic across the narrow 1565-1585 MHz
+     sweep — no resonance dip lands inside the window yet. That's a
+     **tuning** problem (untuned first-guess dimensions), not a plumbing
+     bug: nothing in the pipeline is known to be broken, but nothing has
+     confirmed it's *right* either. Step 2 (tutorial cross-check) and step
+     4 (PyNEC cross-check) are exactly the two remaining checks that would
+     tell the difference — do those before trusting a specific resonance
+     number.
 4. **Cross-check against PyNEC.** Same IFA geometry (bare PEC, no
    dielectrics), same frequency, run through both solvers. Resonance and
    input resistance should be in the same ballpark. This is the
    openEMS-specific counterpart to step 2 and catches setup mistakes
    (units, mesh, port definition) that a lone tutorial re-run wouldn't.
-5. **Wrap end-to-end as `run_simulation(config) -> result dict`**: build
-   geometry (step 3) → mesh (lambda/20 at `band.f_high_ghz`, coarser if
-   `sim.mesh_res == "coarse"`) → excite (Gaussian pulse spanning
-   `f_low_ghz`-`f_high_ghz`) → run FDTD → `calcPort` for S11 → derive
-   `resonant_ghz` (|S11| minimum), `bandwidth_mhz` (points below
-   `band.s11_db_max`), `vswr` from S11 → NF2FF for `peak_gain_dbi` →
-   `efficiency` from radiated/accepted power ratio → `sar_w_per_kg` stub
-   `0.0` until a tissue phantom exists → `meets_requirements` from the
-   band's thresholds.
+   Blocked on the PyNEC/MSVC gap noted above.
 6. **Swap in real geometry from the Blender export** once it lands:
    `device.components[]` (name/em/epsilon_r/bbox_mm) replace the hand-coded
    ground-plane box; map `em: "dielectric"` blocks to openEMS material
@@ -221,7 +288,7 @@ cd .. && rf/.venv/Scripts/python rf/openems_env.py        # smoke test
 ## Next inputs needed
 
 - Blender export (glTF for UI + per-part STL for sim) — step 6 blocks on
-  this. `backend/load_blend.py` already does this end-to-end for a
+  this. `rf/blend_loader/load_blend.py` already does this end-to-end for a
   differently-shaped test asset (`data/bellota_hunting_axe_8133/`); it
   should need only the node_path/material_key naming convention to carry
   over, not a rewrite.

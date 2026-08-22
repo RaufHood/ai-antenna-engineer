@@ -1,9 +1,12 @@
 """Load a labeled .blend + its materials.json sidecar into a solver-agnostic
 device manifest, and export one STL per part for the EM mesher.
 
-Runs inside backend/.venv (has bpy). openEMS runs elsewhere (rf/, its own
-venv or WSL) and never imports bpy — the manifest + STLs written here are the
-hand-off artifact between the two, so the two dependency sets never mix.
+Runs inside rf/blend_loader/.venv (has bpy). openEMS runs elsewhere
+(rf/.venv, no bpy) and never imports bpy — the manifest + STLs written here
+are the hand-off artifact between the two, so the two dependency sets never
+mix. (This used to be a top-level backend/ folder; moved under rf/ and
+renamed to avoid clashing with "the backend" meaning the FastAPI service a
+teammate is building separately — see rf/progress_simulation.md.)
 
 Convention (from data/*/materials.json "how_material_identity_is_carried"):
   - object NAME is "<node_path>__<material_key>"
@@ -13,11 +16,11 @@ Convention (from data/*/materials.json "how_material_identity_is_carried"):
     sigma_S_per_m per part — that's the EM data, the vocabulary block is
     just where it's deduplicated from.
 
-Usage:
-    backend/.venv/Scripts/python backend/load_blend.py \
+Usage (from the repo root):
+    rf/blend_loader/.venv/Scripts/python -m rf.blend_loader.load_blend \
         data/bellota_hunting_axe_8133/bellota_hunting_axe_8133.blend \
         --materials data/bellota_hunting_axe_8133/materials.json \
-        --out backend/out/bellota_hunting_axe_8133
+        --out rf/blend_loader/out/bellota_hunting_axe_8133
 """
 from __future__ import annotations
 
