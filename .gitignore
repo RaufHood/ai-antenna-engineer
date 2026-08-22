@@ -65,7 +65,12 @@ tmp/
 # raw field dumps no (tens of MB each)
 runs/**/Et.h5
 rf/vendor/
-rf/blend_loader/out/
+# blend_loader outputs: the STLs are 29 MB of regenerable mesh, but
+# device.json is 115 KB and everything downstream needs it — without it the
+# placement screening silently degrades and the agent is handed anchors that
+# intersect real components. Track the manifest, ignore the meshes.
+rf/blend_loader/out/*
+!rf/blend_loader/out/device.json
 
 # orbit frames are build intermediates: the gif/mp4 carry the same content
 # and rendering them again is one command (see rf/README.md)
