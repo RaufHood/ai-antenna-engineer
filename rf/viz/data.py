@@ -123,7 +123,9 @@ def synth_demo_run(out_dir: str | Path = "runs/demo", *, with_field: bool = True
 
     (out / "config.json").write_text(json.dumps(config, indent=2))
     (out / "result.json").write_text(json.dumps(result, indent=2))
-    (out / "device.json").write_text(json.dumps(_demo_device(), indent=2))
+    dev_path = out / "device.json"
+    if not dev_path.exists():          # never clobber a real blend_loader manifest
+        dev_path.write_text(json.dumps(_demo_device(), indent=2))
 
     if with_field:
         import h5py
@@ -134,16 +136,28 @@ def synth_demo_run(out_dir: str | Path = "runs/demo", *, with_field: bool = True
         fx, fy = candidate["feed_point_mm"][0] / 1e3, candidate["feed_point_mm"][1] / 1e3
         X, Y = np.meshgrid(x_m, y_m)                      # (ny, nx)
         R = np.hypot(X - fx, Y - fy)
-        lam = 0.19; v = 1.0
+        # GPS L1 in free space; the wavelength has to be short enough that
+        # several wavefronts fit across a 147 mm board, or the animation shows
+        # one smear instead of a wave travelling THROUGH the device.
+        lam = 0.062
+        cycles = 3.0                                       # wave cycles per loop
+        v_lead = 0.30                                      # wavefront speed (m/s of sim time)
         with h5py.File(out / "Et.h5", "w") as h5:
             h5["Mesh/x"], h5["Mesh/y"], h5["Mesh/z"] = x_m, y_m, z_m
             g = h5.create_group("FieldData/TD")
             for it in range(nt):
-                t = it / nt * 2.2                          # wavefront sweeps board twice
-                phase = 2 * math.pi * (R / lam - 3.2 * t)
-                env = np.exp(-((R - v * t * 0.16) ** 2) / (2 * 0.018 ** 2))
-                standing = 0.35 * np.exp(-R / 0.02) * abs(math.sin(2 * math.pi * 3.2 * t))
-                mag = (env * np.cos(phase) ** 2 + standing) / (R * 25 + 1.0)
+                t = it / nt
+                # continuous outgoing wave train, not a single pulse ring
+                phase = 2 * math.pi * (R / lam - cycles * t * nt / 24.0)
+                train = 0.5 * (1.0 + np.cos(phase))
+                # leading edge: the train has only reached radius v_lead * t,
+                # so early frames show it leaving the feed and later frames
+                # show the whole board lit
+                lead = v_lead * t + 0.012
+                front = 1.0 / (1.0 + np.exp((R - lead) / 0.006))
+                decay = 1.0 / (1.0 + (R / lam) ** 0.85)    # gentle cylindrical spread
+                near = 0.55 * np.exp(-R / 0.010)           # feed near-field glow
+                mag = (train * front * decay + near * front)
                 arr = np.zeros((3, nz, ny, nx), dtype=np.float32)
                 arr[2, 0] = mag.astype(np.float32)
                 g.create_dataset(f"{it * 60:08d}", data=arr)

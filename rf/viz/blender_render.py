@@ -300,6 +300,16 @@ def render_overlay(ctx, out_path, res=1600) -> dict:
     clear = bpy.data.materials.get("XRAY_CLEAR")
     if clear:
         clear.node_tree.nodes["Principled BSDF"].inputs["Alpha"].default_value = 0.0
+    # film_transparent only reaches the file if the output format carries an
+    # alpha channel: Blender defaults to RGB and silently drops it, which
+    # ships a fully opaque overlay that hides whatever it is composited over.
+    scene.render.image_settings.color_mode = "RGBA"
+    # This overlay is composited over a bright |E| heatmap, not over black:
+    # the stroke weights tuned for the hero stills disappear against orange.
+    # Thicken and fully opacify every lineset for this pass only.
+    for ls in bpy.context.view_layer.freestyle_settings.linesets:
+        ls.linestyle.thickness *= 2.4
+        ls.linestyle.alpha = 1.0
     pad_mm = 6.0
     w_mm, l_mm = float(dev.x) + 2 * pad_mm, float(dev.y) + 2 * pad_mm
     ortho = max(w_mm, l_mm) * unit                   # ortho_scale spans the long side
