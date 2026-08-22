@@ -1,5 +1,48 @@
-.venv*/
-__pycache__/
-*.pyc
-.DS_Store
+# Agent / tooling state (shared team config stays tracked)
+.claude/*
+!.claude/settings.json
+.entire/*
+!.entire/.gitignore
+!.entire/settings.json
+
+# Environments & secrets
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv*/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+out/
+coverage/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & scratch
+*.log
+tmp/
