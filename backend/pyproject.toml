@@ -1,0 +1,11 @@
+[project]
+name = "antenna-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.141.1",
+    "httpx>=0.28.1",
+    "pynec>=2.3.4",
+    "python-multipart>=0.0.32",
+    "uvicorn[standard]>=0.52.4",
+]

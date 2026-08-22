@@ -58,7 +58,7 @@ backend/
       events.py          append-only event log, seq numbers, WS fan-out
       store.py           in-memory run registry
     agent/
-      port.py            AgentPort protocol (§4.1)
+      port.py            AgentPort protocol (§4.1) + RunContext
       devin.py           Devin v3 client + session driver
       mock.py            heuristic stand-in, same interface
       protocol.py        wire-message parse/render (§6.3)
@@ -73,6 +73,8 @@ backend/
       calibrate.py       acceptance gate for builders (§7.4)
       score.py           requirement diffs, scalar score, hint generation
       pool.py            ProcessPoolExecutor (PyNEC = C ext → processes)
+  scripts/
+    dev_run.py           no-HTTP end-to-end driver
 tools/
   extract_blend.py       SHARED bpy extraction script (§8) — run by Devin AND backend
 .agents/skills/
@@ -156,11 +158,14 @@ a local heuristic mock (demo insurance, offline dev):
 
 ```python
 class AgentPort(Protocol):
-    async def start(self, run: RunContext) -> None            # create session / init
-    async def send_report(self, report: IterationReport) -> None
-    def events(self) -> AsyncIterator[AgentEvent]             # parsed agent turns
+    async def start(self, ctx: RunContext) -> None      # open session, deliver spec+budget
+    async def next_action(self, report: IterationReport | None) -> AgentRequest
+    async def narrate(self) -> list[str]                # drain human-readable commentary
     async def close(self, reason: str) -> None
 ```
+
+(Finalized in implementation: request/response instead of an event iterator —
+the orchestrator drives, the adapter hides Devin's async message polling.)
 
 `mock.py` implements the same protocol using the heuristic scorer (port of the
 frontend's `scorePoint`) — it proposes, "reads" results, refines once, accepts.
@@ -296,9 +301,23 @@ the agent's decision input.
 
 ---
 
-## 7. Simulation subsystem
+## 7. Simulation subsystem — EXTERNAL BOUNDARY
 
-### 7.1 Oracle
+**Simulation is the sim workstream's subsystem, not ours** (team decision,
+2026-08-22). Our contract with it is exactly one callable, run inside our
+process pool:
+
+```
+solve(spec: DeviceSpec, band: BandRequirement, cand: Candidate) -> SimResult
+```
+
+`SIM_SOLVER=module:function` (default `app.sim.oracle:solve`) selects the
+implementation — the sim team plugs their engine in without touching backend
+code. Everything below describes the **bundled reference implementation**: it
+exists so the loop runs end-to-end before/without their engine (same role the
+mock agent plays for Devin) and as the executable definition of the contract.
+
+### 7.1 Reference oracle
 
 PyNEC (NEC-2 MoM). Chassis = wire-grid lattice built edge-by-edge between
 nodes (junctions only at segment endpoints — see `rf/bench_scaling.py`), the
@@ -326,7 +345,13 @@ requirement margins (for ranking/UI only). Hints are arithmetic, not LLM:
 resonance offset → length scale factor; bandwidth vs clearance correlation;
 isolation vs separation-in-λ.
 
-### 7.4 Agent-authored builders (the wow beat)
+### 7.4 Agent-authored builders (the wow beat) — re-scoped
+
+Depends on solver internals, which are now the sim team's domain: hot-loading
+agent-written geometry modules must target THEIR engine, so this feature needs
+their buy-in (M3 coordination point). Until then the orchestrator answers
+`write_builder` with a protocol note listing available builders. Original
+concept below, kept for that conversation:
 
 When the agent wants a shape the library lacks, it authors a module in its VM
 (guided by the `nec-builder` skill), returns it as an attachment; the backend
@@ -399,10 +424,15 @@ Store: in-memory dict + append-only event lists. No DB for a 36 h hackathon;
 
 Rule: **always demoable** — every milestone ends in a run that completes.
 
-- **M0 — walking skeleton (first):** `POST /runs` with canned DeviceSpec →
-  mock agent → real PyNEC sims → WS events → report. No Devin, no Blender.
-- **M1 — Devin wired:** session create/poll/message driver, playbook v1,
-  protocol parse, budget prompt. Mock stays one env var away.
+- **M0 — walking skeleton: DONE 2026-08-22.** `POST /runs` → mock agent →
+  reference sims → WS events (contiguous seq + replay verified) → report.
+  Result on canned spec: IFA @ right edge, L=31.2 mm, −17.7 dB, all pass.
+- **M1 — Devin wired: code DONE 2026-08-22, awaiting credentials for a live
+  run.** `DevinAgent` (v3 sessions/messages/polling, 429 backoff, ≥30 s send
+  spacing, fenced-JSON parse with 2 corrective retries, session-end → forced
+  best-so-far done). Devin is the DEFAULT agent; `agent="mock"` explicit
+  fallback. Playbook deferred: protocol text ships in the create prompt for
+  now (playbook_id is config once org access exists).
 - **M2 — geometry:** `tools/extract_blend.py` + `blend-extract` skill; real
   `.blend` in, glb out.
 - **M3 — depth:** sweep action, hint layer, `nec-builder` + calibration gate.
@@ -426,6 +456,17 @@ Rule: **always demoable** — every milestone ends in a run that completes.
 
 ## 13. Decision log
 
+- **2026-08-22 (build)** M0 shipped; M1 code shipped. Changes while building:
+  (a) **Sim demoted to an external boundary** — user direction: sim is another
+  teammate's workstream; we integrate via the single `solve()` contract +
+  `SIM_SOLVER` env seam; our PyNEC oracle stays as bundled reference.
+  (b) `write_builder` re-scoped pending sim-team buy-in (§7.4).
+  (c) AgentPort finalized as request/response (`next_action`), not an event
+  iterator. (d) Physics lesson locked into the reference builders: arms must
+  run in the clearance strip BESIDE the plane, not above it (image-current
+  cancellation ruins R); IFA topology is short-at-end, feed inboard.
+  (e) Reference solver perf: ~105 ms per 21-point sweep → sweeps of 10–30
+  variants per agent turn are the intended currency.
 - **2026-08-22** Initial design. Agent-side extraction via skill (user
   directive); convergence owned by the agent with a hard simulation gate (user
   directive — orchestrator caps dropped); results delivered as evidence layers
