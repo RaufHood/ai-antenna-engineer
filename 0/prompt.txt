@@ -1,0 +1,217 @@
+Mira, mañana tengo un hackathon y tengo esta inforacion:Welcome to the Munich EHL Hackathon
+August 22, 2026
+📃 Table of Contents
+🚀 Event Overview
+Item
+Information
+📅 Date
+22–23 August 2026
+📍 Location
+Munich — Science Congress Centre
+👥 Participants
+200 · Students & Young Professionals
+👨‍👩‍👧‍👦 Team Size
+3–5 people
+🕘 Start
+Saturday 09:00
+🏁 End
+Sunday 16:00
+🏆 Series
+European Hackathon League — Stop #3
+🧠 What Makes This Event Different?
+This is not a typical hackathon.
+After Paris, the European Hackathon League comes home to Munich. Two intense days of building, shipping, and competing alongside some of Europe's strongest technical talent — before the journey continues to the next city.
+Expect:
+ 💡 Three real-world challenges from QuantCo, viktor.com and Cognition 
+🌍 200 builders from across Europe
+🤝 Direct access to partner engineers throughout the build
+🏆 Competitive prizes
+⚡ The unique atmosphere of the European Hackathon League
+What we provide throughout the hackathon:
+Compute and LLM credits from our sponsors 
+Technical support from Entire throughout the build
+Food, drinks and snacks to fuel you for a night of hacking
+🗓 Schedule
+Saturday, 22 August
+Time
+Programme
+09:00–10:00
+Arrival & Check-in
+10:00–11:15
+Kick-off & Challenge Reveals
+11:15–12:00
+Team Formation & Challenge Selection
+12:00–13:00
+🍽️ Lunch
+13:00–13:30
+🛠️ Technical Onboarding — repo setup & tooling
+13:30–19:00
+💻 Hacking
+19:00–20:00
+🍽️ Dinner
+20:00–late
+💻 Hacking & Side Quests
+Sunday, 23 August
+Time
+Programme
+08:00–09:00
+🥐 Breakfast
+08:00–12:00
+💻 Hacking
+12:00
+🚨 Submission Deadline
+12:00–12:30
+🍽️ Lunch
+12:30–13:45
+⚖️ Judging Round 1 
+14:15–15:15
+🎬 Finals — Presentations on the Main Stage
+15:15–15:30
+⚖️ Jury Decisions
+15:30–16:00
+🏆 Prize Ceremony & Closing
+from 16:00
+Departure
+👥 Team Formation
+You can either:
+Arrive with your own team (3–5 participants)
+Find teammates during the team formation session
+We highly encourage interdisciplinary teams combining skills such as:
+Machine Learning
+Software Engineering
+Data Science
+UI/UX
+Agent Design & Orchestration
+🏢 Challenge Partners
+This year, participants will choose between three challenge tracks provided by our partners.
+QuantCo
+Bring data science and software engineering together to solve a real-world technical challenge.
+viktor.com
+Build engineering software and automation solutions with one of Europe’s leading engineering platforms.
+Cognition.com
+Take on an AI-focused challenge inspired by one of the fastest-growing AI companies.
+More challenge details will be revealed during the Opening Ceremony.
+🎒 What To Bring
+💻 Laptop
+🔌 Laptop Charger
+🔋 Power Bank
+🎧 Headphones
+🪪 ID
+💧 Reusable Water Bottle
+The Serious Stuff
+💊 Caffeine
+😴 Deodorant
+Most Important
+🤝 Good attitude
+✨ Your A-game
+💤 Flexible sleep expectations
+💬 Discord & Communication
+Discord will be the central communication platform during the event.
+Please join before arrival.
+Discord link: Munich Hackathon Discord
+🚀 Challenge Selection & Submission
+Challenge selection is done by your team's captain at ehl.gg/matches/munich-2.
+Challenge Selection
+Once all team members have checked in, choose your challenge before the deadline. You can change your selection as often as you like until the deadline closes.
+
+Repo & Tooling
+Create your team's repository and set up Entire. On your repository's main branch, run:
+curl -fsSL https://entire.io/install.sh | bash
+Then run entire enable. Your agent will confirm whether it has been linked successfully.
+
+
+
+On your next commit, link the agent's session context to the commit. You'll see the confirmation [entire] Pushing 1 checkpoint ref(s) to origin.... done. Then you're all set ✅
+Challenge Submission
+You can submit as often as you want before the submission deadline. Make sure you upload all relevant content and use Entire; otherwise your submission won't be accepted.
+
+Judging runs in two rounds:
+Judging runs in two rounds. In the first round, teams are judged across three rooms per challenge. The top two teams per track then advance to the final round, where they pitch again on the main stage to determine the overall winner. Note that finalists are not announced in advance but they are called to the stage one by one.
+🍕 Food & Drinks
+Food and drinks will be provided throughout the event.
+Participants can expect:
+🥐 Breakfast
+🍽 Lunch
+🍕 Dinner
+🍫 Snacks available throughout the event
+🏆 Awards
+Award categories and prizes will be announced soon.
+🚀 Let’s build something great
+Meet incredible teammates, learn from industry experts, tackle real-world challenges, and spend two unforgettable days building something you’re proud of.
+Munich is waiting. 🚆
+🆘 FAQ
+Can I join without a team?
+Yes. Team formation will happen during the event.
+Can I sleep at the venue?
+Yes. You can stay overnight at the venue. But just a heads-up: there are no beds or couches, so bring a sleeping bag and mat if you want to catch some sleep.
+Do I need to bring my own laptop?
+Yes.
+Who can participate?
+Students and young professionals from across Europe.
+How do I register?
+Create your EHL profile at www.ehl.gg and register for the Munich stop.
+🇪🇺 About EHL
+The European Hackathon League (EHL) brings together Europe's most ambitious builders, researchers, and innovators through a series of high-quality hackathons.
+This event is organized by:
+TUM.ai
+European Hackathon League (EHL)
+🏢 Venue Overview
+Science Congress Centre Munich
+
+.....
+
+Y este mail:
+
+None selected 
+
+Skip to content
+Using Gmail with screen readers
+
+2 of 11
+4500€ EHL MUNICH HACKATHON
+Inbox
+Summarise this email
+
+info ehl <info.ehl@tum-ai.com>
+Sun 9 Aug, 20:26 (12 days ago)
+to lukasfuchs, bcc: me
+
+💰 𝗠𝗨𝗡𝗜𝗖𝗛 𝗜𝗦 𝗣𝗟𝗔𝗬𝗜𝗡𝗚 𝗙𝗢𝗥 𝟰.𝟱𝟬𝟬€ 𝗜𝗡 𝗖𝗔𝗦𝗛 𝗣𝗥𝗜𝗭𝗘𝗦.
+
+For the Munich stop of the European Hackathon League, TUM.ai is bringing together 𝟮𝟬𝟬 𝗯𝘂𝗶𝗹𝗱𝗲𝗿𝘀, four incredible partners, and 𝗮 𝟰.𝟱𝟬𝟬€ 𝗰𝗮𝘀𝗵 𝗽𝗿𝗶𝘇𝗲 𝗽𝗼𝗼𝗹 for one intense weekend of building.
+
+And the companies joining us in Munich are not messing around.
+🤝 Entire
+🤖 Cognition
+⚙️ viktor.com
+🧠 QuantCo
+
+𝗪𝗛𝗔𝗧’𝗦 𝗢𝗡 𝗧𝗛𝗘 𝗟𝗜𝗡𝗘 𝗜𝗡 𝗠𝗨𝗡𝗜𝗖𝗛:
+💸 𝗔 𝟰.𝟱𝟬𝟬€ 𝗰𝗮𝘀𝗵 𝗽𝗿𝗶𝘇𝗲 𝗽𝗼𝗼𝗹: Build something that stands out, convince the judges, and your team could leave Munich with more than just another project for the portfolio.
+
+🔧 𝗧𝘄𝗼 𝗱𝗮𝘆𝘀 𝘁𝗼 𝗯𝘂𝗶𝗹𝗱 𝗮𝗻𝗱 𝘀𝗵𝗶𝗽: Turn an ambitious idea into something that actually works under real hackathon pressure.
+
+🧠 𝗕𝘂𝗶𝗹𝗱 𝗮𝗹𝗼𝗻𝗴𝘀𝗶𝗱𝗲 𝘀𝗼𝗺𝗲 𝗼𝗳 𝗘𝘂𝗿𝗼𝗽𝗲’𝘀 𝘀𝘁𝗿𝗼𝗻𝗴𝗲𝘀𝘁 𝘁𝗲𝗰𝗵𝗻𝗶𝗰𝗮𝗹 𝘁𝗮𝗹𝗲𝗻𝘁: 200 participants. Teams of 3 - 5. One room full of people who came to build.
+
+🏆 𝗔𝗻𝗱 𝘆𝗲𝘀 ... 𝘄𝗲 𝗿𝗲𝗮𝗹𝗹𝘆 𝗺𝗲𝗮𝗻 𝟰.𝟱𝟬𝟬€ 𝗶𝗻 𝗰𝗮𝘀𝗵 𝗽𝗿𝗶𝘇𝗲𝘀: Munich is not just another stop on the EHL journey. There is something serious to compete for.
+
+📍 Munich | 🗓️ 22.–23.08. | #️⃣ 200 participants | 🚂 Teams of 3 - 5 | 💰 𝟰𝟱𝟬𝟬€ in prizes!
+
+👉 Create your EHL profile and register for the Munich stop:
+ ‼️ 𝗔𝗽𝗽𝗹𝗶𝗰𝗮𝘁𝗶𝗼𝗻 𝗗𝗲𝗮𝗱𝗹𝗶𝗻𝗲: 𝗔𝘂𝗴𝘂𝘀𝘁 𝟭𝟲𝘁𝗵, 𝟮𝟯:𝟱𝟵 𝗕𝗲𝗿𝗹𝗶𝗻 𝗧𝗶𝗺𝗲𝘇𝗼𝗻𝗲 ‼️
+ www.ehl.gg
+
+👉 Already participated in an EHL event? Join the Munich stop here:
+ ‼️ 𝗔𝗽𝗽𝗹𝗶𝗰𝗮𝘁𝗶𝗼𝗻 𝗗𝗲𝗮𝗱𝗹𝗶𝗻𝗲: 𝗔𝘂𝗴𝘂𝘀𝘁 𝟭𝟲𝘁𝗵, 𝟮𝟯:𝟱𝟵 𝗕𝗲𝗿𝗹𝗶𝗻 𝗧𝗶𝗺𝗲𝘇𝗼𝗻𝗲 ‼️
+https://lnkd.in/dH-xUphh
+
+𝗦𝗣𝗢𝗧𝗦 𝗔𝗥𝗘 𝗟𝗜𝗠𝗜𝗧𝗘𝗗.
+𝗧𝗛𝗘 𝟰𝟱𝟬𝟬€ 𝗜𝗦 𝗨𝗣 𝗙𝗢𝗥 𝗚𝗥𝗔𝗕𝗦.
+𝗠𝗨𝗡𝗜𝗖𝗛, 𝗚𝗘𝗧 𝗥𝗘𝗔𝗗𝗬 𝗧𝗢 𝗕𝗨𝗜𝗟𝗗. 🚀
+Page 5 of 39 Page 6 of 39 Page 7 of 39 Page 8 of 39
+
+
+......
+
+
+Asi que lo que quieor que hagas es darme los posibles retos basandote en que es lo que hace cada empresa y los datos que se tienen. y me gustaria que me dieras un plan en cada caso
