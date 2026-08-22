@@ -87,6 +87,24 @@ async def main() -> None:
         if e.type.value == "error":
             print("  ERROR:", e.payload)
     print("event mix:", mix)
+
+    # Persist the artifacts. report.py renders them on demand from the run
+    # record and nothing was writing them out, so a finished run left no trace
+    # on disk — and "trigger to artifact with nobody touching it in between"
+    # is the whole point. One directory per run, named so runs sort by time.
+    from app.runs import report as report_mod
+    out = pathlib.Path(os.environ.get("ARTIFACT_DIR", "var/artifacts")) / run.id
+    out.mkdir(parents=True, exist_ok=True)
+    written = []
+    for name in report_mod.artifact_names(run):
+        rendered = report_mod.render(run, name)
+        if not rendered:
+            continue
+        body, _media = rendered          # render() -> (body, media_type)
+        (out / name).write_text(body, encoding="utf-8")
+        written.append(name)
+    print(f"artifacts -> {out}/  ({', '.join(written)})")
+
     pool.shutdown_pool()
 
 

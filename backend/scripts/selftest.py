@@ -222,5 +222,35 @@ async def main() -> None:
     print("ALL OK")
 
 
+
+def test_every_prompt_builds() -> None:
+    """Every prompt path must construct — including the .blend one.
+
+    extraction_prompt() referenced an undefined SPEC_PROTOCOL, so every run
+    that gave the agent the real build file raised NameError inside the
+    prompt builder; the orchestrator caught it and silently restarted on the
+    mock agent, which looks like "Devin gave a heuristic answer" rather than
+    "the prompt never built". Only the canned-spec path was covered here, so
+    nothing caught it. Exercise all three.
+    """
+    from app.agent import prompts
+    from app.agent.port import RunContext
+    from app.geometry.spec import make_anchors, phone_v1
+
+    spec = phone_v1()
+    ctx = RunContext(run_id="selftest", prompt="2.4 GHz antenna", spec=spec,
+                     anchors=make_anchors(spec), band_ids=["wifi24"],
+                     ambiguities=[])
+    built = {
+        "initial_prompt": prompts.initial_prompt(ctx),
+        "brief_message": prompts.brief_message(ctx, ""),
+        "extraction_prompt": prompts.extraction_prompt(ctx, None, "# script"),
+    }
+    for name, text in built.items():
+        assert text and len(text) > 200, f"{name} built empty/short"
+    print(f"ok  every prompt path builds "
+          f"({', '.join(f'{k} {len(v)}c' for k, v in built.items())})")
+
 if __name__ == "__main__":
+    test_every_prompt_builds()
     asyncio.run(main())

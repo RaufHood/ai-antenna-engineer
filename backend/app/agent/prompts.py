@@ -50,7 +50,17 @@ around the json block; it is shown to the user live.
 PROTOCOL = _PROTOCOL_TEMPLATE.replace(
     "{max_batch}", str(min(30, int(os.environ.get("MAX_BATCH", "40")))))
 
-SPEC__PROTOCOL_TEMPLATE = """\
+# Named SPEC_PROTOCOL because extraction_prompt() references that name. It was
+# SPEC__PROTOCOL_TEMPLATE (double underscore) and never assigned, so every
+# .blend-driven run — AGENT=devin EXTRACT=agent BLEND=... , i.e. the only path
+# where the agent reads the real device — raised NameError inside the prompt
+# builder. The orchestrator catches that and silently restarts the whole run on
+# the MOCK agent (orchestrator.py:54-66), so the failure looked like "Devin
+# produced a heuristic answer" rather than "the prompt never built". The canned
+# spec path (initial_prompt) does not touch this constant, which is why the
+# selftest and a no-BLEND run both pass.
+# Unlike PROTOCOL this template has no {placeholders}, so no .replace() here.
+SPEC_PROTOCOL = """\
 ## Step 1 — read the build file and classify it (reply with this FIRST)
 Reply with exactly one fenced ```json block:
 ```json
