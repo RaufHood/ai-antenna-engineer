@@ -1,0 +1,3 @@
+is there is anything not implemented yet? then finish it and tell me, then I will start integrationg with ohter peopple what we have built
+
+frontend and simulation is the responsibility and scpoe of other teams, we dont care about it for now or sor to of adjust the iterface to sumulaiton to what the sumulation teams came up wiht

@@ -1,0 +1,51 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0NAVG45KYQW2QNEJYC9ZCGV",
+  "session_id": "584dfaa9-d05e-4d17-b6ad-0de52cb7533a",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-22T18:13:48.23965Z",
+  "branch": "backend",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/app/runs/report.py",
+    "backend/app/sim/rf_adapter.py",
+    "backend/scripts/selftest.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "f18a282f1ce5",
+  "checkpoint_transcript_start": 543,
+  "transcript_lines_at_start": 543,
+  "compact_transcript_start": 105,
+  "token_usage": {
+    "input_tokens": 56,
+    "cache_creation_tokens": 105927,
+    "cache_read_tokens": 9415946,
+    "output_tokens": 48725,
+    "api_call_count": 28
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-22T18:13:48.100412Z",
+    "agent_lines": 399,
+    "agent_removed": 0,
+    "human_added": 348,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 747,
+    "total_lines_changed": 832,
+    "agent_percentage": 47.956730769230774,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
