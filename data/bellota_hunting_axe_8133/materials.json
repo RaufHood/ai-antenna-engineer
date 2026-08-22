@@ -1,0 +1,165 @@
+{
+  "object": "Bellota Hunting Axe 1.5 lb with handle",
+  "model": "8133",
+  "ean": "7500372103383",
+  "units": "mm",
+  "blend_file": "bellota_hunting_axe_8133.blend",
+  "blender_version": "5.2.0 LTS",
+  "how_material_identity_is_carried": [
+    "object NAME encodes it: <node_path>__<material_key>",
+    "object custom property 'material_key' (and 'node_path')",
+    "material MAT_<key>, kept in the file with a fake user"
+  ],
+  "material_vocabulary_used": {
+    "steel": {
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "what": "carbon steel"
+    },
+    "walnut": {
+      "eps_r": 2.2,
+      "sigma_S_per_m": 0.012,
+      "what": "wood"
+    }
+  },
+  "parts": [
+    {
+      "node_path": "head.forging",
+      "blender_object": "head.forging__steel",
+      "material_key": "steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "carbon steel"
+      },
+      "pbr_material": "PBR_head_two_finishes",
+      "real_material": "forged plain-carbon tool steel, quenched and tempered; head polished + lacquered (Bellota: 'Tratamiento de la cabeza: Pulido y lacado')",
+      "mass_g": 680.006,
+      "volume_mm3": 86625.0144,
+      "tris": 506250
+    },
+    {
+      "node_path": "haft.handle",
+      "blender_object": "haft.handle__walnut",
+      "material_key": "walnut",
+      "em_from_vocabulary": {
+        "eps_r": 2.2,
+        "sigma_S_per_m": 0.012,
+        "what": "wood"
+      },
+      "pbr_material": "PBR_beech_varnished",
+      "real_material": "European beech, Fagus sylvatica, varnished ('Madera de haya', PEFC) - NOT walnut; walnut is only the nearest key in the vocabulary",
+      "mass_g": 162.137,
+      "volume_mm3": 225190.2387,
+      "tris": 208854
+    },
+    {
+      "node_path": "haft.wedge",
+      "blender_object": "haft.wedge__walnut",
+      "material_key": "walnut",
+      "em_from_vocabulary": {
+        "eps_r": 2.2,
+        "sigma_S_per_m": 0.012,
+        "what": "wood"
+      },
+      "pbr_material": "PBR_beech_endgrain",
+      "real_material": "beech wedge, end grain exposed at the eye mouth",
+      "mass_g": 3.086,
+      "volume_mm3": 4286.4862,
+      "tris": 42376
+    }
+  ],
+  "textures": {
+    "kind": "PROCEDURAL - there are no image texture files in this project",
+    "uv_maps": "none; the meshes have no UV layer",
+    "wood": "ShaderNodeTexNoise + Mapping + ColorRamp on generated coordinates, noise stretched along Y (the handle axis) to give grain",
+    "head": "ShaderNodeAttribute reads the per-vertex FLOAT attribute 'u_from_edge' (distance from the cutting edge, baked by bx_pbr.bake_u_from_edge) into MapRange -> MixShader, giving the polished bit / lacquered body split on ONE forging",
+    "consequence": "the look travels ONLY inside the .blend; an OBJ/STL/glTF export loses it, because 'u_from_edge' is mesh data those formats cannot carry"
+  },
+  "measured_colours_srgb": {
+    "head.lacquer": [
+      31,
+      31,
+      31
+    ],
+    "head.polished": [
+      200,
+      199,
+      199
+    ],
+    "beech.face": [
+      208,
+      173,
+      129
+    ],
+    "beech.endgrain": [
+      183,
+      148,
+      108
+    ]
+  },
+  "measured_from": {
+    "head.lacquer": "median over the lacquered region of references/amazon_8133_SL1500.jpg, n=768977 px; the 35th, 50th and 65th percentiles are all (31,31,31) - a flat neutral matte black with no measurable spread",
+    "head.polished": "65th percentile over the polished ground bit of the same photograph, n=136794 px (median 193,191,192); the 65th because the render adds its own shading on top of a photograph that already has some",
+    "beech.face": "median over the varnished-beech region of references/bellota_8133_SZ1.png with the burned BELLOTA mark excluded, n=179431 px",
+    "beech.endgrain": "INFERRED, not measured - the wedge's exposed end is inside the retail blister in every photograph found"
+  },
+  "two_finishes_on_one_part": "Bellota's head is ONE forging with TWO finishes ('Tratamiento de la cabeza: Pulido y lacado').  An object carries one ob.color, so the Workbench `real` pass could not show both and the manifest previously flagged it.  RESOLVED IN SHADING ONLY: bx_pbr.bake_u_from_edge writes each vertex's true distance from the cutting edge into a FLOAT ATTRIBUTE and the head's shader mixes lacquer into polished across the MEASURED grind boundary at 20.14 mm.  The boundary follows the convex cutting edge rather than a plane of constant x, because the edge curves back ~12 mm at the toe and heel.  The head is NOT split - inventing a seam would put a boundary in the EM asset that the forging does not have.  An attribute is not geometry; the voxeliser reads triangles.",
+  "grain_direction": "the beech shader stretches its noise along Y, the handle axis - the same grain direction the material gap records, because wood's permittivity along the grain is 15-25% higher than across it.  Keeping the render and the material note consistent.",
+  "material_gaps": [
+    {
+      "part": "head.forging",
+      "key_used": "steel",
+      "real_material": "forged plain-carbon tool steel, quenched and tempered ('acero forjado ... tratamiento termico', Bellota)",
+      "gap": "THE MOST CONSEQUENTIAL GAP ON THIS OBJECT.  The `steel` key carries eps_r 1.0 and sigma 1.45e6 S/m and NO mu_r at all, i.e. mu_r = 1 by omission.  Forged carbon tool steel is strongly ferromagnetic: mu_r is of order 1e2-1e3 at low field and still ~40-100 at 1-13 GHz once Snoek/ferromagnetic-resonance roll-off is accounted for.",
+      "why_it_matters": "Surface impedance Zs = sqrt(j*omega*mu/sigma), so Zs scales as sqrt(mu_r).  Taking mu_r = 100 instead of 1 raises Re(Zs) by a factor of 10 and drops the skin depth by the same factor (delta = sqrt(2/(omega*mu*sigma)): at 1 GHz, 13.2 um at mu_r = 1 against 1.3 um at mu_r = 100).  On an object that is 80% of its mass one steel forging, that misstates the loss of the entire scatterer.",
+      "published_values": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": "1.4e6-1.6e6",
+        "mu_r_DC": "1e2-1e3",
+        "mu_r_1_to_13_GHz": "~40-100, falling with frequency"
+      },
+      "action": "the key `steel` is used as specified; mu_r is REPORTED here and must be set in the FDTD material table, it cannot be expressed in the vocabulary.",
+      "appearance_note": "the two finishes are resolved in the COLOUR layer only (see appearance.two_finishes_on_one_part).  Electrically they are the same steel and the same one part; the differential-hardening gap below is the electrical question and it is still open."
+    },
+    {
+      "part": "head.forging (bit only)",
+      "key_used": "steel",
+      "real_material": "the same forging, but the bit is heat treated harder than the body",
+      "gap": "Bellota states the head is forged in ONE piece with heat treatment; if the bit is differentially hardened its mu_r and sigma differ from the body's (martensite has lower sigma and lower mu_r than the tempered body).  One key cannot express both, and the head is one part, so it cannot be split without inventing a boundary no reference shows.",
+      "action": "FLAGGED.  Modelled as homogeneous."
+    },
+    {
+      "part": "haft.handle, haft.wedge",
+      "key_used": "walnut",
+      "real_material": "European beech, Fagus sylvatica - Bellota's own technical sheet says 'Madera de haya', and the Spanish general catalogue says 'Mangos de madera de Haya barnizados ... Certificado PEFC'",
+      "gap": "Two separate problems.  (1) SPECIES: the vocabulary's only wood key is `walnut` at eps_r 2.2, sigma 0.012.  Beech is denser than walnut (0.72 vs 0.64 g/cm3) and its permittivity is correspondingly higher - published beech at 12% MC is eps_r ~2.4-2.9 across 1-13 GHz, so the key is 10-30% low.  (2) ANISOTROPY AND MOISTURE: wood is not isotropic.  Along the grain eps_r is typically 15-25% higher than across it, and eps_r rises steeply with moisture content - roughly +0.1 per 1% MC below fibre saturation, so a handle at 8% MC and the same handle at 16% MC differ by nearly a full unit of eps_r and about a factor of two in loss tangent.  On a 350 mm rod at 1-13 GHz (lambda 23-300 mm, so the handle is 1.2-15 wavelengths long) that is not negligible.",
+      "assumed": {
+        "species": "Fagus sylvatica",
+        "moisture_content_pct": 12,
+        "grain": "along the handle axis (Y)",
+        "density_g_per_cm3": 0.72
+      },
+      "published_values": {
+        "eps_r_along_grain": "~2.7-2.9 at 12% MC",
+        "eps_r_across_grain": "~2.2-2.4 at 12% MC",
+        "tan_delta": "0.02-0.05"
+      },
+      "action": "`walnut` used as the nearest key, with the species, the assumed 12% moisture content and the grain direction stated here."
+    },
+    {
+      "part": "haft.handle - surface",
+      "key_used": "(none)",
+      "real_material": "varnish/lacquer - 'mango de madera pulida y barnizada' (Bellota); finish 'Barnizado'",
+      "gap": "A thin dielectric film, order 30-80 um, eps_r ~3. At 13 GHz that is 0.003 of a wavelength.",
+      "action": "OMITTED as sub-wavelength; listed in omitted_parts with the wavelength argument."
+    },
+    {
+      "part": "haft.wedge",
+      "key_used": "walnut",
+      "real_material": "UNCONFIRMED.  Bellota states only 'Tipo de enmangado: Cuna' for this reference.  Bellota's Spanish premium ranges (Proline, Vizcaina 8130, Poda 8131, Garden Line) advertise a 'cuna de fibra de vidrio PATENTADA ... su fibra de vidrio y poliamida', i.e. a glass-filled polyamide wedge.  The 8133 is the Central-America 'Labor entera' line and carries no such badge in the CEN catalogue.",
+      "gap": "If this reference is in fact fitted with the fibreglass wedge, its key changes from `walnut` (2.2 / 0.012) to something near `g10` (4.5 / 0.011) or `nylon` (2.9 / 0.002) - roughly a doubling of eps_r in a 4.29 cm3 part.",
+      "action": "modelled as beech, matching the handle.  The part is 4286 mm3, so switching the key changes only that volume; the alternative is recorded here so it can be switched without rebuilding."
+    }
+  ]
+}

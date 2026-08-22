@@ -25,6 +25,9 @@ env/
 dist/
 build/
 
+# Vendored binaries (downloaded, not source-controlled — see rf/progress_simulation.md)
+rf/vendor/
+
 # Node
 node_modules/
 .next/

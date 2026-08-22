@@ -1,2 +1,21 @@
-PyNEC
 numpy
+h5py
+matplotlib
+cython
+
+# openEMS is not on PyPI. These are the official prebuilt Windows (MSVC,
+# Python 3.11) wheels from the openEMS_v0.0.36 Windows release, vendored
+# into rf/vendor/ (gitignored — see rf/progress_simulation.md "Setup" for
+# how to re-fetch: github.com/thliebig/openEMS-Project/releases/tag/v0.0.36).
+# Run pip from inside rf/ (`cd rf && .venv/Scripts/pip install -r
+# requirements.txt`) so these relative paths resolve.
+vendor/openEMS/python/CSXCAD-0.6.3-cp311-cp311-win_amd64.whl
+vendor/openEMS/python/openEMS-0.0.36-cp311-cp311-win_amd64.whl
+
+# PyNEC (the wire-only MoM cross-check oracle, see validate_dipole.py /
+# bench_scaling.py) builds from source and needs the MSVC C++ build tools
+# (VS2022 "Desktop development with C++" workload — not installed in this
+# environment; the Build Tools installer shell is present but that
+# component isn't). Install separately once that workload is available:
+#   pip install PyNEC
+
