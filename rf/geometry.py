@@ -138,10 +138,28 @@ def build_ifa_geometry(candidate: Candidate, band: Band, device: dict, sim: SimO
                                [feed_xy[0], feed_xy[1], h],
                                'z', 1.0, priority=5, edges2grid='xy')
 
+    if sim.dump_fields:
+        # Time-domain E-field on the xy-plane through the antenna (z=h),
+        # written as HDF5 (file_type=1) rather than the tutorials' default
+        # VTK so visualize.render_field_animation() can read it with h5py
+        # alone -- no ParaView needed to see the wave leave the feed.
+        # dump_mode=2 (cell-interpolation) matches AddEdges2Grid's cells;
+        # SetSubSampling keeps frames small since NrTS is in the thousands.
+        et_dump = CSX.AddDump('Et', dump_type=0, file_type=1, dump_mode=2)
+        et_dump.SetSubSampling([2, 2, 1])
+        et_dump.AddBox(start=[-margin_mm, -margin_mm, h],
+                        stop=[board_w + margin_mm, board_l + margin_mm, h])
+
     mesh.SmoothMeshLines('all', mesh_res_mm, 1.4)
 
     nf2ff = FDTD.CreateNF2FFBox()
 
     sim_path = tempfile.mkdtemp(prefix=f"openems_{candidate.candidate_id}_")
 
-    return FDTDStructure(FDTD=FDTD, port=port, nf2ff=nf2ff, sim_path=sim_path)
+    geometry_mm = {
+        "board_w": board_w, "board_l": board_l,
+        "short_xy": short_xy.tolist(), "feed_xy": feed_xy.tolist(),
+        "open_xy": open_xy.tolist(), "arm_width_mm": IFA_ARM_WIDTH_MM,
+    }
+    return FDTDStructure(FDTD=FDTD, port=port, nf2ff=nf2ff, sim_path=sim_path,
+                          geometry_mm=geometry_mm)
