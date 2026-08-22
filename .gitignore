@@ -5,12 +5,23 @@
 !.entire/.gitignore
 !.entire/settings.json
 
-# Environments & secrets
+# Environments & secrets.
+# Devin service-user keys are prefixed cog_ and org ids org-; they belong in
+# backend/.env (see backend/.env.example), never in a tracked file. If one is
+# ever committed, rotating it at app.devin.ai is the only real fix — removing
+# the commit is not enough once it has been pushed.
 .env
 .env.*
 !.env.example
+.envrc
 *.pem
 *.key
+*.p12
+*.pfx
+secrets.*
+*secret*.json
+*credentials*.json
+service-account*.json
 
 # Python
 __pycache__/

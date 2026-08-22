@@ -14,8 +14,13 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
+from app.config import describe_agent_config, load_env  # noqa: E402
+
+load_env()          # backend/.env -> os.environ (shell always wins)
+
 
 async def main() -> None:
+    print(f"config: {describe_agent_config()}")
     from app.geometry import bands
     from app.geometry.spec import make_anchors, phone_v1
     from app.runs import devices, orchestrator

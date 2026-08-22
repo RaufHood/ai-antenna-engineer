@@ -9,6 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.sim import pool
 
+from app.config import load_env
+
+load_env()  # backend/.env -> os.environ, before anything reads credentials
+
 
 @contextlib.asynccontextmanager
 async def lifespan(_app: FastAPI):
