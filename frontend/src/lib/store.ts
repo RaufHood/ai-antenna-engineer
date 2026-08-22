@@ -5,6 +5,7 @@ import { anchors, phoneV1 } from "./device";
 import { generateCandidates } from "./rf";
 import type {
   AgentMessage,
+  Anchor,
   BandRequirement,
   Candidate,
   DeviceSpec,
@@ -13,10 +14,16 @@ import type {
 } from "./types";
 
 export type ViewMode = "system" | "focus";
+export type AgentKind = "mock" | "devin";
+/** Which engine produced the run on screen. `null` until a run starts. */
+export type RunSource = "backend" | "heuristic" | null;
 
 interface AppState {
   spec: DeviceSpec;
-  anchors: typeof anchors;
+  anchors: Anchor[];
+  /** Backend device id after a .blend upload; null = the built-in Handset A. */
+  deviceId: string | null;
+  uploading: boolean;
 
   enabledBands: string[];
   focusBand: string | null;
@@ -47,6 +54,11 @@ interface AppState {
   running: boolean;
   planning: boolean;
   error: string | null;
+  /** mock = offline heuristic agent on the backend; devin = the real one. */
+  agent: AgentKind;
+  source: RunSource;
+  engine: string | null;
+  warning: string | null;
 
   /** URL of a user-supplied .glb; overrides the procedural handset. */
   modelUrl: string | null;
@@ -76,7 +88,12 @@ interface AppState {
   ) => void;
   selectCandidate: (id: string | null) => void;
   setPrompt: (p: string) => void;
+  setAgent: (a: AgentKind) => void;
+  /** Upload a .blend to the backend; the viewer switches to its device.glb. */
+  uploadBlend: (blend: File, materials?: File | null) => Promise<void>;
   startRun: () => Promise<void>;
+  /** Mid-run note to the agent (backend runs only). */
+  sendNote: (text: string) => Promise<void>;
   poll: () => Promise<void>;
   reset: () => void;
 }
@@ -86,6 +103,8 @@ const DEFAULT_BANDS = ["lte_low", "gps_l1", "wifi24", "n78"];
 export const useApp = create<AppState>((set, get) => ({
   spec: phoneV1,
   anchors,
+  deviceId: null,
+  uploading: false,
 
   enabledBands: DEFAULT_BANDS,
   focusBand: null,
@@ -117,6 +136,10 @@ export const useApp = create<AppState>((set, get) => ({
   running: false,
   planning: false,
   error: null,
+  agent: "mock",
+  source: null,
+  engine: null,
+  warning: null,
 
   modelUrl: null,
   modelName: null,
@@ -155,12 +178,14 @@ export const useApp = create<AppState>((set, get) => ({
     const next = get().enabledBands.includes(id)
       ? get().enabledBands.filter((b) => b !== id)
       : [...get().enabledBands, id];
-    const ordered = phoneV1.requirements.bands
+    const spec = get().spec;
+    const ordered = spec.requirements.bands
       .map((b) => b.id)
       .filter((b) => next.includes(b));
     set({
       enabledBands: ordered,
-      candidates: generateCandidates(phoneV1, ordered),
+      // preview pins before a run; a backend run replaces them with its own
+      candidates: get().deviceId ? [] : generateCandidates(spec, ordered),
       focusBand: get().focusBand && ordered.includes(get().focusBand!) ? get().focusBand : null,
     });
   },
@@ -183,7 +208,7 @@ export const useApp = create<AppState>((set, get) => ({
   isolateComponent: (name) =>
     set({
       hidden: name
-        ? phoneV1.components.map((c) => c.name).filter((n) => n !== name)
+        ? get().spec.components.map((c) => c.name).filter((n) => n !== name)
         : [],
       selectedComponent: name,
     }),
@@ -192,9 +217,42 @@ export const useApp = create<AppState>((set, get) => ({
   toggle: (key) => set({ [key]: !get()[key] } as Partial<AppState>),
   selectCandidate: (id) => set({ selectedCandidate: id }),
   setPrompt: (p) => set({ prompt: p }),
+  setAgent: (a) => set({ agent: a }),
+
+  uploadBlend: async (blend, materials) => {
+    const form = new FormData();
+    form.append("blend", blend, blend.name);
+    if (materials) form.append("materials", materials, materials.name);
+    set({ uploading: true, error: null });
+    try {
+      const res = await fetch("/api/device", { method: "POST", body: form });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? `upload failed (${res.status})`);
+      const spec: DeviceSpec = body.spec;
+      const enabled = get().enabledBands.filter((id) =>
+        spec.requirements.bands.some((b) => b.id === id),
+      );
+      set({
+        deviceId: body.deviceId,
+        spec,
+        anchors: body.anchors,
+        enabledBands: enabled,
+        candidates: [],
+        hidden: [],
+        selectedComponent: null,
+        modelUrl: body.glbUrl,
+        modelName: blend.name,
+      });
+      get().reset();
+    } catch (e) {
+      set({ error: String(e instanceof Error ? e.message : e) });
+    } finally {
+      set({ uploading: false });
+    }
+  },
 
   startRun: async () => {
-    const { enabledBands, prompt } = get();
+    const { enabledBands, prompt, agent, deviceId } = get();
     if (!enabledBands.length) {
       set({ error: "Select at least one band before running." });
       return;
@@ -203,6 +261,9 @@ export const useApp = create<AppState>((set, get) => ({
       running: true,
       planning: true,
       error: null,
+      warning: null,
+      source: null,
+      engine: null,
       results: {},
       jobs: [],
       placements: {},
@@ -224,6 +285,8 @@ export const useApp = create<AppState>((set, get) => ({
         body: JSON.stringify({
           prompt,
           bands: enabledBands,
+          agent,
+          deviceId,
           overrides: {
             sar_limit: get().spec.requirements.sar_limit,
             bands: Object.fromEntries(
@@ -240,12 +303,38 @@ export const useApp = create<AppState>((set, get) => ({
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "run failed");
-      const { runId } = await res.json();
-      set({ runId });
+      const { runId, source, warning } = await res.json();
+      set({
+        runId,
+        source: source ?? null,
+        warning: warning ?? null,
+        messages: warning
+          ? [
+              ...get().messages,
+              { id: "w0", role: "agent", kind: "step", text: `Warning: ${warning}`, ts: Date.now() },
+            ]
+          : get().messages,
+      });
       await get().poll();
     } catch (e) {
       set({ running: false, planning: false, error: String(e) });
     }
+  },
+
+  sendNote: async (text) => {
+    const runId = get().runId;
+    if (!runId || !text.trim()) return;
+    const res = await fetch("/api/run", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ runId, text }),
+    });
+    if (!res.ok) {
+      set({ error: (await res.json()).error ?? "note not delivered" });
+      return;
+    }
+    set({ error: null });
+    await get().poll();
   },
 
   poll: async () => {
@@ -253,24 +342,30 @@ export const useApp = create<AppState>((set, get) => ({
     if (!runId) return;
     const res = await fetch(`/api/run?runId=${runId}`);
     if (!res.ok) {
-      set({ running: false, error: "run snapshot unavailable" });
+      const body = await res.json().catch(() => ({}));
+      set({ running: false, error: body.error ?? "run snapshot unavailable" });
       return;
     }
     const snap = await res.json();
-    const userMsg = get().messages.find((m) => m.role === "user");
+    // The user's prompt is local; backend runs echo only mid-run notes.
+    const userMsg = get().messages.find((m) => m.id === "u0");
+    const warn = get().messages.find((m) => m.id === "w0");
+    const head = [userMsg, warn].filter(Boolean) as AgentMessage[];
+    const placements: Record<string, string> = snap.placements ?? {};
     set({
-      jobs: snap.jobs,
-      results: snap.results,
-      placements: snap.placements,
-      isolation: snap.isolation,
-      candidates: snap.candidates,
-      planning: snap.planning,
+      jobs: snap.jobs ?? [],
+      results: snap.results ?? {},
+      placements,
+      isolation: snap.isolation ?? [],
+      candidates: snap.candidates ?? [],
+      planning: !!snap.planning,
       running: !snap.done,
-      messages: userMsg ? [userMsg, ...snap.messages] : snap.messages,
+      source: snap.source ?? get().source,
+      engine: snap.engine ?? get().engine,
+      messages: [...head, ...(snap.messages ?? [])],
+      error: snap.status === "failed" ? "run failed — see the agent feed" : get().error,
       selectedCandidate:
-        get().selectedCandidate ??
-        (Object.values(snap.placements)[0] as string | undefined) ??
-        null,
+        get().selectedCandidate ?? (Object.values(placements)[0] as string | undefined) ?? null,
     });
   },
 
@@ -285,5 +380,10 @@ export const useApp = create<AppState>((set, get) => ({
       isolation: [],
       messages: [],
       selectedCandidate: null,
+      source: null,
+      engine: null,
+      warning: null,
+      error: null,
+      candidates: get().deviceId ? [] : generateCandidates(get().spec, get().enabledBands),
     }),
 }));

@@ -121,7 +121,7 @@ function ResultsTable() {
                   {pending ? "-" : r.vswr.toFixed(2)}
                 </td>
                 <td className="px-2 py-1.5 text-right font-mono text-slate-400">
-                  {pending ? "-" : r.sar_w_per_kg.toFixed(2)}
+                  {pending || !r.sar_w_per_kg ? "-" : r.sar_w_per_kg.toFixed(2)}
                 </td>
                 <td className="px-2 py-1.5 text-right">
                   {pending ? (
@@ -213,8 +213,10 @@ function ReportView() {
                 {r.peak_gain_dbi.toFixed(1)} dBi
               </li>
               <li>
-                SAR {r.sar_w_per_kg.toFixed(2)} W/kg against the{" "}
-                {spec.requirements.sar_limit.standard} limit of{" "}
+                {r.sar_w_per_kg
+                  ? `SAR ${r.sar_w_per_kg.toFixed(2)} W/kg against the `
+                  : "SAR not modelled by this solver; limit is "}
+                {spec.requirements.sar_limit.standard}{" "}
                 {spec.requirements.sar_limit.w_per_kg} W/kg over{" "}
                 {spec.requirements.sar_limit.mass_g} g
               </li>

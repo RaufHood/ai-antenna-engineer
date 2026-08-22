@@ -46,6 +46,9 @@ export function SpecPanel() {
   const setFocusBand = useApp((s) => s.setFocusBand);
   const setModel = useApp((s) => s.setModel);
   const modelName = useApp((s) => s.modelName);
+  const uploadBlend = useApp((s) => s.uploadBlend);
+  const uploading = useApp((s) => s.uploading);
+  const deviceId = useApp((s) => s.deviceId);
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -76,19 +79,25 @@ export function SpecPanel() {
           <input
             ref={fileRef}
             type="file"
-            accept=".glb,.gltf"
+            accept=".blend,.glb,.gltf"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) setModel(URL.createObjectURL(f), f.name);
+              e.target.value = "";
+              if (!f) return;
+              // .blend goes through the backend (extraction + classification);
+              // a .glb is display-only and never reaches the solver.
+              if (f.name.toLowerCase().endsWith(".blend")) void uploadBlend(f);
+              else setModel(URL.createObjectURL(f), f.name);
             }}
           />
           <div className="mt-2 flex items-center gap-2">
             <button
               onClick={() => fileRef.current?.click()}
-              className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-300 hover:bg-slate-700"
+              disabled={uploading}
+              className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-300 hover:bg-slate-700 disabled:cursor-wait disabled:text-slate-500"
             >
-              Load Blender .glb
+              {uploading ? "Extracting..." : "Load .blend / .glb"}
             </button>
             {modelName && (
               <button
@@ -102,6 +111,7 @@ export function SpecPanel() {
           {modelName && (
             <div className="mt-1 truncate font-mono text-[9px] text-emerald-400">
               {modelName}
+              {deviceId && <span className="text-slate-500"> · {deviceId} (solver geometry)</span>}
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/lib/store";
 
 const SUGGESTIONS = [
@@ -20,6 +20,12 @@ export function AgentPanel() {
   const jobs = useApp((s) => s.jobs);
   const error = useApp((s) => s.error);
   const runId = useApp((s) => s.runId);
+  const agent = useApp((s) => s.agent);
+  const setAgent = useApp((s) => s.setAgent);
+  const source = useApp((s) => s.source);
+  const engine = useApp((s) => s.engine);
+  const sendNote = useApp((s) => s.sendNote);
+  const [note, setNote] = useState("");
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,7 +61,40 @@ export function AgentPanel() {
         <span className="ml-auto font-mono text-[10px] text-slate-500">
           {runId ? `${done}/${jobs.length} sims` : "idle"}
         </span>
+        {source && (
+          <span
+            title={engine ?? undefined}
+            className={`rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide ${
+              source === "backend"
+                ? "bg-emerald-950 text-emerald-300"
+                : "bg-amber-950 text-amber-300"
+            }`}
+          >
+            {source === "backend" ? "backend" : "heuristic"}
+          </span>
+        )}
       </header>
+
+      <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-1.5">
+        <span className="text-[10px] text-slate-500">Agent</span>
+        {(["mock", "devin"] as const).map((a) => (
+          <button
+            key={a}
+            disabled={running}
+            onClick={() => setAgent(a)}
+            className={`rounded-full border px-2 py-0.5 text-[10px] transition disabled:cursor-not-allowed ${
+              agent === a
+                ? "border-sky-600 bg-sky-950 text-sky-200"
+                : "border-slate-800 text-slate-500 hover:text-slate-300"
+            }`}
+          >
+            {a === "mock" ? "mock (offline)" : "Devin"}
+          </button>
+        ))}
+        <span className="ml-auto text-[9px] text-slate-600">
+          {agent === "devin" ? "needs backend/.env" : "no credentials"}
+        </span>
+      </div>
 
       <div ref={feedRef} className="flex-1 space-y-2 overflow-y-auto p-3">
         {!messages.length && (
@@ -147,6 +186,31 @@ export function AgentPanel() {
         >
           {running ? "Agent working..." : "Run placement study"}
         </button>
+        {running && source === "backend" && (
+          <form
+            className="mt-2 flex gap-1"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const t = note.trim();
+              if (!t) return;
+              setNote("");
+              void sendNote(t);
+            }}
+          >
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Note to the agent mid-run (e.g. prefer the bottom edge)"
+              className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-200 outline-none focus:border-sky-500"
+            />
+            <button
+              type="submit"
+              className="rounded-md border border-slate-700 px-2 text-[10px] text-slate-300 hover:border-sky-500"
+            >
+              Send
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
