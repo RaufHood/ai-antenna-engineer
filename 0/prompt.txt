@@ -1,0 +1,9 @@
+backend logic itself works and imprve the antenna design?
+
+---
+
+ok, for now create a dev branch and copy this backed end there, make sure the design files are uptodate and explaint the architecture and especially how to connect teh simulaiton and ftontend wiht it. dev branch will later be used by othree teams to merege ethre stuff (frontend ans simulation there)
+
+---
+
+we did some shady business creatign and renameing branches, in the end this one you created was delelted and the other was renaed to dev - this i fine and should be like that. but chekc taht we didint fuck up the git hostory etc
