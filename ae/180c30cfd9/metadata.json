@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "ae180c30cfd9",
+  "strategy": "manual-commit",
+  "branch": "feat/simulation",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "rf/progress_simulation.md",
+    "rf/run_simulation.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ae/180c30cfd9/0/metadata.json",
+      "transcript": "/ae/180c30cfd9/0/full.jsonl",
+      "compact_transcript": "/ae/180c30cfd9/0/transcript.jsonl",
+      "content_hash": "/ae/180c30cfd9/0/content_hash.txt",
+      "prompt": "/ae/180c30cfd9/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 356,
+    "cache_creation_tokens": 398994,
+    "cache_read_tokens": 33662834,
+    "output_tokens": 143116,
+    "api_call_count": 178
+  }
+}
