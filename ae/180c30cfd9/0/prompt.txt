@@ -32,3 +32,7 @@ TODO(openEMS): from CSXCAD import ContinuousStructure; build FDTD +
 ---
 
 as a next step we want to make the folder rf more modular with a  file for the classes, running run_fdtd and so on, in addition you created a backend folder, ideally you move it in into the rf folder, as the backend will be created by another colleague.  create first a structure suggenstion I will review
+
+---
+
+yes
