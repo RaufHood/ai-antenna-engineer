@@ -1,0 +1,8 @@
+now if everything is working end to end, jsu tclean upthe repo so it look decent at move all stuff that belongs into gitingore there an away form repo + remove all unnecessary unused code etc.
+
+
+
+and clean up the formte end - make it less bloated, but modern and minimalistic, dont change it compoleteely, but remove all things that are tjsut semi halusinated stuff that s not really ised and make it lok alike a weel desined modern tool weere each UI componet exist for a reason and is also used so that UX is good - and add the new logo where it makes sense
+
+
+make sure not to break anythign, if needed, look at docs in the repo and prev sessions

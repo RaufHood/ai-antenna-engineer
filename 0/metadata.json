@@ -1,0 +1,54 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0NWNJJFWZHPFRHP0TCQ2QBT",
+  "session_id": "43136c99-5c99-4e32-8981-4c3db7906c36",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-22T23:25:08.061837Z",
+  "branch": "dev",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/README.md",
+    "frontend/src/app/api/run/route.ts",
+    "frontend/src/components/Logo.tsx",
+    "frontend/src/components/panels/AgentPanel.tsx",
+    "frontend/src/components/panels/ComponentTree.tsx",
+    "frontend/src/components/panels/Markdown.tsx",
+    "frontend/src/components/panels/ResultsDock.tsx",
+    "frontend/src/components/panels/SpecPanel.tsx",
+    "frontend/src/components/panels/TopBar.tsx",
+    "frontend/src/components/viewer/Viewport.tsx",
+    "frontend/src/lib/store.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "eb243c8f8d35",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 270,
+    "cache_creation_tokens": 245880,
+    "cache_read_tokens": 26326382,
+    "output_tokens": 69108,
+    "api_call_count": 135
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-22T23:25:07.951552Z",
+    "agent_lines": 774,
+    "agent_removed": 982,
+    "human_added": 213,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 987,
+    "total_lines_changed": 3169,
+    "agent_percentage": 55.41180183023036,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

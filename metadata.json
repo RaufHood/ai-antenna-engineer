@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0NWNJJFWZHPFRHP0TCQ2QBT",
+  "strategy": "manual-commit",
+  "branch": "dev",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/README.md",
+    "frontend/src/app/api/run/route.ts",
+    "frontend/src/components/Logo.tsx",
+    "frontend/src/components/panels/AgentPanel.tsx",
+    "frontend/src/components/panels/ComponentTree.tsx",
+    "frontend/src/components/panels/Markdown.tsx",
+    "frontend/src/components/panels/ResultsDock.tsx",
+    "frontend/src/components/panels/SpecPanel.tsx",
+    "frontend/src/components/panels/TopBar.tsx",
+    "frontend/src/components/viewer/Viewport.tsx",
+    "frontend/src/lib/store.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 270,
+    "cache_creation_tokens": 245880,
+    "cache_read_tokens": 26326382,
+    "output_tokens": 69108,
+    "api_call_count": 135
+  }
+}
