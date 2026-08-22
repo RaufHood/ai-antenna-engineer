@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "d8800067d32d",
+  "strategy": "manual-commit",
+  "branch": "feat/agent-simulation",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "backend/README.md",
+    "backend/app/runs/orchestrator.py",
+    "backend/app/runs/report.py",
+    "backend/app/sim/_offline_stub.py",
+    "backend/app/sim/pool.py",
+    "backend/scripts/selftest.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d8/800067d32d/0/metadata.json",
+      "transcript": "/d8/800067d32d/0/full.jsonl",
+      "compact_transcript": "/d8/800067d32d/0/transcript.jsonl",
+      "content_hash": "/d8/800067d32d/0/content_hash.txt",
+      "prompt": "/d8/800067d32d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 168,
+    "cache_creation_tokens": 289247,
+    "cache_read_tokens": 17053419,
+    "output_tokens": 109840,
+    "api_call_count": 84
+  }
+}
