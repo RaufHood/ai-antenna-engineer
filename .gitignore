@@ -1,6 +1,7 @@
 # Agent / tooling state (shared team config stays tracked)
 .claude/*
 !.claude/settings.json
+!.claude/launch.json
 .entire/*
 !.entire/.gitignore
 !.entire/settings.json
@@ -39,10 +40,12 @@ build/
 # Vendored binaries (downloaded, not source-controlled — see rf/progress_simulation.md)
 rf/vendor/
 
-# Node
+# Node. Scoped to frontend/: a bare `out/` also excludes rf/blend_loader/out,
+# and git cannot re-include a file whose parent directory is excluded — the
+# `!rf/blend_loader/out/device.json` below would be dead.
 node_modules/
-.next/
-out/
+frontend/.next/
+frontend/out/
 coverage/
 npm-debug.log*
 yarn-error.log*
