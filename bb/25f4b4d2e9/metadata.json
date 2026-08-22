@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "bb25f4b4d2e9",
+  "strategy": "manual-commit",
+  "branch": "feat/agent-simulation",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "rf/README.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/bb/25f4b4d2e9/0/metadata.json",
+      "transcript": "/bb/25f4b4d2e9/0/full.jsonl",
+      "compact_transcript": "/bb/25f4b4d2e9/0/transcript.jsonl",
+      "content_hash": "/bb/25f4b4d2e9/0/content_hash.txt",
+      "prompt": "/bb/25f4b4d2e9/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 220,
+    "cache_creation_tokens": 342743,
+    "cache_read_tokens": 25199836,
+    "output_tokens": 148686,
+    "api_call_count": 110
+  }
+}
