@@ -1,0 +1,131 @@
+this is the current version wiht everythign integrated on this branch feat/agent-simulation, it hsould become the dev branch. please clean up whatever is in the dev brnahc now and copy this feat/agent-simulation one to oe to dev branch
+
+---
+
+push it and then verify that eveyting actually works
+
+---
+
+can you pelase take a look at how to fix it and bring everything  togeather, also bring the repo to a more clean state
+
+---
+
+use this as well for fixing: # Task: get the antenna-agent project running on this machine
+
+Repo: https://github.com/RaufHood/challenge — work on branch ⁠ dev ⁠.
+
+This is a hackathon project: an autonomous agent (Devin) proposes antenna
+placements inside a real iPhone 15 Pro model, a solver scores them, and it
+iterates until requirements are met. My teammate has it working end to end;
+I need the same. Verify each step actually works before moving on — don't
+assume.
+
+## Solver policy — decided, do not change it
+
+*Use PyNEC. It is the fast path and it is already the default.* No action
+needed: it installs with plain pip as a backend dependency.
+
+Measured on the working machine, one solve at 21 frequency points:
+
+| band            | mesh   | segments | ms/solve |
+|-----------------|--------|---------:|---------:|
+| LTE low 0.9 GHz | 3x6    |       27 |      4.6 |
+| GPS L1 1.6 GHz  | 5x9    |       76 |       21 |
+| *Wi-Fi 2.4*   | 7x13   |      162 |   *83* |
+| n78 3.8 GHz     | 10x20  |      370 |      400 |
+| Wi-Fi 5.8 GHz   | 15x29  |      826 |     2007 |
+
+The whole agent loop — 2 iterations, 19 solves — runs in *0.79 s* with the
+mock agent. The solver is not the bottleneck; the agent's reasoning is (~98%
+of wall time on a real Devin run).
+
+Two knobs if you ever need it faster: the mesh pitch is lambda/10 at the top
+of the band, so *lower frequency = far fewer segments* (2.4 GHz is 24x
+cheaper than 5.8 GHz, and the cost goes as segments^3), and ⁠ n_freq ⁠ scales
+linearly. Do not reach for numba — PyNEC is a compiled C++/Fortran extension,
+numba only speeds up Python and would do nothing here.
+
+## Setup (this is the whole thing — verified on a clean clone)
+
+⁠ bash
+git checkout dev && git pull
+
+cd backend
+python3 -m venv .venv
+.venv/bin/pip install -e .
+.venv/bin/python scripts/selftest.py     # must print "ALL OK"
+.venv/bin/python scripts/dev_run.py      # full agent loop, mock agent, ~1 s
+ ⁠
+
+⁠ dev_run.py ⁠ should finish with ⁠ status=finished ⁠, ~19 simulations, best S11
+around -17 dB with ⁠ meets=True ⁠, and write artifacts to
+⁠ backend/var/artifacts/<run_id>/ ⁠ (report.md, run.json, S11 CSVs).
+
+If that works, the loop works. Everything below is optional extras.
+
+## Credentials (only needed to drive the REAL Devin agent)
+
+⁠ backend/.env ⁠ is gitignored, so it does NOT come with the clone:
+
+⁠ bash
+cd backend && cp .env.example .env
+ ⁠
+
+Fill in ⁠ DEVIN_API_KEY ⁠ and ⁠ DEVIN_ORG_ID ⁠ — ask the team, they are not in the
+repo. ⁠ DEVIN_MAX_ACU=5 ⁠ caps the spend. Then:
+
+⁠ bash
+AGENT=devin .venv/bin/python scripts/dev_run.py
+ ⁠
+
+Expect ~2.5 minutes: ~98% of that is Devin reasoning, ~2% is the physics.
+
+## Frontend (optional, needs the backend running)
+
+⁠ bash
+cd backend && .venv/bin/python -m uvicorn app.main:app --port 8000   # terminal 1
+cd frontend && npm install && npm run dev                            # terminal 2
+ ⁠
+
+The frontend proxies to the backend via ⁠ frontend/src/lib/backend.ts ⁠. Every
+API response carries ⁠ source: "backend" | "heuristic" ⁠ — if you see
+⁠ "heuristic" ⁠, the backend is unreachable and you are looking at a local
+TypeScript stand-in, not a real simulation. Fix the backend rather than
+demoing that.
+
+## Traps — please read, these cost us real time
+
+*Do NOT install or build openEMS.* It is an optional alternative solver that
+is ~1000x slower than the default (minutes vs 83 ms per solve) and takes about
+an hour to build from source. ⁠ rf/README.md ⁠ documents three environments —
+you need none of them for the agent loop. If something reports openEMS
+missing, that is expected and handled; the backend falls back cleanly.
+
+*Do NOT create ⁠ rf/.venv ⁠ or a bpy environment.* Only needed to regenerate
+device geometry from a ⁠ .blend ⁠, and that output is already committed as
+⁠ rf/blend_loader/out/device.json ⁠.
+
+*Anything gitignored does not come with a clone.* If something behaves
+differently from a teammate's machine, check ⁠ .gitignore ⁠ first — that is
+almost always where the difference is.
+
+## Verification checklist
+
+Report the actual output of each, not "it should work":
+
+1.⁠ ⁠⁠ .venv/bin/python scripts/selftest.py ⁠ → ⁠ ALL OK ⁠
+2.⁠ ⁠⁠ .venv/bin/python scripts/dev_run.py ⁠ → ⁠ status=finished ⁠, ⁠ meets=True ⁠,
+   artifacts written
+3.⁠ ⁠⁠ curl -s localhost:8000/healthz ⁠ (with uvicorn running) → ⁠ {"ok":true,...} ⁠
+4.⁠ ⁠Confirm the geometry screening is live, not silently skipped:
+   ⁠ bash
+   cd backend && .venv/bin/python -m app.sim.priors
+    ⁠
+   It must say ⁠ 5 legal, 15 ruled out ⁠ with named blockers like
+   ⁠ exterior.frame.band_seg_2 ⁠. If it says "screening unavailable", the device
+   manifest is missing — say so, do not work around it.
+5.⁠ ⁠Confirm you are on the fast solver: ⁠ SIM_SOLVER ⁠ must be unset. If it is
+   set to ⁠ app.sim.rf_adapter:solve ⁠, you are on openEMS and every solve costs
+   minutes instead of milliseconds. Unset it.
+
+If any step fails, show me the real error before changing anything.

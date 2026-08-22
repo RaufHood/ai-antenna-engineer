@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0NV1RM5T84T8Q50SVPEYJ37",
+  "session_id": "2cc410b4-c9ec-4924-9939-66e06941fc24",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-22T22:56:50.052865Z",
+  "branch": "dev",
+  "checkpoints_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "c4949f05dc38",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 282,
+    "cache_creation_tokens": 237718,
+    "cache_read_tokens": 17400305,
+    "output_tokens": 79318,
+    "api_call_count": 141
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 71,
+      "user_lines_removed": 50,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "backend/app/agent/mock.py": 26,
+        "backend/app/api/routes.py": 19,
+        "backend/app/geometry/spec.py": 25,
+        "backend/scripts/selftest.py": 1
+      },
+      "user_removed_per_file": {
+        "backend/app/agent/mock.py": 19,
+        "backend/app/api/routes.py": 5,
+        "backend/app/geometry/spec.py": 25,
+        "backend/scripts/selftest.py": 1
+      }
+    }
+  ]
+}
