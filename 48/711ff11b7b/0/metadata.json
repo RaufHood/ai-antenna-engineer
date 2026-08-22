@@ -1,0 +1,67 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "48711ff11b7b",
+  "session_id": "e73e7a07-e5e1-46e7-9bc6-1da12cba2f34",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-22T18:26:18.0315219Z",
+  "branch": "feat/simulation",
+  "checkpoints_count": 3,
+  "save_step_count": 4,
+  "files_touched": [
+    "rf/README.md",
+    "rf/blend_loader/load_blend.py",
+    "rf/geometry.py",
+    "rf/iphone_field_animation.gif",
+    "rf/iphone_s11.png",
+    "rf/progress_simulation.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5",
+  "turn_id": "bc7ae5c455a2",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 518,
+    "cache_creation_tokens": 561316,
+    "cache_read_tokens": 45019657,
+    "output_tokens": 215243,
+    "api_call_count": 259
+  },
+  "session_metrics": {
+    "turn_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-22T18:26:17.6600423Z",
+    "agent_lines": 126,
+    "agent_removed": 21,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 126,
+    "total_lines_changed": 147,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 11,
+      "agent_lines_removed": 3
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 11,
+      "agent_lines_removed": 3
+    }
+  ]
+}

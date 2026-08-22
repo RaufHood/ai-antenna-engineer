@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "48711ff11b7b",
+  "strategy": "manual-commit",
+  "branch": "feat/simulation",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "rf/README.md",
+    "rf/blend_loader/load_blend.py",
+    "rf/geometry.py",
+    "rf/iphone_field_animation.gif",
+    "rf/iphone_s11.png",
+    "rf/progress_simulation.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/48/711ff11b7b/0/metadata.json",
+      "transcript": "/48/711ff11b7b/0/full.jsonl",
+      "compact_transcript": "/48/711ff11b7b/0/transcript.jsonl",
+      "content_hash": "/48/711ff11b7b/0/content_hash.txt",
+      "prompt": "/48/711ff11b7b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 518,
+    "cache_creation_tokens": 561316,
+    "cache_read_tokens": 45019657,
+    "output_tokens": 215243,
+    "api_call_count": 259
+  }
+}
