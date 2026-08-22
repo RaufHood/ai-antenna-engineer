@@ -99,10 +99,18 @@ best_candidate, rationale, truncated}` then `artifact{name: agent_report}` and
   stdout, confirmed live, so a JSON result can't share that stream reliably.
   `RF_TIMEOUT_S` (default 600s) bounds the subprocess. Live coarse-mesh run
   confirmed end-to-end (`status: "complete"`, real S11 curve back through
-  the full backend `Candidate`/`DeviceSpec` shapes) — see
-  `AGENT_SIM_INTEGRATION_PLAN.md` for the verification steps and what's
-  still open (a two-tier fast-search/real-solver-confirmation strategy for
-  when the agent loop runs against this instead of the fast oracle).
+  the full backend `Candidate`/`DeviceSpec` shapes).
+- **Two-tier solver strategy (recommended, live-verified 2026-08-22):** the
+  in-loop search stays on the fast oracle (`SIM_SOLVER`, unchanged); set
+  `CONFIRM_SOLVER=app.sim.rf_adapter:solve` to additionally re-solve just the
+  agent's final winner against the real FDTD engine, once, after the loop
+  concludes. Never a gate — `orchestrator._finish()` emits `run_finished`
+  first; the confirmation lands afterward as an `openems_confirmation`
+  addendum artifact (in `run.final`, `run.json`, and a "Real-solver
+  confirmation" section in `report.md`), and a failure (no `rf/.venv`,
+  timeout, crash) just becomes a note, never a failed run. Selected on
+  demand via `pool.solve_with(solver_spec, ...)`, bypassing `SIM_SOLVER` for
+  that one call. See `AGENT_SIM_INTEGRATION_PLAN.md` §6.
 - **Geometry**: `tools/extract_blend.py` is the single extraction script
   (Devin and backend run the identical file); `app/geometry/classify.py` is
   the single place a `DeviceSpec` is assembled (heuristics + agent overrides).

@@ -28,6 +28,14 @@ MAX_WALL_CLOCK_S = 8 * 60          # crash barrier, not pacing (agent self-paces
 MAX_BATCH = int(os.environ.get("MAX_BATCH", "40"))
 # agent-side extraction: pip install bpy (~220 MB) + Blender load + reasoning
 EXTRACT_TIMEOUT_S = float(os.environ.get("EXTRACT_TIMEOUT_S", "600"))
+# Two-tier solver strategy (integration plan §6): SIM_SOLVER (the fast oracle,
+# by default) drives the whole in-loop search unchanged; if CONFIRM_SOLVER is
+# also set, the agent's WINNER only is re-solved once with it after the loop
+# concludes -- e.g. CONFIRM_SOLVER=app.sim.rf_adapter:solve for a one-shot
+# real-openEMS-FDTD confirmation of a design the fast oracle found. Unset by
+# default (opt-in); never a gate -- failure degrades to a note, same as the
+# agent's own structured_output addendum.
+CONFIRM_SOLVER = os.environ.get("CONFIRM_SOLVER")
 
 
 async def drive(run: Run, agent: AgentPort) -> None:
@@ -351,6 +359,10 @@ async def _finish(run: Run, ranking: list[str], rationale: str,
     run.log.emit("report", EventType.decision,
                  {"decision": "accepted", "rationale": rationale})
     run.log.emit("report", EventType.run_finished, payload)
+
+    if CONFIRM_SOLVER and best:
+        await _confirm_winner(run, best)
+
     # the agent's own structured report arrives on its schedule; it is an
     # addendum artifact, never a gate on run_finished
     try:
@@ -364,6 +376,23 @@ async def _finish(run: Run, ranking: list[str], rationale: str,
                      {"name": "agent_report", "report": agent_report})
     run.log.emit("report", EventType.artifact, {
         "name": "report.md", "url": f"/runs/{run.id}/artifacts/report.md"})
+
+
+async def _confirm_winner(run: Run, best: str) -> None:
+    """One real-solver confirmation of the agent's already-decided winner
+    (integration plan §6) -- runs after run_finished, never before: it must
+    never gate or slow down the in-loop search, only add evidence to the
+    report. Failure (no rf/.venv on this machine, solver crash/timeout)
+    degrades to a note in the artifact, the same way a missing agent_report
+    degrades today -- it is never allowed to fail the run."""
+    cand = run.candidates[best]
+    run.log.emit("report", EventType.decision, {
+        "decision": f"confirming winner {best!r} against CONFIRM_SOLVER={CONFIRM_SOLVER}"})
+    result = await pool.solve_with(CONFIRM_SOLVER, run.spec, band_for(run, cand), cand)
+    run.final["openems_confirmation"] = result.model_dump()
+    run.log.emit("report", EventType.artifact, {
+        "name": "openems_confirmation", "candidate_id": best,
+        "result": result.model_dump()})
 
 
 async def _narrate(run: Run, agent: AgentPort) -> None:

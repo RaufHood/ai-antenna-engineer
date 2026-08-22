@@ -107,6 +107,18 @@ def markdown(run: Run) -> str:
         if fin.get("rationale"):
             out.append(f"- rationale: {fin['rationale']}")
         out.append("")
+    if f.get("openems_confirmation"):
+        oc = f["openems_confirmation"]
+        out += ["### Real-solver confirmation", "",
+                "One-shot re-solve of the winner above against the real solver "
+                "(integration plan §6) — the in-loop search above ran on the fast "
+                "reference oracle; this checks its ranking against full-wave FDTD.",
+                "",
+                f"- status: **{oc.get('status')}**; S11 min {oc.get('s11_min_db')} dB "
+                f"at {oc.get('resonant_ghz')} GHz; VSWR {oc.get('vswr')}"
+                + (f"; efficiency {oc.get('efficiency')}"
+                   if oc.get("status") == "complete" else ""),
+                f"- {oc.get('notes', '')}", ""]
     out += ["## Iteration history", ""]
     for rep in run.reports:
         top = rep.reports[0] if rep.reports else None

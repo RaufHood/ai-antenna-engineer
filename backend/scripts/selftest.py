@@ -18,7 +18,7 @@ import types
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from app.geometry.spec import make_anchors, phone_v1  # noqa: E402
-from app.models import Candidate, DoneRequest, SimulateRequest  # noqa: E402
+from app.models import Candidate, DoneRequest, SimResult, SimulateRequest  # noqa: E402
 from app.runs import orchestrator, report  # noqa: E402
 from app.runs.store import Run  # noqa: E402
 from app.sim import pool, rf_adapter  # noqa: E402
@@ -175,12 +175,48 @@ async def test_device_loop() -> None:
           f"{len(run.results)} sims, best {run.final['best']['s11_min_db']} dB")
 
 
+async def test_confirm_winner() -> None:
+    """CONFIRM_SOLVER (integration plan §6): after the (unrelated, fast)
+    search concludes, the agent's winner is re-solved once against a
+    DIFFERENT named solver and attached as a non-gating addendum -- proves
+    pool.solve_with() bypasses SIM_SOLVER and orchestrator._finish() wires
+    it through, without needing PyNEC or openEMS installed."""
+    spec = phone_v1()
+    band = spec.requirements.bands[0]
+    cand = Candidate(candidate_id="cw1", anchor_id="c_bl", band_id=band.id,
+                     antenna_type="IFA", position_mm=(6, 6, 4.0), feed_point_mm=(6, 6, 4.0),
+                     length_mm=30.0, orientation="corner")
+    run = Run(id="t_confirm", prompt="p", band_ids=[band.id], spec=spec,
+             anchors=make_anchors(spec))
+    run.candidates[cand.candidate_id] = cand
+    run.results[cand.candidate_id] = SimResult(
+        candidate_id=cand.candidate_id, status="complete", s11_min_db=-9.0,
+        meets_requirements=True)
+
+    orchestrator.CONFIRM_SOLVER = "app.sim._offline_stub:solve"
+    try:
+        from app.agent.mock import MockAgent
+        await orchestrator._finish(run, [cand.candidate_id], "test", MockAgent())
+    finally:
+        orchestrator.CONFIRM_SOLVER = None
+    conf = run.final.get("openems_confirmation")
+    assert conf and conf["status"] == "complete" and "offline stub" in conf["notes"]
+    art = [e for e in run.log.events if e.type.value == "artifact"
+           and e.payload.get("name") == "openems_confirmation"]
+    assert art and art[0].payload["candidate_id"] == cand.candidate_id
+    assert run.status == "finished"  # run_finished already fired before confirmation ran
+    assert "Real-solver confirmation" in report.markdown(run)
+    print("ok  confirm-winner: CONFIRM_SOLVER re-solves the winner once, "
+          "addendum artifact attached, run_finished unaffected, renders in report.md")
+
+
 async def main() -> None:
     test_rf_adapter()
     pool.start_pool()
     try:
         await test_loop()
         await test_device_loop()
+        await test_confirm_winner()
     finally:
         pool.shutdown_pool()
     print("ALL OK")
