@@ -47,7 +47,7 @@ class SimOptions:
     boundary: Literal["MUR", "PML_8"] = "MUR"
     freq_points: int = 21
     # Opt-in: writes a time-domain E-field dump (see geometry.py) to
-    # <sim_path>/Et.h5 for visualize.render_field_animation(). Off by
+    # <sim_path>/Et.h5 for rf/viz/anim_field.py. Off by
     # default -- it adds solver overhead and disk I/O nobody but a human
     # watching a GIF needs; the FastAPI backend should leave this False.
     dump_fields: bool = False
@@ -96,6 +96,6 @@ class FDTDStructure:
     nf2ff: object
     sim_path: str
     freq: object = None  # set by solve.run_fdtd() after CalcPort
-    # xy (mm) reference points for visualize.render_field_animation()'s
+    # xy (mm) reference points for rf/viz/anim_field.py's
     # overlay -- set by geometry.py, not used by solve.py/postprocess.py.
     geometry_mm: dict | None = None

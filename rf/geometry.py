@@ -193,7 +193,7 @@ def build_ifa_geometry(candidate: Candidate, band: Band, device: dict, sim: SimO
     if sim.dump_fields:
         # Time-domain E-field on the xy-plane through the antenna (z=h),
         # written as HDF5 (file_type=1) rather than the tutorials' default
-        # VTK so visualize.render_field_animation() can read it with h5py
+        # VTK so rf/viz/anim_field.py can read it with h5py
         # alone -- no ParaView needed to see the wave leave the feed.
         # dump_mode=2 (cell-interpolation) matches AddEdges2Grid's cells;
         # SetSubSampling keeps frames small since NrTS is in the thousands.

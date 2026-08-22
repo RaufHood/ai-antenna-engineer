@@ -1,140 +1,158 @@
-# rf/ — EM simulation workstream
+# rf/ — EM simulation, placement screening and media
 
-Determines whether an antenna placement candidate works, by actually
-running an FDTD solve (openEMS) on an IFA-over-ground-plane geometry and
-reporting S11 / resonance / bandwidth / gain / efficiency. One entry point:
+Decides whether an antenna placement works, by running a real FDTD solve
+(openEMS) on the actual device geometry, and turns the result into figures
+and animations you can put on a slide.
 
 ```python
 from rf import run_simulation
-result = run_simulation(config)  # dict in -> dict out, see contract below
+result = run_simulation(config, out_dir="runs/my_run")   # dict in -> dict out
 ```
 
-No server code lives here — a FastAPI backend (built separately) is meant
-to import `run_simulation` directly. For the *why* behind every decision
-below (antenna type, band, solver choice, bugs found and fixed, open
-questions) see **`progress_simulation.md`** — this file is just the map.
-
-## Quickstart
-
-```sh
-# from the repo root
-rf/.venv/Scripts/python -m rf.run_simulation
-```
-
-Runs a demo GPS-L1 IFA candidate end-to-end (~2 min) and prints the
-`SimResult` JSON. First time, set up the venvs per "Setup" below.
+No server code lives here — a FastAPI backend imports `run_simulation`
+directly. For the *why* behind every decision (antenna type, band, solver
+choice, bugs found and fixed, what is still open) see
+**`progress_simulation.md`**; this file is the map.
 
 ## Module layout
 
 ```
 rf/
-├── __init__.py         # `from rf import run_simulation`
-├── models.py            # Candidate, Band, SimOptions, SimResult, FDTDStructure, IFA_* constants
-├── device.py             # load_device() — reads blend_loader-produced device.json
-├── geometry.py            # build_ifa_geometry() — CSXCAD/openEMS structure for one candidate
-├── solve.py                # run_fdtd() — runs the solve, CalcPort over the band
-├── postprocess.py           # postprocess() — port data -> SimResult metrics
-├── visualize.py               # render_field_animation() / render_s11_plot() — human-facing, opt-in
-├── run_simulation.py           # run_simulation() orchestrator + __main__ CLI demo
-├── openems_env.py               # DLL-path setup openEMS/CSXCAD need on Windows before import
-├── requirements.txt              # numpy/h5py/matplotlib/cython + vendored openEMS/CSXCAD wheels
-├── vendor/                        # gitignored — vendored openEMS build (~150MB, see Setup)
-├── .venv/                          # gitignored — openEMS venv
-└── blend_loader/                    # separate tool + venv: .blend -> device.json (has bpy)
-    ├── load_blend.py
-    ├── requirements.txt              # bpy
-    ├── .venv/                         # gitignored
-    └── out/                            # generated device.json + STLs, gitignored
+├── run_simulation.py     run_simulation(config, out_dir=None) — the one entry point
+├── models.py             Candidate / Band / SimOptions / SimResult / FDTDStructure
+├── device.py             load_device() — reads a blend_loader device.json
+├── geometry.py           build_ifa_geometry() — CSXCAD structure + device materials
+├── solve.py              run_fdtd() — runs the solve, CalcPort over the band
+├── postprocess.py        port data -> SimResult metrics
+├── placement.py          legality / clearance / escape screening (no solver, ~1 ms)
+├── openems_env.py        Windows DLL-path setup; a no-op elsewhere
+├── blend_loader/         .blend -> device.json + STLs (separate venv, needs bpy)
+└── viz/                  the media suite (separate venv, no solver needed)
+    ├── theme.py              dark + Computer Modern palette; import this, never hardcode
+    ├── data.py               load_run() / synth_demo_run() — the run-artifact seam
+    ├── s11.py                hero frequency-response figure
+    ├── placement3d.py        technical 3D x-ray: bboxes, coordinate frame, dimensions
+    ├── blender_render.py     beauty x-ray from the real .blend (bpy venv)
+    ├── anim_field.py         |E| propagating through the device
+    ├── anim_orbit.py         technical scene orbiting
+    ├── anim_orbit_beauty.py  assembles Blender orbit frames -> gif + mp4
+    ├── anim_dashboard.py     animated technical briefing card
+    ├── heatmap.py            placement legality / score map
+    ├── output.py             one animation writer: gif + even-dimension mp4
+    └── __main__.py           `python -m rf.viz <run>` renders everything
 ```
 
-All modules use relative imports (`from .models import ...`), so invocation
-is **always `python -m rf.<module>`**, never `python rf/<module>.py`.
+Modules use relative imports, so invocation is always `python -m rf.<module>`,
+never `python rf/<module>.py`.
 
-## Setup
+## Three environments, on purpose
+
+They cannot be merged: `bpy` and the openEMS bindings pin different Python
+versions, and the media suite must run on a machine with no solver at all.
+
+| env | what it has | used by |
+|---|---|---|
+| solver | openEMS + CSXCAD | `run_simulation` and everything under it |
+| `.venv-viz` | matplotlib, numpy, h5py, pillow | all of `rf/viz` except `blender_render` |
+| `bpy` env | bpy | `blend_loader`, `viz/blender_render` |
+
+### Solver — macOS (Apple Silicon)
 
 ```sh
-# openEMS venv
-py -3.11 -m venv rf/.venv
-mkdir -p rf/vendor
-curl -L -o rf/vendor/openEMS_v0.0.36.zip \
-  https://github.com/thliebig/openEMS-Project/releases/download/v0.0.36/openEMS_v0.0.36.zip
-unzip -q -o rf/vendor/openEMS_v0.0.36.zip -d rf/vendor/
-cd rf && .venv/Scripts/pip install -r requirements.txt   # cwd matters: wheel paths are relative to this file
-cd .. && rf/.venv/Scripts/python -m rf.openems_env       # smoke test: imports CSXCAD + openEMS
-
-# blend_loader venv (separate — needs bpy, not openEMS)
-py -3.11 -m venv rf/blend_loader/.venv
-rf/blend_loader/.venv/Scripts/pip install -r rf/blend_loader/requirements.txt
+brew install cmake boost hdf5 vtk cgal qt@5      # NOT tinyxml: the formula is
+                                                  # gone and an unknown formula
+                                                  # aborts the whole install
+git clone --recursive https://github.com/thliebig/openEMS-Project.git
+cd openEMS-Project
+export CMAKE_PREFIX_PATH="$(brew --prefix qt@5):$(brew --prefix vtk):$(brew --prefix hdf5)"
+./update_openEMS.sh ~/opt/openEMS --python --disable-GUI   # --disable-GUI is
+                                                            # required: QCSXCAD
+                                                            # is not needed
+                                                            # headless and its
+                                                            # configure failure
+                                                            # kills the build
 ```
 
-## Config / result contract
+Verified against the bundled tutorial: `Simple_Patch_Antenna.py` gives
+2.4300 GHz / -27.7 dB vs. the documented ~2.40 GHz deep dip. A coarse
+GPS-L1 demo solves in about 1 s (48 MCells/s).
 
-Mirrors `frontend/src/lib/types.ts` (snake_case), so a `run_simulation`
-output can drop straight into `frontend/src/lib/runner.ts` in place of the
-mock `simulate()`:
+### Solver — Windows
 
-```jsonc
-// in
-{
-  "candidate": {"candidate_id": "c001", "antenna_type": "IFA",
-                "position_mm": [5,35,4], "feed_point_mm": [5,33,4],
-                "length_mm": 26, "orientation": "edge"},
-  "band": {"id": "gps_l1", "f_low_ghz": 1.565, "f_high_ghz": 1.585,
-           "s11_db_max": -8, "efficiency_min": 0.45},
-  "device": { ... },  // types.ts DeviceSpec; board/enclosure/components
-  "sim": {"mesh_res": "coarse", "boundary": "MUR", "freq_points": 21,
-          "dump_fields": false}  // see Visualizing below
-}
+Prebuilt MSVC wheels, vendored: see `progress_simulation.md` "Setup".
+
+### Media + screening
+
+```sh
+python3 -m venv .venv-viz
+.venv-viz/bin/pip install matplotlib numpy h5py pillow scipy
 ```
 
-```jsonc
-// out — matches types.ts SimResult exactly
-{
-  "candidate_id": "c001", "status": "complete", "runtime_s": 240,
-  "s11_curve": [{"f_ghz": 1.565, "s11_db": -3.1}, ...],
-  "s11_min_db": -12.4, "resonant_ghz": 1.5754, "bandwidth_mhz": 18,
-  "efficiency": 0.52, "peak_gain_dbi": 1.8, "vswr": 1.65,
-  "sar_w_per_kg": 0.0, "meets_requirements": true, "notes": "..."
-}
+### bpy
+
+```sh
+micromamba create -y -n bpy -c conda-forge python=3.11 pip
+micromamba run -n bpy pip install bpy pillow
 ```
 
-## Visualizing a run
+## Quickstart
 
-`SimOptions.dump_fields=True` (off by default — adds solver overhead and
-disk I/O) makes `geometry.py` write a time-domain E-field dump, and
-`run_simulation()` renders it to a GIF, adding `field_animation_path` to
-the result dict:
+```sh
+# 1. device geometry: .blend -> device.json (+ one STL per part)
+<bpy python> -m rf.blend_loader.load_blend \
+    data/apple_iphone_15_pro/apple_iphone_15_pro.blend \
+    --materials data/apple_iphone_15_pro/materials.json \
+    --out rf/blend_loader/out
 
-```python
-config["sim"]["dump_fields"] = True
-result = run_simulation(config)
-result["field_animation_path"]  # GIF of |E| spreading out from the feed
+# 2. screen placements — no solver, ~1 ms per candidate
+.venv-viz/bin/python -m rf.placement
+
+# 3. solve one candidate, persisting artifacts for the media suite
+<solver python> -m rf.run_simulation           # writes runs/<candidate_id>/
+
+# 4. beauty renders from the real .blend (stills + orbit frames + overlay)
+<bpy python> -m rf.viz.blender_render \
+    data/apple_iphone_15_pro/apple_iphone_15_pro.blend \
+    runs/demo/config.json runs/demo/media all 60 1000
+
+# 5. every figure and animation for that run
+.venv-viz/bin/python -m rf.viz runs/demo
 ```
 
-`visualize.render_s11_plot(s11_curve, band, out_png)` turns any
-`postprocess()` output into a return-loss PNG (threshold + target band
-marked) — called separately, not gated by `dump_fields`, see the
-`__main__` block in `run_simulation.py` for the usage pattern.
+Step 5 with no solver anywhere: `python -m rf.viz.data` fabricates
+`runs/demo` (clearly watermarked DEMO) so the whole media pipeline can be
+built and previewed on any machine.
 
-## Real device materials
+## Run directory layout
 
-If `config["device"]["manifest_path"]` (or an inline `device["parts"]`)
-points at a `device.json` from `rf/blend_loader/load_blend.py`,
-`geometry._add_device_materials()` adds one real CSXCAD dielectric/
-lossy-metal material per distinct `material_key`, one box per part —
-automatic, no `SimOptions` flag needed. It's a **bbox-only**
-approximation (not the actual STL mesh shape — importing ~200 real part
-meshes as polyhedra would blow the runtime budget) and has **no
-collision-awareness** with the antenna itself (placement/keepout is on
-the caller). Ran end-to-end against `data/apple_iphone_15_pro/` (191
-parts) — see `progress_simulation.md` step 6 for the result and both
-caveats in detail.
+The seam between the solve and everything downstream:
 
-## Status
+```
+runs/<id>/
+├── config.json     the config that produced it
+├── result.json     SimResult
+├── device.json     the manifest used (optional)
+├── Et.h5           time-domain E-field dump (gitignored — tens of MB)
+└── media/          every figure and animation
+```
 
-Pipeline runs end-to-end (geometry + real device materials → FDTD solve →
-S11/VSWR/gain/efficiency → optional field GIF), but **the IFA is not yet
-cross-checked against a known-good result** — resonance/dimensions are a
-first guess, not tuned or validated. See `progress_simulation.md` →
-"Steps" for exactly what's done, what bugs were found and fixed, and
-what's still open (tutorial cross-check, PyNEC cross-check).
+`orbit_frames/` is gitignored too: they are build intermediates, the
+gif/mp4 carry the same content, and step 4 regenerates them.
+
+## Gotchas worth knowing before you touch this
+
+- **`FDTD.Run()` hijacks the process cwd** into a temp directory it then
+  deletes. Resolve every output path to absolute *before* the solve.
+- **NEC forms junctions only at segment endpoints.** A ground plane built
+  from long crossing wires makes `geometry_complete()` raise a bare
+  `RuntimeError: Unknown exception`. Build it edge by edge between nodes.
+- **Cycles' default `transparent_max_bounces` (8)** terminates rays inside a
+  device this layered, and the x-ray interior comes out black. It is 64.
+- **Blender writes PNG row 0 at the top**, so the orthographic overlay is
+  drawn `origin="upper"` over data drawn `origin="lower"`, or it comes out
+  mirrored about the device centre.
+- **`film_transparent` needs `image_settings.color_mode = "RGBA"`.** Blender
+  defaults to RGB and silently drops alpha, shipping an opaque overlay that
+  hides whatever it covers.
+- **H.264/yuv420p needs even pixel dimensions** and fails *silently* on odd
+  ones, leaving a 0-byte mp4 next to a healthy gif. `viz/output.py` pads.
