@@ -47,6 +47,9 @@ class DevinAgent:
         self.poll_s = float(os.environ.get("DEVIN_POLL_S", "10"))
         self.session_id: str | None = None
         self._cursor: str | None = None
+        self._seen: set[str] = set()  # processed message ids: end_cursor is
+        # INCLUSIVE of the last item, so cursor-only polling re-delivers the
+        # final message of each page — dedupe is mandatory (found live 2026-08-22)
         self._narration: list[str] = []
         self._last_send = 0.0
         self._session_url: str | None = None
@@ -97,7 +100,7 @@ class DevinAgent:
             if self.session_id:
                 await self._send(
                     f"Run is being closed ({reason}). Update your structured "
-                    f"output with final status; thank you.")
+                    f"output with final status. No further reply is needed.")
         except Exception:
             pass
         await self._http.aclose()
@@ -145,11 +148,21 @@ class DevinAgent:
             params=params)
         data = r.json()
         items = data.get("items", data if isinstance(data, list) else [])
-        page = data.get("page_info", data if isinstance(data, dict) else {})
-        cursor = page.get("end_cursor")
+        cursor = (data.get("end_cursor") if isinstance(data, dict) else None) or \
+                 (data.get("page_info", {}).get("end_cursor")
+                  if isinstance(data, dict) else None)
         if cursor:
             self._cursor = cursor
-        return [m for m in items if m.get("source") == "devin"]
+        fresh = []
+        for m in items:
+            mid = str(m.get("event_id") or m.get("id")
+                      or f"{m.get('created_at')}-{hash(m.get('message',''))}")
+            if mid in self._seen:
+                continue
+            self._seen.add(mid)
+            if m.get("source") == "devin":
+                fresh.append(m)
+        return fresh
 
     async def _status(self) -> str:
         r = await self._request(
@@ -175,7 +188,9 @@ class DevinAgent:
                 await asyncio.sleep(min(retry, 60.0))
                 delay = min(delay * 2, 60.0)
                 continue
-            r.raise_for_status()
+            if r.status_code >= 400:
+                raise RuntimeError(
+                    f"Devin API {r.status_code} on {method} {url.split('/v3/')[-1]}: "
+                    f"{r.text[:300]}")
             return r
-        r.raise_for_status()
-        return r
+        raise RuntimeError(f"Devin API rate-limited after retries: {url}")

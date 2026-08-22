@@ -151,6 +151,22 @@ Rate-limit posture: ≥30 s between messages to a session (documented on adjacen
 APIs; assume it applies), poll at 10–30 s with exponential backoff on 429,
 **one consolidated results message per iteration** — never per-sim messages.
 
+**Live-API findings (2026-08-22, verified against a real session):**
+- Messages list `end_cursor` is **inclusive of the last item** — polling with
+  `after=end_cursor` re-delivers the newest message every time. Without
+  message-id dedupe the loop re-executes stale actions and the whole
+  conversation runs out of phase (observed live; Devin recovered gracefully,
+  our orchestrator did not converge). Adapter now dedupes on `event_id`.
+- Response shape is flat: `{items, end_cursor, has_next_page, total}` (no
+  `page_info` wrapper).
+- Session termination (DELETE) is async — status stays `running` briefly.
+- A closing message that reads like a question elicits another reply; the
+  close message must state "no further reply is needed".
+- Devin quality note: with the §6.4 evidence layers it did real engineering —
+  tie-broke electrically identical candidates by clearance, targeted
+  resonance moves, and flagged our replayed-evidence bug ("sweep returned
+  unchanged records") before we found it.
+
 ### 4.1 AgentPort (the seam)
 
 Everything agent-facing goes through one interface so Devin can be swapped for

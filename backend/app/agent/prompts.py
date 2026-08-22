@@ -85,13 +85,47 @@ def initial_prompt(ctx: RunContext) -> str:
 
 
 def report_message(report: IterationReport) -> str:
+    """Compact rendering: message POSTs have a size limit (a full report with
+    ~20 S11 curves drew a 400 live, 2026-08-22). Per-candidate rows carry the
+    derived quantities + diffs + hints; only the single best candidate gets
+    its curve, decimated."""
+    rows = []
+    for cr in report.reports:
+        r = cr.result
+        row = {
+            "id": cr.candidate_id, "status": r.status, "score": cr.score,
+            "s11_min_db": r.s11_min_db, "resonant_ghz": r.resonant_ghz,
+            "bw_mhz": r.bandwidth_mhz, "Z_ohm": r.impedance_ohm,
+            "vswr": r.vswr, "eff": r.efficiency,
+            "fail": [f"{d.requirement}: {d.actual}{d.unit} vs {d.target}{d.unit} "
+                     f"(margin {d.margin})" for d in cr.diffs if not d.passing],
+            "hints": cr.hints,
+        }
+        if r.status != "complete":
+            row["notes"] = r.notes
+        rows.append(row)
+    best_curve = None
+    if report.reports and report.reports[0].result.s11_curve:
+        pts = report.reports[0].result.s11_curve
+        best_curve = {"id": report.reports[0].candidate_id,
+                      "s11_db_by_ghz": {str(p.f_ghz): p.s11_db
+                                        for p in pts[::2]}}
+    body = {"iteration": report.iteration, "trend": report.trend,
+            "best_so_far": report.best_so_far, "candidates": rows,
+            "best_curve": best_curve, "notes": report.notes}
+    text = json.dumps(body, indent=1)
+    if len(text) > 28000:  # stay well under the message limit
+        for row in rows:
+            row.pop("hints", None)
+        body["best_curve"] = None
+        body["truncation_note"] = ("large batch: hints/curves omitted — "
+                                   "request a smaller sweep for detail")
+        text = json.dumps(body, indent=1)
     return "\n".join([
         f"## Simulation evidence — iteration {report.iteration} "
         f"(trend: {report.trend})",
-        "```json",
-        json.dumps(report.model_dump(), indent=1),
-        "```",
-        "Best so far: " + str(report.best_so_far),
+        "```json", text, "```",
+        "All requirements not listed under 'fail' are passing.",
         "Reply with your next action (one fenced json block).",
     ])
 

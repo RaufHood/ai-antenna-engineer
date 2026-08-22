@@ -7,17 +7,25 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 
 async def main() -> None:
-    from app.agent.mock import MockAgent
+    import os
+
     from app.geometry.spec import make_anchors, phone_v1
     from app.runs import orchestrator
     from app.runs.store import Run
     from app.sim import pool
 
+    if os.environ.get("AGENT", "mock") == "devin":
+        from app.agent.devin import DevinAgent
+        agent = DevinAgent()
+    else:
+        from app.agent.mock import MockAgent
+        agent = MockAgent()
+
     pool.start_pool()
     spec = phone_v1()
     run = Run(id="run_local", prompt="Integrate a 2.4 GHz antenna into this phone",
               band_ids=["wifi24"], spec=spec, anchors=make_anchors(spec))
-    await orchestrator.drive(run, MockAgent())
+    await orchestrator.drive(run, agent)
 
     print(f"\nstatus={run.status} iterations={run.iteration} "
           f"sims={len(run.results)} events={len(run.log.events)}")

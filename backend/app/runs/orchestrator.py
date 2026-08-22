@@ -26,10 +26,20 @@ async def drive(run: Run, agent: AgentPort) -> None:
     try:
         await _drive(run, agent)
     except Exception as e:
-        run.status = "failed"
+        # never fail empty: agent-channel death degrades to best-so-far
         run.log.emit(run.stage, EventType.error, {"error": str(e)})
-        run.log.emit(run.stage, EventType.run_finished,
-                     {"status": "failed", "error": str(e)})
+        ranking = _best_ranking(run)
+        if ranking:
+            run.truncated = True
+            band = next(b for b in run.spec.requirements.bands
+                        if b.id in run.band_ids)
+            await _finish(run, band, ranking,
+                          f"agent channel failed ({e}); best simulated design "
+                          f"returned", agent)
+        else:
+            run.status = "failed"
+            run.log.emit(run.stage, EventType.run_finished,
+                         {"status": "failed", "error": str(e)})
 
 
 async def _drive(run: Run, agent: AgentPort) -> None:
