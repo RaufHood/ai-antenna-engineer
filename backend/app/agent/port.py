@@ -50,5 +50,7 @@ class AgentPort(Protocol):
         """Drain any human-readable agent commentary since the last call."""
         ...
 
-    async def close(self, reason: str) -> None:
+    async def close(self, reason: str) -> dict | None:
+        """End the session. Returns the agent's own final structured report
+        if it produced one (Devin: structured_output), else None."""
         ...

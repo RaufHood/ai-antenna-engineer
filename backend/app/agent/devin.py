@@ -122,15 +122,32 @@ class DevinAgent:
         out, self._narration = self._narration, []
         return out
 
-    async def close(self, reason: str) -> None:
+    async def close(self, reason: str) -> dict | None:
+        """Closing message, then wait briefly for Devin's structured_output
+        (it updates on Devin's schedule; ~30-60 s after the done action in
+        practice). The session is left alive for inspection in the Devin UI
+        unless DEVIN_TERMINATE_ON_CLOSE=1 — an idle session burns no ACUs."""
+        report = None
         try:
             if self.session_id:
                 await self._send(
                     f"Run is being closed ({reason}). Update your structured "
                     f"output with final status. No further reply is needed.")
-        except Exception:
-            pass
+                for _ in range(int(os.environ.get("DEVIN_REPORT_POLLS", "6"))):
+                    r = await self._request(
+                        "GET", f"{self._org_base}/sessions/{self.session_id}")
+                    so = r.json().get("structured_output")
+                    if so and (so.get("status") == "concluded" or so.get("final")):
+                        report = so
+                        break
+                    await asyncio.sleep(self.poll_s)
+                if os.environ.get("DEVIN_TERMINATE_ON_CLOSE") == "1":
+                    await self._request(
+                        "DELETE", f"{self._org_base}/sessions/{self.session_id}")
+        except Exception as e:
+            self._narration.append(f"close: {e}")
         await self._http.aclose()
+        return report
 
     # ------------------------------------------------------------- internals --
 

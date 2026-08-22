@@ -17,6 +17,11 @@ from app.agent.port import RunContext
 C_MM_GHZ = 299.792458  # c in mm*GHz
 
 
+def _vol(b) -> float:
+    (x0, y0, z0), (x1, y1, z1) = b
+    return (x1 - x0) * (y1 - y0) * (z1 - z0)
+
+
 class MockAgent:
     def __init__(self) -> None:
         self.ctx: RunContext | None = None
@@ -50,8 +55,9 @@ class MockAgent:
         ctx = self.ctx
         assert ctx is not None and ctx.geometry is not None
         c = classify(ctx.geometry, ctx.band_ids)
-        metal = [x for x in c.spec.components if x.em in ("pec", "lossy_metal")
-                 and x.role in ("battery", "module", "shield")]
+        metal = sorted((x for x in c.spec.components if x.em in ("pec", "lossy_metal")
+                        and x.role in ("battery", "module", "shield")),
+                       key=lambda x: -_vol(x.bbox_mm))[:8]
         self._story.append(
             f"Classified {len(c.spec.components)} parts; ground reference "
             f"{next(x.name for x in c.spec.components if x.role == 'ground')}; "
@@ -174,5 +180,14 @@ class MockAgent:
         out, self._story = self._story, []
         return out
 
-    async def close(self, reason: str) -> None:
-        return None
+    async def close(self, reason: str) -> dict | None:
+        if not self.last or not self.last.reports:
+            return None
+        top = self.last.reports[0]
+        return {"status": "concluded", "current_best": top.candidate_id,
+                "iterations_done": self.turn,
+                "final": {"ranking": [cr.candidate_id for cr in self.last.reports[:3]],
+                          "antenna_type": self.cands.get(
+                              top.candidate_id.split("__")[0], top).antenna_type
+                          if top.candidate_id.split("__")[0] in self.cands else "",
+                          "position_summary": "", "rationale": "heuristic agent"}}

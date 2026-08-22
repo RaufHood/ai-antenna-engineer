@@ -89,6 +89,9 @@ class DeviceSpec(BaseModel):
     enclosure: Enclosure
     components: list[DeviceComponent]
     requirements: Requirements
+    # server-side path of the full-fidelity manifest (geometry.json + STLs)
+    # for an external solver (rf_adapter); None for canned specs
+    geometry_path: str | None = None
 
 
 class Anchor(BaseModel):

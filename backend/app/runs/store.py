@@ -63,6 +63,8 @@ class Run:
     results: dict[str, SimResult] = field(default_factory=dict)
     reports: list[IterationReport] = field(default_factory=list)
     final: dict | None = None
+    inbox: list[str] = field(default_factory=list)   # user notes for the agent
+    finished_at: float | None = None
     log: EventLog = None  # type: ignore[assignment]
     task: asyncio.Task | None = None
 

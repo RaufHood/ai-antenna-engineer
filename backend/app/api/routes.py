@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fastapi import (APIRouter, File, Form, HTTPException, UploadFile, WebSocket,
                      WebSocketDisconnect)
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 
 from app.agent.devin import DevinAgent, DevinConfigError
@@ -17,7 +17,8 @@ from app.agent.mock import MockAgent
 from app.geometry import bands
 from app.geometry import extract as ex
 from app.geometry.spec import make_anchors, phone_v1
-from app.runs import devices, orchestrator, store
+from app.models import EventType
+from app.runs import devices, orchestrator, report, store
 from app.runs.store import Run
 
 router = APIRouter()
@@ -140,6 +141,47 @@ async def create_run(body: CreateRun) -> dict:
             "extract_mode": mode}
 
 
+@router.get("/runs")
+async def list_runs() -> list[dict]:
+    return [{"run_id": r.id, "status": r.status, "stage": r.stage,
+             "device_id": r.device.id if r.device else None,
+             "bands": r.band_ids, "created_at": r.created_at}
+            for r in store.all_runs()]
+
+
+class UserMessage(BaseModel):
+    text: str
+
+
+@router.post("/runs/{run_id}/messages")
+async def post_message(run_id: str, body: UserMessage) -> dict:
+    """Mid-run user feedback for the agent. Delivered with the next evidence
+    message (no extra agent turn); echoed on the event stream immediately."""
+    run = store.get(run_id)
+    if run is None:
+        raise HTTPException(404, "unknown run")
+    if run.status != "running":
+        raise HTTPException(409, f"run is {run.status}")
+    text = body.text.strip()
+    if not text:
+        raise HTTPException(400, "empty message")
+    run.inbox.append(text[:2000])
+    ev = run.log.emit(run.stage, EventType.agent_message, {"role": "user", "text": text})
+    return {"queued": len(run.inbox), "seq": ev.seq}
+
+
+@router.get("/runs/{run_id}/artifacts/{name}")
+async def run_artifact(run_id: str, name: str) -> Response:
+    run = store.get(run_id)
+    if run is None:
+        raise HTTPException(404, "unknown run")
+    rendered = report.render(run, name)
+    if rendered is None:
+        raise HTTPException(404, f"no artifact {name!r}; have {report.artifact_names(run)}")
+    body, media = rendered
+    return Response(content=body, media_type=media)
+
+
 @router.get("/runs/{run_id}")
 async def get_run(run_id: str) -> dict:
     run = store.get(run_id)
@@ -154,6 +196,7 @@ async def get_run(run_id: str) -> dict:
         "truncated": run.truncated,
         "spec_source": run.spec_source,
         "ambiguities": run.ambiguities,
+        "artifacts": report.artifact_names(run),
         "n_events": len(run.log.events),
         "spec": run.spec.model_dump(),
         "anchors": [a.model_dump() for a in run.anchors],

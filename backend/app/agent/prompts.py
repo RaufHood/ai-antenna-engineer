@@ -5,19 +5,20 @@ per-iteration messages carry only evidence."""
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from app.agent.port import RunContext
 from app.geometry.spec import clearance_at
 from app.models import IterationReport
 
-PROTOCOL = """\
+_PROTOCOL_TEMPLATE = """\
 ## Protocol (strict)
 You are the RF engineer in a design loop. A backend runs electromagnetic
 simulations FOR you — you never run them yourself. Each of your replies MUST
 contain exactly one fenced ```json block with ONE action:
 
-1. Simulate a batch of candidate designs (batch as many as useful, <= 30):
+1. Simulate a batch of candidate designs (batch as many as useful, <= {max_batch}):
 ```json
 {"action": "simulate", "candidates": [{"candidate_id": "c001",
   "anchor_id": "<anchor id>", "band_id": "<band id>", "antenna_type":
@@ -46,8 +47,10 @@ deterministic physics hints. Reason over the evidence — results are not
 pass/fail verdicts. Narrate your engineering thinking briefly in plain text
 around the json block; it is shown to the user live.
 """
+PROTOCOL = _PROTOCOL_TEMPLATE.replace(
+    "{max_batch}", str(min(30, int(os.environ.get("MAX_BATCH", "40")))))
 
-SPEC_PROTOCOL = """\
+SPEC__PROTOCOL_TEMPLATE = """\
 ## Step 1 — read the build file and classify it (reply with this FIRST)
 Reply with exactly one fenced ```json block:
 ```json
@@ -82,17 +85,50 @@ ANTENNA_NOTES = """\
 """
 
 
+BRIEF_MIN_EXTENT_MM = 5.0   # parts smaller than this are RF-irrelevant clutter
+BRIEF_MAX_COMPONENTS = 80   # message cap is ~50 KB; a real phone has ~200 parts
+
+
 def _compact_spec(ctx: RunContext) -> dict:
-    """Spec as the agent sees it — drop viewer-only / provenance noise."""
+    """Spec as the agent sees it: RF-relevant components only (metal and
+    large dielectrics; screws/gaskets/adhesives summarised), no viewer or
+    provenance fields. The full spec is in the run snapshot for the UI."""
     spec = ctx.spec.model_dump()
+    keep, omitted = [], []
     for c in spec["components"]:
-        for k in ("sigma_s_per_m",):
-            c.pop(k, None)
+        (x0, y0, z0), (x1, y1, z1) = c["bbox_mm"]
+        big = max(x1 - x0, y1 - y0, z1 - z0) >= BRIEF_MIN_EXTENT_MM
+        if c["role"] == "ground" or (big and c["em"] != "air"):
+            keep.append(c)
+        else:
+            omitted.append(c["name"])
+    keep.sort(key=lambda c: (c["role"] != "ground", c["em"] == "dielectric",
+                             -_volume(c["bbox_mm"])))
+    if len(keep) > BRIEF_MAX_COMPONENTS:
+        omitted += [c["name"] for c in keep[BRIEF_MAX_COMPONENTS:]]
+        keep = keep[:BRIEF_MAX_COMPONENTS]
+    for c in keep:
+        c.pop("sigma_s_per_m", None); c.pop("em_source", None); c.pop("label", None)
+        c["bbox_mm"] = [[round(v, 1) for v in p] for p in c["bbox_mm"]]
         if c.get("epsilon_r") is None:
             c.pop("epsilon_r", None); c.pop("loss_tangent", None)
+        elif c.get("loss_tangent") is None:
+            c.pop("loss_tangent", None)
+    spec["components"] = keep
+    spec.pop("geometry_path", None)
+    if omitted:
+        spec["components_omitted"] = (f"{len(omitted)} small/irrelevant parts not "
+                                      f"listed (< {BRIEF_MIN_EXTENT_MM} mm or air): "
+                                      + ", ".join(omitted[:12])
+                                      + (" …" if len(omitted) > 12 else ""))
     spec["requirements"] = {
         k: v for k, v in spec["requirements"].items() if k != "bands"}
     return spec
+
+
+def _volume(b) -> float:
+    (x0, y0, z0), (x1, y1, z1) = b
+    return (x1 - x0) * (y1 - y0) * (z1 - z0)
 
 
 def _device_section(ctx: RunContext) -> list[str]:

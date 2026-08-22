@@ -99,13 +99,13 @@ def _tri_count(obj) -> int:
 
 def _unit_scale_to_mm(raw_extent_max: float, sidecar: dict) -> tuple[float, str, str]:
     """Factor that turns Blender units into mm, plus where it came from."""
-    units = str(sidecar.get("units", "")).lower()
-    if units in ("mm", "millimeter", "millimeters", "millimetre", "millimetres"):
+    units = str(sidecar.get("units") or sidecar.get("units_in_blend") or "").lower()
+    if units.startswith("mm") or units.startswith("milli"):
         return 1.0, "sidecar:units=mm", "high"
-    if units in ("m", "meter", "meters", "metre", "metres"):
-        return 1000.0, "sidecar:units=m", "high"
-    if units in ("cm", "centimeter", "centimeters"):
+    if units.startswith("cm") or units.startswith("centi"):
         return 10.0, "sidecar:units=cm", "high"
+    if units.startswith("m"):
+        return 1000.0, "sidecar:units=m", "high"
     us = bpy.context.scene.unit_settings
     if us.system != "NONE" and abs(us.scale_length - 1.0) > 1e-9:
         # scene declares a scale: 1 BU = scale_length metres
@@ -232,7 +232,11 @@ def extract(blend_path: Path, sidecar_path: Path | None, out_dir: Path | None,
     if sidecar_path and sidecar_path.exists():
         sidecar = json.loads(sidecar_path.read_text())
         _log(f"sidecar: {sidecar_path}")
-    vocab = dict(sidecar.get("material_vocabulary_used", {}))
+    # two sidecar dialects seen so far: material_vocabulary_used[key] = {eps_r,..}
+    # (axe) and materials[key] = {em_from_vocabulary: {...}, mass_g,..} (iPhone)
+    vocab = dict(sidecar.get("material_vocabulary_used") or {})
+    for key, m in (sidecar.get("materials") or {}).items():
+        vocab.setdefault(key, m.get("em_from_vocabulary", m))
     sidecar_parts = {p["node_path"]: p for p in sidecar.get("parts", [])}
 
     objs = _mesh_objects()
@@ -333,7 +337,8 @@ def extract(blend_path: Path, sidecar_path: Path | None, out_dir: Path | None,
 
     result = {
         "schema": f"geometry.json/v{VERSION}",
-        "device_id": str(sidecar.get("model") or blend_path.stem),
+        "device_id": str(sidecar.get("model") or sidecar.get("model_identifier")
+                         or blend_path.stem),
         "name": str(sidecar.get("object") or blend_path.stem),
         "units": "mm",
         "source_blend": blend_path.name,

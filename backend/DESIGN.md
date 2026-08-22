@@ -342,6 +342,29 @@ code. Everything below describes the **bundled reference implementation**: it
 exists so the loop runs end-to-end before/without their engine (same role the
 mock agent plays for Devin) and as the executable definition of the contract.
 
+### 7.0 Adapter to the sim team's entry point (2026-08-22)
+
+Their contract (`rf/run_simulation.py`, branch `feat/simulation`) is
+`run_simulation(config: dict) -> dict` with `config = {candidate, band,
+device, sim}` (types.ts shapes) and a `SimResult`-shaped dict back.
+`app/sim/rf_adapter.py` maps our seam onto it — select with
+`SIM_SOLVER=app.sim.rf_adapter:solve`, tune with `SIM_OPTS='{"mesh_res":
+"coarse","boundary":"MUR","freq_points":21}'`. Mapping decisions:
+- their `Candidate` dataclass rejects unknown keys → only types.ts fields
+  are forwarded; our `params.height_mm` becomes `feed_point_mm.z` (their IFA
+  reads the pin height from it);
+- `device.manifest_path` → the device's `geometry.json` (same manifest shape
+  their `blend_loader` writes; `DeviceSpec.geometry_path` carries it),
+  `device.board.size_mm` = device outline, `device.components` = our
+  classified list for their step 6;
+- their result has no input impedance → ours stays `(0, 0)` and the scorer
+  skips the impedance hints (bandwidth/resonance/clearance hints still work);
+- import/solver errors (no openEMS on this machine) → `SimResult{failed,
+  notes}` per candidate, never a crashed run. The adapter is verified against
+  a stubbed `run_simulation` (`scripts/selftest.py`); against their real
+  solver only once it runs on a shared machine (Windows-only wheels today;
+  minutes per solve — the loop's batch size must drop accordingly).
+
 ### 7.1 Reference oracle
 
 PyNEC (NEC-2 MoM). Chassis = wire-grid lattice built edge-by-edge between
@@ -468,8 +491,11 @@ real iPhone `.blend` when it lands — nothing downstream changes.
 | `POST` | `/runs` | multipart: `blend`, `prompt`, `bands[]`, overrides → `{run_id}` |
 | `GET` | `/runs/{id}` | full snapshot (shape compatible with frontend `RunSnapshot`) |
 | `WS` | `/runs/{id}/events?since={seq}` | live events, replayable |
-| `POST` | `/runs/{id}/messages` | user mid-run feedback → forwarded to session |
-| `GET` | `/runs/{id}/artifacts/{name}` | glb, geometry.json, s11 csv, report.md, builder .py |
+| `POST` | `/runs/{id}/messages` | user mid-run feedback → rides with the next evidence message (no extra agent turn) |
+| `GET` | `/runs/{id}/artifacts/{name}` | `report.md`, `run.json`, `s11_<cid>.csv` (rendered on demand) |
+| `GET` | `/runs` | list runs |
+| `POST` | `/devices` | multipart `.blend` (+ `materials.json`) → extraction → spec/anchors/artifacts (§8) |
+| `GET` | `/devices/{id}`, `/devices/{id}/artifacts/{name}` | snapshot; `device.glb`, `geometry.json`, `materials.json`, `parts/*.stl` |
 | `GET` | `/healthz` | liveness |
 
 Store: in-memory dict + append-only event lists. No DB for a 36 h hackathon;
@@ -521,9 +547,19 @@ Rule: **always demoable** — every milestone ends in a run that completes.
   ~5 min wall clock end to end; structured_output populated. Bug found and
   fixed from that run: a re-roled full-face sheet must not count as a
   clearance obstacle (now excluded by footprint ≥ 50 % of the device).
-- **M3 — depth:** sweep action, hint layer, `nec-builder` + calibration gate.
-- **M4 — polish:** report.md generation, structured_output schema final,
-  openEMS single-shot confirmation of the winner (stretch).
+- **M3 — depth:** sweep action ✅ (M0), hint layer ✅ (M0), per-candidate
+  band resolution for multi-band runs ✅ (2026-08-22; no isolation matrix —
+  scope decision pending), `nec-builder` skill + `write_builder` calibration
+  gate ❌ **not built** (needs the sim team's engine, §7.4; the orchestrator
+  answers `write_builder` with a protocol note).
+- **M4 — polish:** `report.md` / `run.json` / S11 CSV artifacts ✅, agent
+  structured_output captured as `agent_report` artifact ✅, mid-run user
+  messages ✅, mock fallback when the agent channel dies before any
+  simulation ✅ (all 2026-08-22, covered by `scripts/selftest.py`).
+  ❌ not built: openEMS single-shot confirmation of the winner (belongs to
+  the sim engine via `rf_adapter`), Devin playbook (`playbook_id`, config
+  once org access exists), session termination on close (left alive for
+  inspection; `DEVIN_TERMINATE_ON_CLOSE=1` to delete).
 
 ---
 
@@ -544,6 +580,24 @@ Rule: **always demoable** — every milestone ends in a run that completes.
    each teammate must `entire login` locally.
 
 ## 13. Decision log
+
+- **2026-08-22 (integration pass)** (a) Sim seam adapted to the sim team's
+  actual `run_simulation(config)` contract via `rf_adapter` (§7.0) — our
+  `solve()` seam stays; the adapter is the only file that knows their shape.
+  (b) Real asset landed on `feat/simulation` (`data/apple_iphone_15_pro/`,
+  191 parts, 235k polys, sidecar dialect `materials.{key}`): extractor now
+  reads both sidecar dialects; classification on it found three real-world
+  gaps, fixed: a thick rail named "substructure" was chosen as ground over
+  the midplate sheet (sheet-likeness now wins), sub-4 mm screws dominated the
+  clearance metric (excluded), and a 191-component spec is 50 KB — over the
+  Devin message cap — so the design brief lists RF-relevant parts only
+  (≥ 5 mm, non-air, ≤ 80, ground first; the rest summarised). (c) User
+  mid-run messages are folded into the next evidence message rather than
+  sent as their own turn: no rate-limit exposure, no extra ACU, and the agent
+  sees them exactly when it can act. (d) Agent's structured_output is an
+  addendum artifact after `run_finished`, never a gate on it (it lands on
+  Devin's schedule, ~30–60 s after `done`). (e) Multi-band: each candidate is
+  simulated/scored against its own `band_id`; isolation is still out of scope.
 
 - **2026-08-22 (M2)** (a) Extraction split into facts (script) vs judgment
   (classify + agent `spec` action) — the agent "reads the build file" AND the

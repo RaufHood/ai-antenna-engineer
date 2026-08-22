@@ -15,6 +15,7 @@ W, H, T = 72.0, 147.0, 7.8  # canned phone outline (x width, y height, z thickne
 # roles whose boxes the antenna volume necessarily sits on/inside — they are
 # the environment, not obstacles (the frame is usually the antenna's own metal)
 _NOT_OBSTACLES = {"ground", "display", "back_cover", "board", "frame"}
+_MIN_OBSTACLE_MM = 4.0   # screws, springs, pins: too small to detune anything
 
 
 def phone_v1() -> DeviceSpec:
@@ -93,8 +94,9 @@ def make_anchors(spec: DeviceSpec, spacing_mm: float = 18.0) -> list[Anchor]:
 def clearance_at(spec: DeviceSpec, p: Vec3) -> tuple[float, str]:
     """Distance from point to nearest metal/lossy obstacle. Sheets the antenna
     volume sits on (ground, display, covers, board, frame) and any full-face
-    sheet (shield, backplate — >= 50 % of the device footprint) are excluded;
-    lateral blocks (battery, camera, speaker, cans) are what detune.
+    sheet (shield, backplate — >= 50 % of the device footprint) are excluded,
+    as are sub-4 mm parts (screws); lateral blocks (battery, camera, speaker,
+    cans) are what detune.
     Port of frontend rf.ts clearanceAt — feeds priors and hints, not the solver."""
     best, who = 50.0, ""
     w, h, _t = device_size(spec)
@@ -103,6 +105,8 @@ def clearance_at(spec: DeviceSpec, p: Vec3) -> tuple[float, str]:
             continue
         (x0, y0, z0), (x1, y1, z1) = c.bbox_mm
         if (x1 - x0) * (y1 - y0) >= 0.5 * w * h:
+            continue
+        if max(x1 - x0, y1 - y0, z1 - z0) < _MIN_OBSTACLE_MM:
             continue
         dx = max(x0 - p[0], 0, p[0] - x1)
         dy = max(y0 - p[1], 0, p[1] - y1)

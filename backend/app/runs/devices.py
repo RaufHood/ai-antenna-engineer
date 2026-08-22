@@ -28,7 +28,8 @@ async def prepare(device: Device, band_ids: list[str] | None = None) -> Device:
         return device
     try:
         device.geometry = await ex.extract(device.dir)
-        c = classify(device.geometry, band_ids)
+        c = classify(device.geometry, band_ids,
+                     geometry_path=str(device.dir / "out" / "geometry.json"))
         device.spec, device.ambiguities = c.spec, c.ambiguities
         device.anchors = make_anchors(device.spec)
         device.name = device.spec.name

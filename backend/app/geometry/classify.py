@@ -17,7 +17,8 @@ from app.models import (Board, ComponentRole, DeviceComponent, DeviceSpec, EmCla
 MIN_EXTENT_MM = 1.5   # screws, springs, labels: invisible to the RF model
 
 _ROLE_HINTS: list[tuple[ComponentRole, tuple[str, ...]]] = [
-    ("ground", ("ground", "gnd", "pour", "groundplane", "ground_plane")),
+    ("ground", ("ground", "gnd", "pour", "groundplane", "ground_plane", "midplate",
+                "mid_plate", "substructure")),
     ("display", ("display", "screen", "lcd", "oled", "panel", "touch")),
     ("battery", ("battery", "cell", "pack")),
     ("back_cover", ("back", "rear", "cover", "lid")),
@@ -85,16 +86,22 @@ def _loss_tangent(eps: float | None, sigma: float | None, f_ghz: float = 2.44) -
     return round(sigma / (omega * 8.854e-12 * eps), 4)
 
 
+def _is_sheet(c: DeviceComponent, size_z: float) -> bool:
+    return (c.bbox_mm[1][2] - c.bbox_mm[0][2]) <= max(0.15 * size_z, 0.6)
+
+
 def _pick_ground(comps: list[DeviceComponent], size_z: float) -> DeviceComponent | None:
-    named = [c for c in comps if c.role == "ground" and c.em in ("pec", "lossy_metal")]
+    """The reference plane: a named ground if there is one (sheet-like ones
+    first — a thick rail called 'substructure' is a frame, not a plane), else
+    the largest thin metal sheet, lower one preferred so the antenna volume
+    stays inside the device."""
+    metal = [c for c in comps if c.em in ("pec", "lossy_metal")]
+    named = [c for c in metal if c.role == "ground"]
     if named:
-        return max(named, key=_footprint)
-    thin = [c for c in comps if c.em in ("pec", "lossy_metal")
-            and (c.bbox_mm[1][2] - c.bbox_mm[0][2]) <= max(0.15 * size_z, 0.6)
-            and c.role not in ("frame", "module")]
+        return max(named, key=lambda c: (_is_sheet(c, size_z), _footprint(c)))
+    thin = [c for c in metal if _is_sheet(c, size_z) and c.role not in ("frame", "module")]
     if not thin:
         return None
-    # largest footprint, lower sheet preferred so the antenna volume stays inside
     return max(thin, key=lambda c: (_footprint(c), -c.bbox_mm[1][2]))
 
 
@@ -105,7 +112,8 @@ def _footprint(c: DeviceComponent) -> float:
 
 def classify(geometry: dict, band_ids: list[str] | None = None,
              overrides: dict[str, Override] | None = None,
-             ground_override: str | None = None) -> Classified:
+             ground_override: str | None = None,
+             geometry_path: str | None = None) -> Classified:
     overrides = overrides or {}
     amb: list[str] = []
     dropped: list[str] = []
@@ -196,6 +204,7 @@ def classify(geometry: dict, band_ids: list[str] | None = None,
             epsilon_r_back=(back.epsilon_r if back and back.epsilon_r else 1.0)),
         components=comps,
         requirements=requirements_for(band_ids),
+        geometry_path=geometry_path,
     )
     return Classified(spec=spec, ambiguities=amb, dropped=dropped)
 

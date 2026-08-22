@@ -55,7 +55,9 @@ def hints_for(spec: DeviceSpec, band: BandRequirement, cand: Candidate,
             f"try length_mm ≈ {cand.length_mm * scale:.1f}")
 
     R, X = r.impedance_ohm
-    if R < 20:
+    if R == 0 and X == 0:
+        pass  # solver reported no input impedance (external engines) — no R hints
+    elif R < 20:
         fix = ("increase gap_mm (moves feed tap up the impedance curve)"
                if cand.antenna_type == "IFA"
                else "consider IFA — a shorting post transforms low R upward")
@@ -89,12 +91,15 @@ def score_of(diffs: list[RequirementDiff]) -> float:
     return round(max(0.0, min(1.0, s)), 3)
 
 
-def build_report(spec: DeviceSpec, band: BandRequirement, iteration: int,
+def build_report(spec: DeviceSpec, band_for, iteration: int,
                  cands: dict[str, Candidate], results: dict[str, SimResult],
                  history_best: list[float]) -> IterationReport:
+    """`band_for(candidate) -> BandRequirement` resolves each candidate's own
+    band (multi-band runs score per band; ranking is by scalar score)."""
     reports: list[CandidateReport] = []
     for cid, r in results.items():
         cand = cands[cid]
+        band = band_for(cand)
         ds = diffs_for(spec, band, cand, r) if r.status == "complete" else []
         reports.append(CandidateReport(
             candidate_id=cid, result=r, diffs=ds,

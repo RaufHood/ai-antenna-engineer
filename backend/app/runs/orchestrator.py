@@ -15,15 +15,17 @@ import time
 from app.agent.port import AgentPort, RunContext
 from app.geometry.classify import Override, classify
 from app.geometry.spec import make_anchors
-from app.models import (Candidate, DoneRequest, EventType, IterationReport,
-                        SimulateRequest, SpecRequest, SweepRequest,
-                        WriteBuilderRequest)
+from app.models import (BandRequirement, Candidate, DoneRequest, EventType,
+                        IterationReport, SimulateRequest, SpecRequest,
+                        SweepRequest, WriteBuilderRequest)
 from app.runs.store import Run
 from app.sim import pool
 from app.sim.score import build_report
 
 MAX_WALL_CLOCK_S = 8 * 60          # crash barrier, not pacing (agent self-paces)
-MAX_BATCH = 40                      # sanity cap per simulate/sweep request
+# cap per simulate/sweep request: 40 is fine for the ms-per-solve reference
+# oracle; set MAX_BATCH=8 or so when an FDTD engine (minutes per solve) is wired
+MAX_BATCH = int(os.environ.get("MAX_BATCH", "40"))
 # agent-side extraction: pip install bpy (~220 MB) + Blender load + reasoning
 EXTRACT_TIMEOUT_S = float(os.environ.get("EXTRACT_TIMEOUT_S", "600"))
 
@@ -32,37 +34,51 @@ async def drive(run: Run, agent: AgentPort) -> None:
     try:
         await _drive(run, agent)
     except Exception as e:
-        # never fail empty: agent-channel death degrades to best-so-far
         run.log.emit(run.stage, EventType.error, {"error": str(e)})
         ranking = _best_ranking(run)
         if ranking:
+            # never fail empty: agent-channel death degrades to best-so-far
             run.truncated = True
-            band = next(b for b in run.spec.requirements.bands
-                        if b.id in run.band_ids)
-            await _finish(run, band, ranking,
+            await _finish(run, ranking,
                           f"agent channel failed ({e}); best simulated design "
                           f"returned", agent)
-        else:
-            run.status = "failed"
-            run.log.emit(run.stage, EventType.run_finished,
-                         {"status": "failed", "error": str(e)})
+            return
+        if type(agent).__name__ != "MockAgent":
+            # nothing simulated yet -> the heuristic agent finishes the run
+            # (DESIGN.md §6.3/§10): the demo always ends with a result
+            from app.agent.mock import MockAgent
+            run.log.emit(run.stage, EventType.decision, {
+                "decision": f"agent channel failed before any simulation ({e}); "
+                            f"falling back to the built-in heuristic agent"})
+            run.spec_source += "+mock-fallback"
+            try:
+                await agent.close("agent failure — mock fallback")
+            except Exception:
+                pass
+            await drive(run, MockAgent())
+            return
+        run.status = "failed"
+        run.log.emit(run.stage, EventType.run_finished,
+                     {"status": "failed", "error": str(e)})
 
 
 async def _drive(run: Run, agent: AgentPort) -> None:
-    band = next(b for b in run.spec.requirements.bands if b.id in run.band_ids)
     device = run.device
+    # a mock taking over after the spec was accepted must not re-extract
+    do_extract = (device is not None and run.extract_mode == "agent"
+                  and run.spec_source.startswith("backend"))
     ctx = RunContext(
         run_id=run.id, prompt=run.prompt, spec=run.spec, anchors=run.anchors,
         band_ids=run.band_ids,
         budget_note=f"~{MAX_WALL_CLOCK_S // 60} minutes wall clock for the design "
                     f"loop; simulate before concluding; spend it as you judge best.",
-        extract_mode=run.extract_mode if device else "backend",
+        extract_mode="agent" if do_extract else "backend",
         blend_path=device.blend_path() if device else None,
         sidecar_path=device.sidecar_path() if device else None,
         geometry=device.geometry if device else None,
         ambiguities=list(run.ambiguities))
 
-    if ctx.extract_mode == "agent":
+    if do_extract:
         # ---- EXTRACT: the agent reads the build file itself (ADR-2) ----
         run.stage = "extract"
         run.log.emit("extract", EventType.stage_started, {
@@ -104,10 +120,11 @@ async def _drive(run: Run, agent: AgentPort) -> None:
             run.truncated = True
             run.log.emit("agent_loop", EventType.decision,
                          {"decision": "wall-clock barrier tripped"})
-            await _finish(run, band, _best_ranking(run), 
+            await _finish(run, _best_ranking(run),
                           "wall-clock barrier: returning best-so-far", agent)
             return
 
+        report = _with_user_notes(run, report)
         action = await agent.next_action(report)
         await _narrate(run, agent)
 
@@ -119,8 +136,8 @@ async def _drive(run: Run, agent: AgentPort) -> None:
             run.log.emit("agent_loop", EventType.candidates_proposed, {
                 "iteration": run.iteration,
                 "candidates": [c.model_dump() for c in cands]})
-            results = await _simulate_batch(run, band, cands)
-            report = _score(run, band, results, history_best)
+            results = await _simulate_batch(run, cands)
+            report = _score(run, results, history_best)
 
         elif isinstance(action, SweepRequest):
             base = run.candidates.get(action.candidate_id)
@@ -147,8 +164,8 @@ async def _drive(run: Run, agent: AgentPort) -> None:
             run.log.emit("agent_loop", EventType.candidates_proposed, {
                 "iteration": run.iteration, "sweep": action.model_dump(by_alias=True),
                 "candidates": [c.model_dump() for c in variants]})
-            results = await _simulate_batch(run, band, variants)
-            report = _score(run, band, results, history_best)
+            results = await _simulate_batch(run, variants)
+            report = _score(run, results, history_best)
 
         elif isinstance(action, WriteBuilderRequest):
             report = _protocol_error(
@@ -173,11 +190,10 @@ async def _drive(run: Run, agent: AgentPort) -> None:
                 run.log.emit("agent_loop", EventType.decision, {
                     "decision": "gate: recommended design has no simulation on "
                                 "record — simulating before accepting"})
-                results = await _simulate_batch(
-                    run, band, [run.candidates[top]])
-                report = _score(run, band, results, history_best)
+                results = await _simulate_batch(run, [run.candidates[top]])
+                report = _score(run, results, history_best)
                 continue  # agent sees the evidence and must conclude again
-            await _finish(run, band, ranking, action.rationale, agent)
+            await _finish(run, ranking, action.rationale, agent)
             return
 
 
@@ -206,7 +222,8 @@ def _accept_spec(run: Run, action) -> str:
 
     ov = {c.name: Override(em=c.em, role=c.role, epsilon_r=c.epsilon_r, note=c.note)
           for c in action.components}
-    merged = classify(device.geometry, run.band_ids, ov, action.ground)
+    merged = classify(device.geometry, run.band_ids, ov, action.ground,
+                      geometry_path=str(device.dir / "out" / "geometry.json"))
     run.spec, run.anchors, run.ambiguities = merged.spec, make_anchors(merged.spec), merged.ambiguities
     run.spec_source = "agent"
 
@@ -253,12 +270,34 @@ def _accept_spec(run: Run, action) -> str:
     return note
 
 
-async def _simulate_batch(run: Run, band, cands: list[Candidate]):
+def band_for(run: Run, cand: Candidate) -> BandRequirement:
+    """Each candidate is simulated against its own band (multi-band runs);
+    unknown band_id falls back to the run's first band."""
+    bands = {b.id: b for b in run.spec.requirements.bands}
+    if cand.band_id in bands and cand.band_id in run.band_ids:
+        return bands[cand.band_id]
+    return next(b for b in run.spec.requirements.bands if b.id in run.band_ids)
+
+
+def _with_user_notes(run: Run, report: IterationReport | None) -> IterationReport | None:
+    """Mid-run user feedback (POST /runs/{id}/messages) rides along with the
+    next evidence message — no extra agent turn, no rate-limit exposure."""
+    if not run.inbox:
+        return report
+    notes = [f"NOTE FROM THE USER: {t}" for t in run.inbox]
+    run.inbox.clear()
+    if report is None:
+        return IterationReport(iteration=run.iteration, reports=[], best_so_far=None,
+                               trend="first_iteration", notes=notes)
+    return report.model_copy(update={"notes": [*report.notes, *notes]})
+
+
+async def _simulate_batch(run: Run, cands: list[Candidate]):
     results = {}
     async def one(c: Candidate):
         run.log.emit("agent_loop", EventType.sim_started,
-                     {"candidate_id": c.candidate_id})
-        r = await pool.solve_async(run.spec, band, c)
+                     {"candidate_id": c.candidate_id, "band_id": c.band_id})
+        r = await pool.solve_async(run.spec, band_for(run, c), c)
         run.results[c.candidate_id] = r
         results[c.candidate_id] = r
         run.log.emit("agent_loop", EventType.sim_result, r.model_dump())
@@ -266,9 +305,9 @@ async def _simulate_batch(run: Run, band, cands: list[Candidate]):
     return results
 
 
-def _score(run: Run, band, results, history_best: list[float]) -> IterationReport:
-    report = build_report(run.spec, band, run.iteration, run.candidates,
-                          results, history_best)
+def _score(run: Run, results, history_best: list[float]) -> IterationReport:
+    report = build_report(run.spec, lambda c: band_for(run, c), run.iteration,
+                          run.candidates, results, history_best)
     if report.reports:
         history_best.append(report.reports[0].score)
     run.reports.append(report)
@@ -292,7 +331,7 @@ def _best_ranking(run: Run) -> list[str]:
     return [cid for cid, _ in done[:5]]
 
 
-async def _finish(run: Run, band, ranking: list[str], rationale: str,
+async def _finish(run: Run, ranking: list[str], rationale: str,
                   agent: AgentPort) -> None:
     run.stage = "report"
     best = ranking[0] if ranking else None
@@ -304,13 +343,27 @@ async def _finish(run: Run, band, ranking: list[str], rationale: str,
         "best_candidate": run.candidates[best].model_dump() if best else None,
         "iterations": run.iteration,
         "total_sims": len(run.results),
+        "spec_source": run.spec_source,
     }
     run.final = payload
     run.status = "finished"
+    run.finished_at = time.time()
     run.log.emit("report", EventType.decision,
                  {"decision": "accepted", "rationale": rationale})
     run.log.emit("report", EventType.run_finished, payload)
-    await agent.close("finished")
+    # the agent's own structured report arrives on its schedule; it is an
+    # addendum artifact, never a gate on run_finished
+    try:
+        agent_report = await agent.close("finished")
+    except Exception as e:
+        agent_report = None
+        run.log.emit("report", EventType.error, {"error": f"agent close: {e}"})
+    if agent_report:
+        run.final["agent_report"] = agent_report
+        run.log.emit("report", EventType.artifact,
+                     {"name": "agent_report", "report": agent_report})
+    run.log.emit("report", EventType.artifact, {
+        "name": "report.md", "url": f"/runs/{run.id}/artifacts/report.md"})
 
 
 async def _narrate(run: Run, agent: AgentPort) -> None:
