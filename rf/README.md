@@ -116,12 +116,25 @@ result["field_animation_path"]  # GIF of |E| spreading out from the feed
 marked) — called separately, not gated by `dump_fields`, see the
 `__main__` block in `run_simulation.py` for the usage pattern.
 
+## Real device materials
+
+If `config["device"]["manifest_path"]` (or an inline `device["parts"]`)
+points at a `device.json` from `rf/blend_loader/load_blend.py`,
+`geometry._add_device_materials()` adds one real CSXCAD dielectric/
+lossy-metal material per distinct `material_key`, one box per part —
+automatic, no `SimOptions` flag needed. It's a **bbox-only**
+approximation (not the actual STL mesh shape — importing ~200 real part
+meshes as polyhedra would blow the runtime budget) and has **no
+collision-awareness** with the antenna itself (placement/keepout is on
+the caller). Ran end-to-end against `data/apple_iphone_15_pro/` (191
+parts) — see `progress_simulation.md` step 6 for the result and both
+caveats in detail.
+
 ## Status
 
-Pipeline runs end-to-end (geometry → FDTD solve → S11/VSWR/gain/efficiency
-→ optional field GIF), but **the IFA is not yet cross-checked against a
-known-good result** — resonance/dimensions are a first guess, not tuned or
-validated. See `progress_simulation.md` → "Steps" for exactly what's done,
-what bugs were found and fixed, and what's still open (tutorial
-cross-check, PyNEC cross-check, real device geometry from the Blender
-export).
+Pipeline runs end-to-end (geometry + real device materials → FDTD solve →
+S11/VSWR/gain/efficiency → optional field GIF), but **the IFA is not yet
+cross-checked against a known-good result** — resonance/dimensions are a
+first guess, not tuned or validated. See `progress_simulation.md` →
+"Steps" for exactly what's done, what bugs were found and fixed, and
+what's still open (tutorial cross-check, PyNEC cross-check).

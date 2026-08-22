@@ -15,11 +15,58 @@ from .models import (
 )
 
 
+def _add_device_materials(CSX, parts: list[dict]) -> None:
+    """Step 6: one CSXCAD material per distinct material_key in
+    device['parts'] (from rf/blend_loader/load_blend.py's device.json),
+    one AddBox per part. bbox_mm-only -- the STLs load_blend.py exported
+    aren't imported as polyhedra; a phone-scale part count (~200) of full
+    AddPolyhedronReader calls would blow the runtime budget geometry.py
+    otherwise keeps bounded via margin_mm/mesh_res for a coarse first
+    pass. Priority 1: strictly below the antenna's own PEC primitives
+    (priority 10) and port (priority 5), so a device part can never mask
+    the antenna geometry it's meant to sit alongside.
+
+    A device manifest's coordinates are Blender-native (centred on the
+    object); the ground plane/antenna above are corner-anchored at
+    [0, board_w] x [0, board_l]. Coordinates here are shifted so the
+    parts' own combined bbox starts at (0, 0, 0), aligning the two.
+    There's no collision-avoidance with the antenna itself (e.g. against
+    a battery or frame segment sharing its cell) -- that's on
+    candidate.keepout_mm / placement choice, not this function.
+    """
+    usable = [p for p in parts if p.get("bbox_mm") and p.get("eps_r") is not None]
+    if not usable:
+        return
+
+    xs = [c[0] for p in usable for c in p["bbox_mm"]]
+    ys = [c[1] for p in usable for c in p["bbox_mm"]]
+    zs = [c[2] for p in usable for c in p["bbox_mm"]]
+    ox, oy, oz = -min(xs), -min(ys), -min(zs)
+
+    materials: dict[str, object] = {}
+    for p in usable:
+        key = p.get("material_key") or "unknown"
+        mat = materials.get(key)
+        if mat is None:
+            mat = CSX.AddMaterial(f"device_{key}")
+            mat.SetMaterialProperty(
+                epsilon=p["eps_r"],
+                kappa=p.get("sigma_S_per_m") or 0.0,
+                mue=p.get("mu_r") or 1.0,
+            )
+            materials[key] = mat
+        (x0, y0, z0), (x1, y1, z1) = p["bbox_mm"]
+        mat.AddBox(priority=1,
+                   start=[x0 + ox, y0 + oy, z0 + oz],
+                   stop=[x1 + ox, y1 + oy, z1 + oz])
+
+
 def build_ifa_geometry(candidate: Candidate, band: Band, device: dict, sim: SimOptions) -> FDTDStructure:
     """Step 3/6: ground plane + short pin + radiating arm as CSXCAD PEC
-    primitives, fed by an openEMS lumped port. Bare PEC only, no
-    dielectrics yet -- that's step 6, once device['components'] carries
-    real material data from a Blender export (rf/blend_loader/load_blend.py).
+    primitives, fed by an openEMS lumped port, plus every part in
+    device['parts'] (if present) as a real dielectric/lossy material via
+    _add_device_materials() -- bbox-approximated, see that function's
+    docstring for what that does and doesn't capture.
 
     Geometry convention (see IFA_* constants in models.py): candidate.
     position_mm is the short-circuit (grounded) pin location; candidate.
@@ -38,8 +85,11 @@ def build_ifa_geometry(candidate: Candidate, band: Band, device: dict, sim: SimO
     from openEMS import openEMS
 
     board = device.get("board", {}) if device else {}
-    # board thickness/stackup is unused here -- bare PEC ground plane only
-    # until step 6 (dielectrics from the Blender export) fills it in.
+    # board.size_mm still only sizes the synthetic flat ground plane below
+    # (board thickness is unused) -- it's a proxy "PCB ground" the antenna
+    # feeds against, not derived from device['parts']. Real dielectrics/
+    # conductors around it come from _add_device_materials() instead, when
+    # device['parts'] is present.
     board_w, board_l, _ = board.get("size_mm") or [100.0, 50.0, 1.6]
 
     f_low = band.f_low_ghz * 1e9
@@ -137,6 +187,8 @@ def build_ifa_geometry(candidate: Candidate, band: Band, device: dict, sim: SimO
     port = FDTD.AddLumpedPort(1, 50, [feed_xy[0], feed_xy[1], 0],
                                [feed_xy[0], feed_xy[1], h],
                                'z', 1.0, priority=5, edges2grid='xy')
+
+    _add_device_materials(CSX, device.get("parts") or [])
 
     if sim.dump_fields:
         # Time-domain E-field on the xy-plane through the antenna (z=h),

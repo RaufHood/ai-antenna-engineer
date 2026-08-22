@@ -68,6 +68,11 @@ mock swap-out (`frontend/src/lib/runner.ts` / `rf.ts`), Devin agent loop later.
   meaning the FastAPI service a teammate is building separately, and to
   keep the sim workstream's Python code in one place — see "Module
   layout" below.)
+- **Real device materials are now in the FDTD solve (bbox-approximated).**
+  `geometry._add_device_materials()` turns `device['parts']` into real
+  CSXCAD dielectric/lossy-metal boxes — see step 6 below for the
+  iPhone-model result and its two known limitations (bbox-only, no
+  collision-awareness with the antenna).
 - **PyNEC could not be installed in `rf/.venv`.** It has no prebuilt wheel
   (sdist only) and needs the MSVC C++ Build Tools; this machine has the
   VS2022 Build Tools installer shell but not the actual "Desktop
@@ -245,12 +250,39 @@ rf/blend_loader/.venv/Scripts/pip install -r rf/blend_loader/requirements.txt
    openEMS-specific counterpart to step 2 and catches setup mistakes
    (units, mesh, port definition) that a lone tutorial re-run wouldn't.
    Blocked on the PyNEC/MSVC gap noted above.
-6. **Swap in real geometry from the Blender export** once it lands:
-   `device.components[]` (name/em/epsilon_r/bbox_mm) replace the hand-coded
-   ground-plane box; map `em: "dielectric"` blocks to openEMS material
-   definitions (epsilon_r, loss tangent already in the schema), `em:
-   "pec"/"lossy_metal"` to metal. Antenna geometry (IFA arm/pins) stays
-   parametric from `candidate`, independent of the imported mesh.
+6. ~~Swap in real materials from the Blender export~~ **Done, bbox-only.**
+   `geometry._add_device_materials()` reads `device['parts']` (from
+   `rf/blend_loader/load_blend.py`'s `device.json`) and adds one CSXCAD
+   `AddMaterial` per distinct `material_key` (epsilon/kappa/mue from
+   `eps_r`/`sigma_S_per_m`/`mu_r`), with one `AddBox` per part using its
+   `bbox_mm`. Runs automatically whenever `device['parts']` is
+   non-empty — no new `SimOptions` flag. Ran end-to-end against the real
+   Apple iPhone 15 Pro asset (`data/apple_iphone_15_pro/`, 191 parts, 13
+   material keys, antennas excluded per the asset's own brief) with the
+   GPS-L1 IFA candidate resized to its real footprint (71.45 x 146.6mm,
+   computed from the parts' own combined bbox): S11 shifted from -9.8dB
+   (bare PEC ground plane) to -7.5dB once the real dielectrics/lossy
+   metal were in the solve — evidence the materials are actually loading
+   the antenna, not inert. Two things worth knowing:
+   - **bbox-only, not real mesh shape.** The STLs `load_blend.py` exports
+     per part aren't imported as polyhedra — 191 `AddPolyhedronReader`
+     calls (500k+ triangles total) would blow the runtime budget step 7
+     is meant to protect. Each part becomes one axis-aligned box with
+     that material's `eps_r`/`sigma_S_per_m`/`mu_r`, coordinate-shifted so
+     the parts' own bbox starts at `(0, 0, 0)` (a device manifest's
+     coordinates are Blender-native/centred; the ground plane/antenna use
+     a corner-anchored `[0, board_w] x [0, board_l]` frame).
+   - **No collision-awareness.** Nothing checks whether a device part
+     (e.g. the battery, the titanium frame) overlaps the antenna's own
+     geometry at the chosen `candidate.position_mm` — that's on
+     placement/`candidate.keepout_mm`, not this function. Also hit and
+     fixed along the way: `load_blend.py` assumed the axe fixture's
+     schema (`material_vocabulary_used` + a `parts` list) and silently
+     returned `eps_r=None`/`sigma_S_per_m=None` for all 191 iPhone parts,
+     whose `materials.json` nests the same fields differently
+     (`materials: {key: {em_from_vocabulary: {...}}}`, no `parts` list —
+     identity is name-only). Fixed to check both shapes; the axe fixture
+     re-verified unaffected.
 7. **Keep runtime bounded.** Expose `sim.mesh_res` and the band's frequency
    window as the two speed knobs (per `deep_research_on_challenge.md`
    Stage 2: keep each run under ~5-10 min). The narrowed GPS-L1-only

@@ -70,6 +70,15 @@ def load_device_from_blend(
     if materials_json_path:
         manifest = json.loads(Path(materials_json_path).read_text())
     parts_by_node = {p["node_path"]: p for p in manifest.get("parts", [])}
+    # Two materials.json schemas seen in the wild: the axe fixture has a
+    # flat "material_vocabulary_used": {key: {eps_r, sigma_S_per_m, ...}}
+    # plus a "parts" list with a per-part "em_from_vocabulary" copy; the
+    # iPhone fixture has no "parts" list at all (identity is name-only) and
+    # nests the same fields one level deeper as "materials": {key:
+    # {"em_from_vocabulary": {...}, ...}}. Look up both shapes below rather
+    # than assuming one -- assuming the axe's shape silently produced
+    # eps_r=None/sigma_S_per_m=None for every one of the iPhone's 191 parts.
+    material_vocab = manifest.get("materials") or manifest.get("material_vocabulary_used") or {}
 
     if export_stl_dir:
         Path(export_stl_dir).mkdir(parents=True, exist_ok=True)
@@ -80,9 +89,8 @@ def load_device_from_blend(
             continue
         node_path, material_key = _parse_identity(obj)
         meta = parts_by_node.get(node_path, {})
-        em = meta.get("em_from_vocabulary") or manifest.get(
-            "material_vocabulary_used", {}
-        ).get(material_key, {})
+        vocab_entry = material_vocab.get(material_key, {})
+        em = meta.get("em_from_vocabulary") or vocab_entry.get("em_from_vocabulary") or vocab_entry
 
         part = {
             "node_path": node_path,
