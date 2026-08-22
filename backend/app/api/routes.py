@@ -112,11 +112,11 @@ async def create_run(body: CreateRun) -> dict:
         anchors = device.anchors
         mode = body.extract or os.environ.get("EXTRACT_MODE", "agent")
     else:
-        device, spec, mode = None, phone_v1(), "backend"
-        known = {b.id for b in spec.requirements.bands}
-        if not set(body.bands) & known:
-            raise HTTPException(400, f"no known band in {body.bands}; have {sorted(known)}")
-        anchors = make_anchors(spec)
+        if bad := bands.unknown(body.bands):
+            raise HTTPException(400, f"unknown bands {bad}; have {sorted(bands.CATALOG)}")
+        spec = phone_v1().model_copy(
+            update={"requirements": bands.requirements_for(body.bands)})
+        device, mode, anchors = None, "backend", make_anchors(spec)
     if mode not in ("agent", "backend"):
         raise HTTPException(400, "extract must be 'agent' or 'backend'")
 
@@ -204,6 +204,20 @@ async def get_run(run_id: str) -> dict:
         "results": {k: r.model_dump() for k, r in run.results.items()},
         "final": run.final,
     }
+
+
+@router.get("/runs/{run_id}/log")
+async def run_log(run_id: str, since: int = 0) -> dict:
+    """REST replay of the event log (same events as the WS, `seq > since`).
+    For pollers that cannot hold a socket — a Next.js route handler serving
+    the UI's snapshot, a script tailing a run — without a second code path
+    on the backend: both views read the one append-only log."""
+    run = store.get(run_id)
+    if run is None:
+        raise HTTPException(404, "unknown run")
+    events = [e.model_dump(mode="json") for e in run.log.events if e.seq > since]
+    return {"run_id": run.id, "status": run.status, "stage": run.stage,
+            "last_seq": len(run.log.events), "events": events}
 
 
 @router.websocket("/runs/{run_id}/events")

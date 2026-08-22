@@ -97,30 +97,37 @@ class MockAgent:
     def _propose(self) -> SimulateRequest:
         ctx = self.ctx
         assert ctx is not None
-        band = next(b for b in ctx.spec.requirements.bands if b.id in ctx.band_ids)
-        quarter = C_MM_GHZ / band.f_mid_ghz / 4.0
+        # lowest band first: it needs the most clearance, so it gets the
+        # clearest anchors; the others take the next ones down the ranking
+        # rather than piling onto the same corner
+        bands = sorted((b for b in ctx.spec.requirements.bands if b.id in ctx.band_ids),
+                       key=lambda b: b.f_low_ghz)
         ranked = sorted(ctx.anchors,
                         key=lambda a: clearance_at(ctx.spec, a.pos_mm)[0],
                         reverse=True)
+        per_band = 3 if len(bands) == 1 else 2
         out: list[Candidate] = []
-        for a in ranked[:3]:
-            clear, blocker = clearance_at(ctx.spec, a.pos_mm)
-            for typ in ("IFA", "monopole"):
-                cid = f"c{len(out):03d}_{typ.lower()}_{a.id}"
-                cand = Candidate(
-                    candidate_id=cid, anchor_id=a.id, band_id=band.id,
-                    antenna_type=typ, position_mm=a.pos_mm, feed_point_mm=a.pos_mm,
-                    length_mm=round(quarter, 1),
-                    orientation="corner" if a.corner else "edge",
-                    prior=round(min(clear / (2 * band.clearance_mm), 1.0), 2),
-                    rationale=f"{a.label}: {clear:.0f} mm to {blocker or 'nothing'}; "
-                              f"start at lambda/4 = {quarter:.1f} mm",
-                    params={"gap_mm": 5.0} if typ == "IFA" else {})
-                self.cands[cid] = cand
-                out.append(cand)
+        for bi, band in enumerate(bands):
+            quarter = C_MM_GHZ / band.f_mid_ghz / 4.0
+            picks = ranked[bi * per_band:(bi + 1) * per_band] or ranked[:per_band]
+            for a in picks:
+                clear, blocker = clearance_at(ctx.spec, a.pos_mm)
+                for typ in ("IFA", "monopole"):
+                    cid = f"c{len(out):03d}_{typ.lower()}_{a.id}"
+                    cand = Candidate(
+                        candidate_id=cid, anchor_id=a.id, band_id=band.id,
+                        antenna_type=typ, position_mm=a.pos_mm, feed_point_mm=a.pos_mm,
+                        length_mm=round(quarter, 1),
+                        orientation="corner" if a.corner else "edge",
+                        prior=round(min(clear / (2 * band.clearance_mm), 1.0), 2),
+                        rationale=f"{a.label}: {clear:.0f} mm to {blocker or 'nothing'}; "
+                                  f"start at lambda/4 = {quarter:.1f} mm",
+                        params={"gap_mm": 5.0} if typ == "IFA" else {})
+                    self.cands[cid] = cand
+                    out.append(cand)
         self._story.append(
-            f"Proposing {len(out)} candidates on the {len(ranked[:3])} clearest anchors "
-            f"(IFA + monopole each), lambda/4 start.")
+            f"Proposing {len(out)} candidates across {len(bands)} band(s), "
+            f"{per_band} clearest anchors each (IFA + monopole), lambda/4 start.")
         return SimulateRequest(action="simulate", candidates=out)
 
     def _best(self) -> Candidate | None:

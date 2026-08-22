@@ -1,5 +1,5 @@
-"""Anchor generation + clearance metric over a DeviceSpec, and the canned M0
-spec (kept as the offline regression baseline; real devices come from
+"""Anchor generation + clearance metric over a DeviceSpec, and the canned
+Handset A spec (the offline baseline; real devices come from
 tools/extract_blend.py via classify.py).
 
 Every function here derives from the spec — device size is the union of the
@@ -7,10 +7,15 @@ component boxes, the antenna height sits just above the ground reference —
 so a 147 mm handset and a 374 mm axe get sensible anchors alike."""
 from __future__ import annotations
 
+from app.geometry.bands import requirements_for
 from app.geometry.classify import device_size, ground_of
 from app.models import Anchor, DeviceSpec, Vec3
 
-W, H, T = 72.0, 147.0, 7.8  # canned phone outline (x width, y height, z thickness)
+# Canned outline. Mirrors frontend/src/lib/device.ts `phoneV1` (ADR-8): the
+# viewer draws its procedural handset from those same boxes, so candidates
+# the backend proposes on this spec land exactly where the 3D scene shows the
+# battery, camera and speaker. Change both files together.
+W, H, T = 71.6, 147.6, 7.8  # x width, y height, z thickness (iPhone 15 class)
 
 # roles whose boxes the antenna volume necessarily sits on/inside — they are
 # the environment, not obstacles (the frame is usually the antenna's own metal)
@@ -19,37 +24,32 @@ _MIN_OBSTACLE_MM = 4.0   # screws, springs, pins: too small to detune anything
 
 
 def phone_v1() -> DeviceSpec:
+    """Handset A. Obstacle boxes (battery, camera, taptic, speaker) are the
+    frontend's verbatim; the ground/display sheets are the RF model's view of
+    the same handset (the viewer draws frame + glass instead, which are not
+    obstacles either way). Requirements: the full band catalogue; a run picks
+    which bands it must satisfy."""
     return DeviceSpec.model_validate({
         "device_id": "phone_v1",
-        "name": "Generic slab phone (canned M0 spec)",
-        "board": {"size_mm": (W - 4, H - 6, 1.0), "stackup": "FR4",
+        "name": "Handset A (147.6 x 71.6 x 7.8 mm)",
+        "board": {"size_mm": (W, H, T), "stackup": "FR4",
                   "epsilon_r": 4.4, "loss_tangent": 0.02},
         "enclosure": {"back": "glass", "frame": "aluminum", "epsilon_r_back": 5.5},
         "components": [
             {"name": "pcb_ground", "label": "PCB ground plane", "em": "pec",
              "role": "ground", "bbox_mm": ((2, 3, 3.0), (W - 2, H - 3, 4.0))},
-            {"name": "battery", "label": "Battery", "em": "lossy_metal",
-             "role": "battery", "bbox_mm": ((6, 40, 4.2), (48, 105, 7.2))},
-            {"name": "camera", "label": "Camera module", "em": "pec",
-             "role": "module", "bbox_mm": ((4, 118, 4.2), (34, 143, 7.6))},
-            {"name": "speaker_bottom", "label": "Speaker", "em": "lossy_metal",
-             "role": "module", "bbox_mm": ((40, 4, 4.2), (66, 16, 7.0))},
-            {"name": "usb", "label": "USB-C block", "em": "pec",
-             "role": "module", "bbox_mm": ((28, 2, 4.2), (44, 10, 6.5))},
+            {"name": "battery", "label": "Battery pack", "em": "lossy_metal",
+             "role": "battery", "bbox_mm": ((5, 36, 1.6), (66, 98, 5.8))},
+            {"name": "camera_module", "label": "Camera module", "em": "pec",
+             "role": "module", "bbox_mm": ((6, 104, 3.6), (30, 132, 7.4))},
+            {"name": "taptic_engine", "label": "Taptic engine", "em": "lossy_metal",
+             "role": "module", "bbox_mm": ((6, 20, 2.2), (30, 33, 5.4))},
+            {"name": "speaker", "label": "Loudspeaker", "em": "lossy_metal",
+             "role": "module", "bbox_mm": ((38, 20, 2.2), (66, 33, 5.4))},
             {"name": "display", "label": "Display metal sheet", "em": "pec",
-             "role": "display", "bbox_mm": ((1, 1, 0.8), (W - 1, H - 1, 2.2))},
+             "role": "display", "bbox_mm": ((1.4, 1.4, T - 1.4), (W - 1.4, H - 1.4, T))},
         ],
-        "requirements": {
-            "bands": [
-                {"id": "wifi24", "name": "Wi-Fi 2.4 GHz", "short": "2.4G",
-                 "service": "WLAN/BT", "f_low_ghz": 2.400, "f_high_ghz": 2.4835,
-                 "clearance_mm": 5.0, "s11_db_max": -6.0, "efficiency_min": 0.4,
-                 "antenna_types": ["IFA", "monopole", "loop"]},
-            ],
-            "vswr_max": 3.0,
-            "isolation_db_max": -10.0,
-            "sar_limit": {"standard": "FCC", "w_per_kg": 1.6, "mass_g": 1},
-        },
+        "requirements": requirements_for().model_dump(),
     })
 
 

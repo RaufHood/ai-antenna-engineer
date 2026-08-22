@@ -27,7 +27,7 @@ from app.sim.score import hints_for  # noqa: E402
 
 def test_rf_adapter() -> None:
     spec = phone_v1()
-    band = spec.requirements.bands[0]
+    band = next(b for b in spec.requirements.bands if b.id == "wifi24")
     cand = Candidate(candidate_id="a1", anchor_id="c_bl", band_id="wifi24",
                      antenna_type="IFA", position_mm=(6, 6, 5.5), feed_point_mm=(6, 6, 5.5),
                      length_mm=30.0, orientation="corner", params={"height_mm": 3.0, "gap_mm": 5})
