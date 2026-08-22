@@ -20,7 +20,12 @@ import subprocess
 from pathlib import Path
 
 
-def assemble(run_dir: str | Path, *, fps: int = 20,
+def assemble_from_run(run, out_gif: str | None = None, **kw):
+    """CLI entry point: renderers receive the loaded run dict, not a path."""
+    return assemble(run["run_dir"] if isinstance(run, dict) else run, **kw)
+
+
+def assemble(run_dir: str | Path, *, fps: int = 15,
              frames_dir: str = "media/orbit_frames",
              out_name: str = "media/orbit_beauty.gif") -> str | None:
     run_dir = Path(run_dir)
@@ -44,11 +49,15 @@ def assemble(run_dir: str | Path, *, fps: int = 20,
 
     mp4 = out_gif.with_suffix(".mp4")
     if shutil.which("ffmpeg"):
+        # minterpolate synthesises motion-compensated in-between frames, so a
+        # 60-frame turntable plays back as silky 30 fps without paying for
+        # another hour of Freestyle rendering. pad= keeps H.264 happy: it
+        # requires even dimensions and fails *silently* on odd ones.
         cmd = ["ffmpeg", "-y", "-framerate", str(fps),
                "-pattern_type", "glob", "-i", str(run_dir / frames_dir / "orbit_*.png"),
-               # pad to even dimensions; H.264 yuv420p requires it and fails
-               # silently otherwise
-               "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+               "-vf", (f"minterpolate=fps={fps * 2}:mi_mode=mci:"
+                       "mc_mode=aobmc:me_mode=bidir:vsbmc=1,"
+                       "pad=ceil(iw/2)*2:ceil(ih/2)*2"),
                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", str(mp4)]
         try:
             subprocess.run(cmd, check=True, capture_output=True)

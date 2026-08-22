@@ -25,6 +25,8 @@ _RENDERERS = [
     ("orbit",     ".anim_orbit",    ("render_orbit", "render_orbit_animation"), "orbit.gif"),
     ("dashboard", ".anim_dashboard", ("render_dashboard",),                   "dashboard.gif"),
     ("map",       ".heatmap",       ("render_placement_map",),                "placement_map.png"),
+    # assembles pre-rendered Blender frames; skipped cleanly when they are absent
+    ("orbit3d",   ".anim_orbit_beauty", ("assemble_from_run", "assemble"),    "orbit_beauty.gif"),
 ]
 _NAMES = [r[0] for r in _RENDERERS]
 
