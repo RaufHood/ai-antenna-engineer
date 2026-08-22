@@ -15,7 +15,9 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
     "three": "^0.185.1",
+    "ws": "^8.21.3",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -25,6 +27,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.185.4",
+    "@types/ws": "^8.18.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.23",
     "playwright": "^1.62.1",

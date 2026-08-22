@@ -132,12 +132,13 @@ function pickAntennaType(band: BandRequirement, a: Anchor) {
 export function generateCandidates(
   spec: DeviceSpec,
   bandIds: string[],
+  placementAnchors: Anchor[] = anchors,
 ): Candidate[] {
   const out: Candidate[] = [];
   for (const band of spec.requirements.bands) {
     if (!bandIds.includes(band.id)) continue;
     const fc = (band.f_low_ghz + band.f_high_ghz) / 2;
-    for (const a of anchors) {
+    for (const a of placementAnchors) {
       const s = scorePoint(spec, band, a.pos_mm);
       const len = Math.round(quarterWaveMm(fc) * 0.86 * 10) / 10;
       out.push({

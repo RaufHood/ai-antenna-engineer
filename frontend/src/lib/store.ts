@@ -2,9 +2,12 @@
 
 import { create } from "zustand";
 import { anchors, phoneV1 } from "./device";
+import { errorFromBody } from "./httpError";
 import { generateCandidates } from "./rf";
+import { hydrateSpec } from "./specHydrate";
 import type {
   AgentMessage,
+  Anchor,
   BandRequirement,
   Candidate,
   DeviceSpec,
@@ -13,10 +16,11 @@ import type {
 } from "./types";
 
 export type ViewMode = "system" | "focus";
+export type AgentMode = "mock" | "devin" | "local";
 
 interface AppState {
   spec: DeviceSpec;
-  anchors: typeof anchors;
+  anchors: Anchor[];
 
   enabledBands: string[];
   focusBand: string | null;
@@ -47,11 +51,20 @@ interface AppState {
   running: boolean;
   planning: boolean;
   error: string | null;
+  truncated: boolean;
+  runNote: string | null;
+
+  deviceId: string | null;
+  agentMode: AgentMode;
+  uploadingDevice: boolean;
 
   /** URL of a user-supplied .glb; overrides the procedural handset. */
   modelUrl: string | null;
   modelName: string | null;
   setModel: (url: string | null, name: string | null) => void;
+  setAgentMode: (m: AgentMode) => void;
+  uploadDevice: (blend: File, materials?: File | null) => Promise<void>;
+  clearDevice: () => void;
 
   updateBand: (id: string, patch: Partial<BandRequirement>) => void;
   updateSar: (standard: string) => void;
@@ -117,10 +130,100 @@ export const useApp = create<AppState>((set, get) => ({
   running: false,
   planning: false,
   error: null,
+  truncated: false,
+  runNote: null,
+
+  deviceId: null,
+  agentMode: "mock",
+  uploadingDevice: false,
 
   modelUrl: null,
   modelName: null,
   setModel: (url, name) => set({ modelUrl: url, modelName: name }),
+  setAgentMode: (m) => set({ agentMode: m }),
+
+  uploadDevice: async (blend, materials) => {
+    set({ uploadingDevice: true, error: null });
+    try {
+      const fd = new FormData();
+      fd.append("blend", blend, blend.name);
+      if (materials) fd.append("materials", materials, materials.name);
+      fd.append("wait", "false");
+      const res = await fetch("/api/devices", { method: "POST", body: fd });
+      const body: unknown = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(errorFromBody(body, `upload failed (${res.status})`));
+      }
+      let snap = body as {
+        device_id?: string;
+        name?: string;
+        status?: string;
+        error?: string;
+        spec?: DeviceSpec;
+        anchors?: Anchor[];
+      };
+      if (!snap.device_id) throw new Error("device upload did not return device_id");
+      const deviceId = snap.device_id;
+      const started = Date.now();
+      while (snap.status === "extracting") {
+        if (Date.now() - started > 10 * 60 * 1000) {
+          throw new Error("device extraction timed out");
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+        const poll = await fetch(`/api/devices/${encodeURIComponent(deviceId)}`);
+        const polled: unknown = await poll.json().catch(() => ({}));
+        if (!poll.ok) {
+          throw new Error(errorFromBody(polled, "device poll failed"));
+        }
+        snap = polled as typeof snap;
+      }
+      if (snap.status && snap.status !== "ready") {
+        throw new Error(snap.error || `device is ${snap.status}`);
+      }
+      if (!snap.device_id || !snap.spec) {
+        throw new Error("device upload did not return a spec");
+      }
+      const spec = hydrateSpec(snap.spec);
+      const nextAnchors = Array.isArray(snap.anchors) ? snap.anchors : [];
+      const enabled = spec.requirements.bands
+        .map((b) => b.id)
+        .filter((id) => get().enabledBands.includes(id));
+      const ordered = enabled.length
+        ? enabled
+        : spec.requirements.bands.map((b) => b.id).slice(0, 4);
+      set({
+        deviceId: snap.device_id,
+        spec,
+        anchors: nextAnchors,
+        enabledBands: ordered,
+        modelUrl: `/api/devices/${snap.device_id}/artifacts/device.glb`,
+        modelName: snap.name || blend.name,
+        candidates: generateCandidates(spec, ordered, nextAnchors),
+        hidden: [],
+        selectedComponent: null,
+        uploadingDevice: false,
+      });
+    } catch (e) {
+      set({
+        uploadingDevice: false,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
+  },
+
+  clearDevice: () => {
+    const enabled = get().enabledBands;
+    set({
+      deviceId: null,
+      spec: phoneV1,
+      anchors,
+      modelUrl: null,
+      modelName: null,
+      candidates: generateCandidates(phoneV1, enabled, anchors),
+      hidden: [],
+      selectedComponent: null,
+    });
+  },
 
   updateBand: (id, patch) => {
     const spec: DeviceSpec = {
@@ -132,7 +235,7 @@ export const useApp = create<AppState>((set, get) => ({
         ),
       },
     };
-    set({ spec, candidates: generateCandidates(spec, get().enabledBands) });
+    set({ spec, candidates: generateCandidates(spec, get().enabledBands, get().anchors) });
   },
 
   updateSar: (standard) => {
@@ -155,12 +258,12 @@ export const useApp = create<AppState>((set, get) => ({
     const next = get().enabledBands.includes(id)
       ? get().enabledBands.filter((b) => b !== id)
       : [...get().enabledBands, id];
-    const ordered = phoneV1.requirements.bands
+    const ordered = get().spec.requirements.bands
       .map((b) => b.id)
       .filter((b) => next.includes(b));
     set({
       enabledBands: ordered,
-      candidates: generateCandidates(phoneV1, ordered),
+      candidates: generateCandidates(get().spec, ordered, get().anchors),
       focusBand: get().focusBand && ordered.includes(get().focusBand!) ? get().focusBand : null,
     });
   },
@@ -183,7 +286,7 @@ export const useApp = create<AppState>((set, get) => ({
   isolateComponent: (name) =>
     set({
       hidden: name
-        ? phoneV1.components.map((c) => c.name).filter((n) => n !== name)
+        ? get().spec.components.map((c) => c.name).filter((n) => n !== name)
         : [],
       selectedComponent: name,
     }),
@@ -194,7 +297,7 @@ export const useApp = create<AppState>((set, get) => ({
   setPrompt: (p) => set({ prompt: p }),
 
   startRun: async () => {
-    const { enabledBands, prompt } = get();
+    const { enabledBands, prompt, agentMode, deviceId } = get();
     if (!enabledBands.length) {
       set({ error: "Select at least one band before running." });
       return;
@@ -203,6 +306,8 @@ export const useApp = create<AppState>((set, get) => ({
       running: true,
       planning: true,
       error: null,
+      truncated: false,
+      runNote: null,
       results: {},
       jobs: [],
       placements: {},
@@ -224,6 +329,8 @@ export const useApp = create<AppState>((set, get) => ({
         body: JSON.stringify({
           prompt,
           bands: enabledBands,
+          agent: agentMode,
+          device_id: deviceId ?? undefined,
           overrides: {
             sar_limit: get().spec.requirements.sar_limit,
             bands: Object.fromEntries(
@@ -239,39 +346,74 @@ export const useApp = create<AppState>((set, get) => ({
           },
         }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "run failed");
-      const { runId } = await res.json();
+      const body: unknown = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(errorFromBody(body, "run failed"));
+      const runId = (body as { runId?: string }).runId;
+      if (!runId) throw new Error("run did not return runId");
       set({ runId });
       await get().poll();
     } catch (e) {
-      set({ running: false, planning: false, error: String(e) });
+      set({ running: false, planning: false, error: String(e instanceof Error ? e.message : e) });
     }
   },
 
   poll: async () => {
     const runId = get().runId;
     if (!runId) return;
-    const res = await fetch(`/api/run?runId=${runId}`);
-    if (!res.ok) {
-      set({ running: false, error: "run snapshot unavailable" });
-      return;
+    try {
+      const res = await fetch(`/api/run?runId=${encodeURIComponent(runId)}`, {
+        cache: "no-store",
+      });
+      const body: unknown = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = errorFromBody(body, "run snapshot unavailable");
+        set({
+          error: msg,
+          running: res.status === 404 ? false : get().running,
+          planning: res.status === 404 ? false : get().planning,
+        });
+        return;
+      }
+      const snap = body as {
+        jobs: Job[];
+        results: Record<string, SimResult>;
+        placements: Record<string, string>;
+        isolation: { a: string; b: string; db: number }[];
+        candidates: Candidate[];
+        planning: boolean;
+        done: boolean;
+        messages: AgentMessage[];
+        truncated?: boolean;
+        error?: string;
+        rationale?: string;
+      };
+      const userMsg = get().messages.find((m) => m.role === "user");
+      const incoming = Array.isArray(snap.messages) ? snap.messages : [];
+      set({
+        jobs: snap.jobs ?? [],
+        results: snap.results ?? {},
+        placements: snap.placements ?? {},
+        isolation: snap.isolation ?? [],
+        candidates:
+          Array.isArray(snap.candidates) && snap.candidates.length
+            ? snap.candidates
+            : get().candidates,
+        planning: Boolean(snap.planning),
+        running: !snap.done,
+        truncated: Boolean(snap.truncated),
+        runNote: snap.rationale ?? get().runNote,
+        error: snap.error ?? null,
+        messages: userMsg
+          ? [userMsg, ...incoming.filter((m) => m.role !== "user" || m.id !== userMsg.id)]
+          : incoming,
+        selectedCandidate:
+          get().selectedCandidate ??
+          (Object.values(snap.placements ?? {})[0] as string | undefined) ??
+          null,
+      });
+    } catch (e) {
+      set({ error: e instanceof Error ? e.message : String(e) });
     }
-    const snap = await res.json();
-    const userMsg = get().messages.find((m) => m.role === "user");
-    set({
-      jobs: snap.jobs,
-      results: snap.results,
-      placements: snap.placements,
-      isolation: snap.isolation,
-      candidates: snap.candidates,
-      planning: snap.planning,
-      running: !snap.done,
-      messages: userMsg ? [userMsg, ...snap.messages] : snap.messages,
-      selectedCandidate:
-        get().selectedCandidate ??
-        (Object.values(snap.placements)[0] as string | undefined) ??
-        null,
-    });
   },
 
   reset: () =>
@@ -285,5 +427,8 @@ export const useApp = create<AppState>((set, get) => ({
       isolation: [],
       messages: [],
       selectedCandidate: null,
+      truncated: false,
+      runNote: null,
+      error: null,
     }),
 }));

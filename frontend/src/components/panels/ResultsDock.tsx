@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { anchors } from "@/lib/device";
 import { useApp } from "@/lib/store";
 import { S11Chart } from "./S11Chart";
 import { SpectrumStrip } from "./SpectrumStrip";
@@ -26,6 +25,7 @@ function ResultsTable() {
   const bands = useApp((s) => s.spec.requirements.bands);
   const selected = useApp((s) => s.selectedCandidate);
   const select = useApp((s) => s.selectCandidate);
+  const storeAnchors = useApp((s) => s.anchors);
 
   const rows = useMemo(() => {
     const queued = jobs.map((j) => j.candidate_id);
@@ -34,17 +34,17 @@ function ResultsTable() {
       .map((c) => ({
         c,
         r: results[c.candidate_id],
-        band: bands.find((b) => b.id === c.band_id)!,
-        anchor: anchors.find((a) => a.id === c.anchor_id)!,
+        band: bands.find((b) => b.id === c.band_id),
+        anchor: storeAnchors.find((a) => a.id === c.anchor_id),
         chosen: Object.values(placements).includes(c.candidate_id),
       }))
       .sort(
         (a, b) =>
           Number(b.chosen) - Number(a.chosen) ||
-          a.band.f_low_ghz - b.band.f_low_ghz ||
+          (a.band?.f_low_ghz ?? 0) - (b.band?.f_low_ghz ?? 0) ||
           (a.r?.s11_min_db ?? 0) - (b.r?.s11_min_db ?? 0),
       );
-  }, [candidates, results, jobs, placements, bands]);
+  }, [candidates, results, jobs, placements, bands, storeAnchors]);
 
   if (!rows.length) {
     return (
@@ -74,6 +74,7 @@ function ResultsTable() {
         </thead>
         <tbody>
           {rows.map(({ c, r, band, anchor, chosen }) => {
+            if (!band) return null;
             const isSel = selected === c.candidate_id;
             const pending = !r || r.status !== "complete";
             return (
@@ -98,7 +99,7 @@ function ResultsTable() {
                     )}
                   </span>
                 </td>
-                <td className="px-2 py-1.5 text-slate-400">{anchor?.label}</td>
+                <td className="px-2 py-1.5 text-slate-400">{anchor?.label ?? c.anchor_id}</td>
                 <td className="px-2 py-1.5 font-mono text-slate-400">
                   {c.antenna_type}
                 </td>
@@ -147,6 +148,9 @@ function ReportView() {
   const results = useApp((s) => s.results);
   const candidates = useApp((s) => s.candidates);
   const isolation = useApp((s) => s.isolation);
+  const truncated = useApp((s) => s.truncated);
+  const runNote = useApp((s) => s.runNote);
+  const agentMode = useApp((s) => s.agentMode);
 
   const entries = Object.entries(placements);
   if (!entries.length) {
@@ -162,11 +166,20 @@ function ReportView() {
       <h3 className="mb-2 text-xs font-semibold text-slate-100">
         Antenna placement report - {spec.name}
       </h3>
+      {truncated && (
+        <div className="mb-3 rounded-md border border-amber-800/70 bg-amber-950/40 p-3 text-[10px] text-amber-200">
+          Run ended early (wall-clock or budget barrier). Showing best-so-far.
+          {runNote ? ` ${runNote}` : ""}
+        </div>
+      )}
+      {!truncated && runNote && (
+        <p className="mb-3 text-[11px] text-slate-400">{runNote}</p>
+      )}
       {entries.map(([bandId, candId]) => {
-        const band = spec.requirements.bands.find((b) => b.id === bandId)!;
-        const c = candidates.find((x) => x.candidate_id === candId)!;
+        const band = spec.requirements.bands.find((b) => b.id === bandId);
+        const c = candidates.find((x) => x.candidate_id === candId);
         const r = results[candId];
-        if (!c || !r) return null;
+        if (!band || !c || !r) return null;
         return (
           <div
             key={bandId}
@@ -241,12 +254,19 @@ function ReportView() {
         </div>
       )}
 
-      <div className="rounded-md border border-amber-900/50 bg-amber-950/20 p-3 text-[10px] text-amber-200/80">
-        Results come from a geometry-driven heuristic model, not a full-wave
-        solver. Swap the solver behind /api/run for openEMS before treating any
-        of these numbers as engineering data. Hand and head detuning and real SAR
-        still require measurement.
-      </div>
+      {agentMode === "local" ? (
+        <div className="rounded-md border border-amber-900/50 bg-amber-950/20 p-3 text-[10px] text-amber-200/80">
+          Results come from a geometry-driven heuristic model, not a full-wave
+          solver. Swap the solver behind /api/run for openEMS before treating any
+          of these numbers as engineering data. Hand and head detuning and real SAR
+          still require measurement.
+        </div>
+      ) : (
+        <div className="rounded-md border border-slate-800 bg-slate-900/40 p-3 text-[10px] text-slate-500">
+          Isolation and keep-outs are computed in the viewer from placed
+          candidates. Simulation numbers come from the backend solver.
+        </div>
+      )}
     </div>
   );
 }

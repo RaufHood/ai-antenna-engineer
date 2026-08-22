@@ -20,13 +20,16 @@ export function AgentPanel() {
   const jobs = useApp((s) => s.jobs);
   const error = useApp((s) => s.error);
   const runId = useApp((s) => s.runId);
+  const agentMode = useApp((s) => s.agentMode);
+  const setAgentMode = useApp((s) => s.setAgentMode);
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!running || !runId) return;
-    const t = setInterval(() => void poll(), 600);
+    const ms = agentMode === "local" ? 600 : 2000;
+    const t = setInterval(() => void poll(), ms);
     return () => clearInterval(t);
-  }, [running, runId, poll]);
+  }, [running, runId, poll, agentMode]);
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
@@ -140,6 +143,21 @@ export function AgentPanel() {
           rows={3}
           className="w-full resize-none rounded-md border border-slate-700 bg-slate-900 px-2.5 py-2 text-[11px] leading-relaxed text-slate-200 outline-none focus:border-sky-500"
         />
+        <label className="mt-2 flex items-center justify-between gap-2">
+          <span className="text-[10px] text-slate-500">Agent</span>
+          <select
+            value={agentMode}
+            onChange={(e) =>
+              setAgentMode(e.target.value as "mock" | "devin" | "local")
+            }
+            disabled={running}
+            className="rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-200 outline-none focus:border-sky-500 disabled:opacity-50"
+          >
+            <option value="mock">mock (offline)</option>
+            <option value="devin">devin</option>
+            <option value="local">local (no backend)</option>
+          </select>
+        </label>
         <button
           onClick={() => void startRun()}
           disabled={running}

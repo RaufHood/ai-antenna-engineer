@@ -46,6 +46,10 @@ export function SpecPanel() {
   const setFocusBand = useApp((s) => s.setFocusBand);
   const setModel = useApp((s) => s.setModel);
   const modelName = useApp((s) => s.modelName);
+  const uploadingDevice = useApp((s) => s.uploadingDevice);
+  const uploadDevice = useApp((s) => s.uploadDevice);
+  const clearDevice = useApp((s) => s.clearDevice);
+  const deviceId = useApp((s) => s.deviceId);
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -76,23 +80,31 @@ export function SpecPanel() {
           <input
             ref={fileRef}
             type="file"
-            accept=".glb,.gltf"
+            accept=".blend,.json"
+            multiple
             className="hidden"
             onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) setModel(URL.createObjectURL(f), f.name);
+              const files = Array.from(e.target.files ?? []);
+              e.target.value = "";
+              const blend = files.find((f) => f.name.toLowerCase().endsWith(".blend"));
+              const materials = files.find((f) => f.name.toLowerCase().endsWith(".json"));
+              if (blend) void uploadDevice(blend, materials ?? null);
             }}
           />
           <div className="mt-2 flex items-center gap-2">
             <button
               onClick={() => fileRef.current?.click()}
-              className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-300 hover:bg-slate-700"
+              disabled={uploadingDevice}
+              className="rounded bg-slate-800 px-2 py-1 text-[10px] text-slate-300 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Load Blender .glb
+              {uploadingDevice ? "Extracting..." : "Load Blender .blend"}
             </button>
             {modelName && (
               <button
-                onClick={() => setModel(null, null)}
+                onClick={() => {
+                  clearDevice();
+                  setModel(null, null);
+                }}
                 className="text-[10px] text-slate-500 hover:text-sky-400"
               >
                 clear
@@ -102,8 +114,12 @@ export function SpecPanel() {
           {modelName && (
             <div className="mt-1 truncate font-mono text-[9px] text-emerald-400">
               {modelName}
+              {deviceId ? ` (${deviceId})` : ""}
             </div>
           )}
+          <p className="mt-1 text-[9px] leading-snug text-slate-600">
+            Select the .blend and optionally materials.json together.
+          </p>
         </div>
       </section>
 
@@ -111,6 +127,10 @@ export function SpecPanel() {
         <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           Bands &amp; targets
         </h2>
+        <p className="mb-1.5 text-[9px] leading-snug text-slate-600">
+          Keep-out, S11 and efficiency are view-side: they drive keep-outs, the
+          heatmap and local scoring. The solver uses the server band catalogue.
+        </p>
         <div className="space-y-1.5">
           {spec.requirements.bands.map((b) => {
             const on = enabled.includes(b.id);
@@ -193,6 +213,7 @@ export function SpecPanel() {
         <div className="mt-1 font-mono text-[10px] text-slate-500">
           limit {spec.requirements.sar_limit.w_per_kg} W/kg over{" "}
           {spec.requirements.sar_limit.mass_g} g
+          <span className="text-slate-600"> (view-side)</span>
         </div>
         <div className="mt-1 font-mono text-[10px] text-slate-500">
           VSWR &lt;= {spec.requirements.vswr_max} - isolation &lt;={" "}
