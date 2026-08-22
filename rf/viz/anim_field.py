@@ -16,6 +16,7 @@ Two deliberate correctness choices over the old debug plot:
 from __future__ import annotations
 
 import shutil
+import json
 from pathlib import Path
 
 import numpy as np
@@ -78,6 +79,24 @@ def _read_field_frames(h5_path, max_frames: int) -> dict | None:
 
 # ------------------------------------------------------------------ overlays
 
+def _beauty_overlay(media_dir: Path):
+    """Load the orthographic Blender x-ray render + the mm rectangle it covers.
+
+    Produced by:
+        <bpy python> -m rf.viz.blender_render <blend> <config.json> <media> overlay
+    Returns (RGBA array, [x0, x1, y0, y1]) or None when absent.
+    """
+    png = Path(media_dir) / "field_overlay.png"
+    meta = png.with_suffix(".json")
+    if not (png.exists() and meta.exists()):
+        return None
+    try:
+        import matplotlib.image as mpimg
+        extent = json.loads(meta.read_text())["extent_mm"]
+        return mpimg.imread(png), extent
+    except Exception:
+        return None
+
 def _is_battery_cell(part: dict) -> bool:
     """The battery body itself (by material), not its adhesive tabs/flex."""
     return any(k in (part.get("material_key") or "").lower()
@@ -124,14 +143,35 @@ def _device_overlays(device: dict | None):
     return outline, rects
 
 
-def _antenna_footprint(candidate: dict):
-    """xy bbox of arm + short/feed pins (rf.geometry conventions: the arm
-    runs from position_mm away from feed_point_mm along the dominant axis).
+def _antenna_footprint(candidate: dict, device: dict | None = None):
+    """xy footprint of the strip, using the SAME clamped box the 3D renderer
+    and the placement screener use (rf.placement.antenna_box) so the amber
+    rectangle can never fall outside the chassis. Falls back to the raw
+    feed/arm construction only when no device manifest is available.
 
     -> ((x0, y0), (x1, y1)) | None
     """
     if not candidate:
         return None
+    if device and device.get("parts"):
+        try:
+            from ..placement import Device, Part, antenna_box
+            allc = [c for p in device["parts"] if p.get("bbox_mm")
+                    for c in p["bbox_mm"]]
+            o = [min(c[i] for c in allc) for i in range(3)]
+            parts = [Part(name=p.get("node_path") or "?",
+                          material_key=p.get("material_key") or "",
+                          lo=tuple(p["bbox_mm"][0][i] - o[i] for i in range(3)),
+                          hi=tuple(p["bbox_mm"][1][i] - o[i] for i in range(3)),
+                          sigma=float(p.get("sigma_S_per_m") or 0.0),
+                          eps_r=float(p.get("eps_r") or 1.0))
+                     for p in device["parts"] if p.get("bbox_mm")]
+            size = tuple(max(p.hi[i] for p in parts) for i in range(3))
+            lo, hi = antenna_box(candidate, Device(parts=parts, size_mm=size))
+            return (lo[0], lo[1]), (hi[0], hi[1])
+        except Exception:
+            pass                       # fall through to the raw construction
+
     pos = np.asarray(candidate.get("position_mm") or (0.0, 0.0, 0.0), dtype=float)
     feed = np.asarray(candidate.get("feed_point_mm") or pos, dtype=float)
     w = IFA_ARM_WIDTH_MM
@@ -146,12 +186,7 @@ def _antenna_footprint(candidate: dict):
         tip[axis] += sign * arm_len
         xs += [tip[0] - w / 2, tip[0] + w / 2]
         ys += [tip[1] - w / 2, tip[1] + w / 2]
-    if not xs:
-        return None
-    return ((min(xs), min(ys)), (max(xs), max(ys)))
-
-
-# ------------------------------------------------------------ degraded path
+    return (min(xs), min(ys)), (max(xs), max(ys))
 
 def _write_message_gif(out: Path, message: str) -> str:
     """Single-frame GIF with an honest empty-state message (no crash)."""
@@ -239,7 +274,25 @@ def render_field_animation(run: dict, out_gif: str, max_frames: int = 64,
 
     # ---- overlays ----------------------------------------------------------
     handles = []
+
+    # Preferred backdrop: the Blender x-ray line art of the REAL device,
+    # rendered orthographically so it maps 1:1 onto a known mm rectangle
+    # (see rf/viz/blender_render.render_overlay). Falls back to the bbox
+    # outline below when that render hasn't been produced for this run.
+    beauty = _beauty_overlay(Path(out_gif).parent)
+    if beauty is not None:
+        img, extent = beauty
+        # origin="upper": Blender writes row 0 at the TOP of the PNG, while
+        # the |E| map underneath is drawn origin="lower". Matching them by
+        # eye is how the overlay ends up mirrored about the device centre.
+        ax.imshow(img, extent=extent, origin="upper", zorder=5,
+                  interpolation="bilinear", aspect="equal")
+        handles.append(Line2D([0], [0], color=PALETTE["metal"], lw=1.6,
+                              label="Device (x-ray)"))
+
     outline, battery_rects = _device_overlays(device)
+    if beauty is not None:
+        outline, battery_rects = None, []      # the render already shows both
     if outline is not None:
         (ox0, oy0), (ox1, oy1) = outline
         ax.add_patch(Rectangle((ox0, oy0), ox1 - ox0, oy1 - oy0,
@@ -247,7 +300,7 @@ def render_field_animation(run: dict, out_gif: str, max_frames: int = 64,
                                linewidth=1.6, alpha=0.95, zorder=5))
         handles.append(Line2D([0], [0], color=PALETTE["outline"], lw=1.6,
                               label="Device outline"))
-    else:
+    elif beauty is None:
         ax.text(0.03, 0.03, "device manifest unavailable",
                 transform=ax.transAxes, color=FG, alpha=0.6, fontsize=9)
     for (bx0, by0), (bx1, by1) in battery_rects:
@@ -258,7 +311,7 @@ def render_field_animation(run: dict, out_gif: str, max_frames: int = 64,
     if battery_rects:
         handles.append(Line2D([0], [0], color=PALETTE["battery"], lw=1.5,
                               linestyle="--", label="Battery"))
-    ant_rect = _antenna_footprint(candidate)
+    ant_rect = _antenna_footprint(candidate, device)
     if ant_rect is not None:
         (ax0, ay0), (ax1, ay1) = ant_rect
         ax.add_patch(Rectangle((ax0, ay0), ax1 - ax0, ay1 - ay0,
@@ -311,15 +364,8 @@ def render_field_animation(run: dict, out_gif: str, max_frames: int = 64,
 
     anim = animation.FuncAnimation(fig, _update, frames=n,
                                    interval=1000.0 / fps, blit=False)
-    anim.save(str(out), writer=animation.PillowWriter(fps=fps), dpi=_GIF_DPI)
-
-    if shutil.which("ffmpeg"):
-        try:
-            anim.save(str(out.with_suffix(".mp4")),
-                      writer=animation.FFMpegWriter(fps=fps, bitrate=4000),
-                      dpi=_GIF_DPI)
-        except Exception:
-            pass                       # GIF is the contract; mp4 is a bonus
+    from .output import save_animation
+    save_animation(anim, out, fps, _GIF_DPI)
 
     plt.close(fig)
     return str(out)

@@ -32,7 +32,7 @@ _FIGSIZE = (12.8, 7.2)        # 16:9
 _GIF_DPI = 90                 # 1152 x 648 -- comfortably >= 640 px tall
 _MP4_DPI = 150                # 1920 x 1080
 
-_AX_S11 = (0.055, 0.20, 0.535, 0.60)     # left zone (~60 % of the card)
+_AX_S11 = (0.078, 0.20, 0.512, 0.60)     # left zone (~60 % of the card)
 _AX_TILES = (0.625, 0.185, 0.35, 0.645)  # right zone (~40 %)
 _AX_TICKER = (0.045, 0.022, 0.91, 0.095)
 
@@ -377,16 +377,8 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
         return []
 
     anim = FuncAnimation(fig, update, frames=n_frames, interval=1000.0 / fps)
-    anim.save(str(out), writer=PillowWriter(fps=fps), dpi=_GIF_DPI)
-
-    if shutil.which("ffmpeg"):
-        mp4 = out.with_suffix(".mp4")
-        try:
-            anim.save(str(mp4), dpi=_MP4_DPI,
-                      writer=FFMpegWriter(fps=fps, codec="h264",
-                                          extra_args=["-pix_fmt", "yuv420p"]))
-        except Exception as exc:                      # GIF already on disk
-            print(f"note: mp4 twin skipped ({type(exc).__name__}: {exc})")
+    from .output import save_animation
+    save_animation(anim, out, fps, _GIF_DPI, mp4_dpi=_MP4_DPI)
 
     plt.close(fig)
     return str(out)

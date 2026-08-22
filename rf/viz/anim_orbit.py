@@ -77,7 +77,8 @@ def render_orbit(run: dict, out_gif: str, seconds: float = 8, fps: int = 15,
 
     anim = animation.FuncAnimation(fig, _update, frames=n,
                                    interval=1000.0 / fps, blit=False)
-    anim.save(str(out), writer=animation.PillowWriter(fps=fps), dpi=_GIF_DPI)
+    from .output import save_animation
+    save_animation(anim, out, fps, _GIF_DPI)
     plt.close(fig)
     return str(out)
 

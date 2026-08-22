@@ -24,6 +24,7 @@ _RENDERERS = [
     ("field",     ".anim_field",    ("render_field", "render_field_animation"), "field.gif"),
     ("orbit",     ".anim_orbit",    ("render_orbit", "render_orbit_animation"), "orbit.gif"),
     ("dashboard", ".anim_dashboard", ("render_dashboard",),                   "dashboard.gif"),
+    ("map",       ".heatmap",       ("render_placement_map",),                "placement_map.png"),
 ]
 _NAMES = [r[0] for r in _RENDERERS]
 
@@ -128,7 +129,7 @@ def main(argv: list[str] | None = None) -> int:
                     and twin.stat().st_mtime >= pipeline_start
                     and twin not in paths):
                 paths.append(twin)
-        paths = [p for p in paths if p.exists()]
+        paths = [p for p in paths if p.exists() and p.stat().st_size > 0]
         if paths:
             rows.append((name, "ok", paths, dt, ""))
         else:
