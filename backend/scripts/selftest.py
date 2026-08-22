@@ -37,26 +37,54 @@ def test_rf_adapter() -> None:
     assert cfg["candidate"]["feed_point_mm"][2] == 3.0 and cfg["band"]["id"] == "wifi24"
     assert "manifest_path" not in cfg["device"] and cfg["device"]["board"]["size_mm"]
 
-    rf = types.ModuleType("rf")
-    rs = types.ModuleType("rf.run_simulation")
-    rs.run_simulation = lambda c: {
-        "candidate_id": c["candidate"]["candidate_id"], "status": "complete", "runtime_s": 12.5,
+    # solve() shells out to rf/.venv's interpreter (rf.cli, stdin/stdout JSON) --
+    # openEMS is Python-3.11-only, this process is 3.12 (see rf_adapter's
+    # module docstring). Stub subprocess.run itself rather than importing rf.
+    stub_out = {
+        "candidate_id": cand.candidate_id, "status": "complete", "runtime_s": 12.5,
         "s11_curve": [{"f_ghz": 2.4, "s11_db": -9.0}, {"f_ghz": 2.44, "s11_db": -15.0}],
         "s11_min_db": -15.0, "resonant_ghz": 2.44, "bandwidth_mhz": 80.0, "efficiency": 0.6,
         "peak_gain_dbi": 1.5, "vswr": 1.4, "sar_w_per_kg": 0.0, "meets_requirements": True,
         "notes": "stub"}
-    sys.modules["rf"], sys.modules["rf.run_simulation"] = rf, rs
-    r = rf_adapter.solve(spec, band, cand)
-    assert r.status == "complete" and r.s11_min_db == -15.0 and r.impedance_ohm == (0.0, 0.0)
-    assert not any("radiation resistance" in h for h in hints_for(spec, band, cand, r))
 
-    def boom(_c):
-        raise ImportError("no openEMS")
-    rs.run_simulation = boom
-    r = rf_adapter.solve(spec, band, cand)
-    assert r.status == "failed" and "ImportError" in r.notes
-    del sys.modules["rf"], sys.modules["rf.run_simulation"]
-    print("ok  rf_adapter mapping + failure path")
+    def _out_path(args) -> pathlib.Path:
+        return pathlib.Path(args[args.index("--out") + 1])
+
+    real_run, real_rf_python = rf_adapter.subprocess.run, rf_adapter._rf_python
+    rf_adapter._rf_python = lambda: pathlib.Path("stub-python")
+    try:
+        def fake_ok(args, **k):
+            _out_path(args).write_text(json.dumps(stub_out))
+            return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+        rf_adapter.subprocess.run = fake_ok
+        r = rf_adapter.solve(spec, band, cand)
+        assert r.status == "complete" and r.s11_min_db == -15.0 and r.impedance_ohm == (0.0, 0.0)
+        assert not any("radiation resistance" in h for h in hints_for(spec, band, cand, r))
+
+        # a crash before the result file is written (e.g. no openEMS on this
+        # machine) -- rf.cli's own except-handler normally still writes a
+        # "failed" result, but a subprocess-level crash (no CSXCAD, engine
+        # segfault) can leave no file at all; that's the path under test here
+        rf_adapter.subprocess.run = lambda args, **k: types.SimpleNamespace(
+            returncode=1, stdout="", stderr="ImportError: no module named CSXCAD")
+        r = rf_adapter.solve(spec, band, cand)
+        assert r.status == "failed" and "ImportError" in r.notes
+
+        def boom(*a, **k):
+            raise rf_adapter.subprocess.TimeoutExpired(cmd="rf.cli", timeout=1)
+        rf_adapter.subprocess.run = boom
+        r = rf_adapter.solve(spec, band, cand)
+        assert r.status == "failed" and "timed out" in r.notes
+    finally:
+        rf_adapter.subprocess.run, rf_adapter._rf_python = real_run, real_rf_python
+
+    rf_adapter._rf_python = lambda: None
+    try:
+        r = rf_adapter.solve(spec, band, cand)
+        assert r.status == "failed" and "rf/.venv not found" in r.notes
+    finally:
+        rf_adapter._rf_python = real_rf_python
+    print("ok  rf_adapter mapping + subprocess dispatch + failure paths")
 
 
 class _Dying:

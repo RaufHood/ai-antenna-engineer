@@ -23,6 +23,13 @@ itself is 3.12). Resolution order: `BPY_PYTHON=<python>`, `BLENDER=<blender>`
 (headless), else an ephemeral `uv run --python 3.11 --with bpy` (first run
 downloads ~220 MB). Outputs cache under `var/devices/`.
 
+Likewise, running the real sim engine (`SIM_SOLVER=app.sim.rf_adapter:solve`)
+needs the sim team's **Python 3.11 + openEMS/CSXCAD** venv at `rf/.venv`
+(Windows-only prebuilt wheels — see `rf/README.md` Setup). Auto-detected at
+`rf/.venv/Scripts/python.exe` (or `rf/.venv/bin/python`); override with
+`RF_PYTHON=<python>` if it lives elsewhere. `RF_TIMEOUT_S` (default 600)
+bounds each subprocess call — FDTD solves run minutes, not milliseconds.
+
 Offline self-test (no Devin, no bpy, ~10 s): `uv run python scripts/selftest.py`
 
 No-HTTP smoke tests:
@@ -73,7 +80,8 @@ best_candidate, rationale, truncated}` then `artifact{name: agent_report}` and
 - **Simulation**: one callable, `solve(spec, band, candidate) -> SimResult`,
   selected with `SIM_SOLVER=module:function` (default: bundled reference
   oracle `app.sim.oracle:solve`). **Sim team:** your `rf.run_simulation(config)`
-  is already wired — start the backend with
+  is wired and **live-verified against the real openEMS solver**
+  (2026-08-22) — start the backend with
   `SIM_SOLVER=app.sim.rf_adapter:solve` (optional `SIM_OPTS='{"mesh_res":
   "coarse","freq_points":21}'`, `MAX_BATCH=8` to cap candidates per agent
   turn); `app/sim/rf_adapter.py` is the only file that knows your
@@ -82,6 +90,19 @@ best_candidate, rationale, truncated}` then `artifact{name: agent_report}` and
   `parts/*.stl`); `spec.components[].role == "ground"` names the reference
   plane. Expect minutes per solve with FDTD — batch sizes in the agent
   protocol should shrink accordingly.
+  Cross-venv note: openEMS/CSXCAD are Python-3.11-only wheels in `rf/.venv`;
+  this backend is Python 3.12, so `rf_adapter.solve()` shells out to
+  `rf/.venv`'s interpreter (`RF_PYTHON` to override, else auto-detected)
+  running `rf/cli.py`, the same subprocess pattern `app/geometry/extract.py`
+  uses for `bpy`. Result comes back via a `--out <file>` handoff, not
+  stdout — openEMS's C++ engine writes its own progress logging straight to
+  stdout, confirmed live, so a JSON result can't share that stream reliably.
+  `RF_TIMEOUT_S` (default 600s) bounds the subprocess. Live coarse-mesh run
+  confirmed end-to-end (`status: "complete"`, real S11 curve back through
+  the full backend `Candidate`/`DeviceSpec` shapes) — see
+  `AGENT_SIM_INTEGRATION_PLAN.md` for the verification steps and what's
+  still open (a two-tier fast-search/real-solver-confirmation strategy for
+  when the agent loop runs against this instead of the fast oracle).
 - **Geometry**: `tools/extract_blend.py` is the single extraction script
   (Devin and backend run the identical file); `app/geometry/classify.py` is
   the single place a `DeviceSpec` is assembled (heuristics + agent overrides).

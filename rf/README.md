@@ -36,6 +36,9 @@ rf/
 ├── postprocess.py           # postprocess() — port data -> SimResult metrics
 ├── visualize.py               # render_field_animation() / render_s11_plot() — human-facing, opt-in
 ├── run_simulation.py           # run_simulation() orchestrator + __main__ CLI demo
+├── cli.py                       # python -m rf.cli --out result.json < config.json
+│                                 # -- for callers on a different Python (e.g. the
+│                                 # FastAPI backend); see backend/app/sim/rf_adapter.py
 ├── openems_env.py               # DLL-path setup openEMS/CSXCAD need on Windows before import
 ├── requirements.txt              # numpy/h5py/matplotlib/cython + vendored openEMS/CSXCAD wheels
 ├── vendor/                        # gitignored — vendored openEMS build (~150MB, see Setup)
@@ -138,3 +141,15 @@ cross-checked against a known-good result** — resonance/dimensions are a
 first guess, not tuned or validated. See `progress_simulation.md` →
 "Steps" for exactly what's done, what bugs were found and fixed, and
 what's still open (tutorial cross-check, PyNEC cross-check).
+
+**Backend wiring: live-verified 2026-08-22.** `rf/cli.py` (stdin JSON in,
+`--out <file>` JSON result — not stdout, since openEMS/CSXCAD write their own
+progress logging straight to stdout) is a thin CLI wrapper over
+`run_simulation()` for callers on a different Python (the FastAPI backend is
+3.12; this package needs the 3.11 openEMS wheels in `rf/.venv`).
+`backend/app/sim/rf_adapter.py` shells out to it via subprocess — confirmed
+with a real coarse-mesh solve through the full backend `Candidate`/
+`DeviceSpec` → `rf_adapter.solve()` → `rf.cli` → `run_simulation()` path,
+returning `status: "complete"` with a real S11 curve. (The S11 numbers
+themselves are still the untuned first-guess IFA above, not evidence of a
+resonance fix — that's the separate, still-open item.)

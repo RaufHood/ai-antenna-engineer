@@ -8,6 +8,21 @@ Their contract (rf/run_simulation.py, branch feat/simulation):
 Select it with  SIM_SOLVER=app.sim.rf_adapter:solve . Nothing else in the
 backend changes: this module runs inside the process pool like any solver.
 
+**Cross-venv, not in-process.** openEMS/CSXCAD are Windows wheels built for
+Python 3.11, installed only in rf/.venv (rf/README.md Setup); the backend
+itself runs Python 3.12 (backend/pyproject.toml). `from rf.run_simulation
+import run_simulation` would raise ModuleNotFoundError the instant this ran
+inside the backend's own interpreter (in the ProcessPoolExecutor, that's the
+same interpreter as the parent process) -- there is no way to install
+openEMS into the backend's venv without an ABI mismatch. So `solve()` below
+shells out to rf/.venv's python via `rf/cli.py` (stdin JSON in, result JSON
+written to a --out file -- **not stdout**: openEMS's C++ engine writes its
+own verbose progress logging directly to the process's stdout, confirmed by
+running it for real, so a JSON result can't reliably share that stream).
+Same subprocess-to-a-separate-interpreter pattern `app/geometry/extract.py`
+already uses for the bpy/Python-3.11 boundary; same file-not-stdout handoff
+that script already uses for the same reason (bpy's own console spam).
+
 Mapping notes (keep in sync with rf/models.py):
 - their Candidate dataclass rejects unknown keys -> only the types.ts fields
   are forwarded (anchor_id / band_id / prior / rationale / params stay here).
@@ -22,18 +37,39 @@ Mapping notes (keep in sync with rf/models.py):
   skips the impedance hints.
 - `SIM_OPTS` env (JSON) passes solver knobs, e.g.
   {"mesh_res": "coarse", "boundary": "MUR", "freq_points": 21}.
+
+Env: `RF_PYTHON` overrides the interpreter (default: `rf/.venv/Scripts/python.exe`
+on Windows, `rf/.venv/bin/python` elsewhere); `RF_TIMEOUT_S` overrides the
+subprocess timeout (default 600s -- FDTD solves run minutes, not the
+oracle's milliseconds).
 """
 from __future__ import annotations
 
 import json
 import os
-import sys
+import subprocess
+import tempfile
 import time
 from pathlib import Path
 
 from app.models import BandRequirement, Candidate, DeviceSpec, S11Point, SimResult
 
 REPO_DIR = Path(__file__).resolve().parents[3]
+DEFAULT_TIMEOUT_S = 600.0
+
+
+def _rf_python() -> Path | None:
+    """Resolve an openEMS-capable interpreter. Never assumes -- returns None
+    (not a guess) if nothing is found, so the caller can fail with a clear
+    message instead of a confusing ModuleNotFoundError two layers down."""
+    if py := os.environ.get("RF_PYTHON"):
+        p = Path(py)
+        return p if p.exists() else None
+    for candidate in (REPO_DIR / "rf" / ".venv" / "Scripts" / "python.exe",  # Windows
+                     REPO_DIR / "rf" / ".venv" / "bin" / "python"):          # posix
+        if candidate.exists():
+            return candidate
+    return None
 
 
 def build_config(spec: DeviceSpec, band: BandRequirement, cand: Candidate) -> dict:
@@ -91,18 +127,41 @@ def from_result(cand: Candidate, out: dict, t0: float) -> SimResult:
 
 def solve(spec: DeviceSpec, band: BandRequirement, cand: Candidate) -> SimResult:
     t0 = time.perf_counter()
-    if str(REPO_DIR) not in sys.path:
-        sys.path.insert(0, str(REPO_DIR))
-    try:
-        from rf.run_simulation import run_simulation  # sim workstream, repo root
-    except Exception as e:
+    py = _rf_python()
+    if py is None:
         return SimResult(candidate_id=cand.candidate_id, status="failed",
                          runtime_s=round(time.perf_counter() - t0, 3),
-                         notes=f"rf.run_simulation not importable: {e}")
-    try:
-        out = run_simulation(build_config(spec, band, cand))
-        return from_result(cand, out, t0)
-    except Exception as e:  # their builder raises ImportError without openEMS
-        return SimResult(candidate_id=cand.candidate_id, status="failed",
-                         runtime_s=round(time.perf_counter() - t0, 3),
-                         notes=f"rf.run_simulation error: {type(e).__name__}: {e}")
+                         notes="rf/.venv not found (set RF_PYTHON to an "
+                               "openEMS-capable Python 3.11 interpreter)")
+    timeout_s = float(os.environ.get("RF_TIMEOUT_S", DEFAULT_TIMEOUT_S))
+    cfg_json = json.dumps(build_config(spec, band, cand))
+    with tempfile.TemporaryDirectory(prefix="rf_solve_") as tmpdir:
+        out_path = Path(tmpdir) / "result.json"
+        try:
+            proc = subprocess.run(
+                [str(py), "-m", "rf.cli", "--out", str(out_path)], input=cfg_json,
+                capture_output=True, text=True, timeout=timeout_s, cwd=str(REPO_DIR))
+        except subprocess.TimeoutExpired:
+            return SimResult(candidate_id=cand.candidate_id, status="failed",
+                             runtime_s=round(time.perf_counter() - t0, 3),
+                             notes=f"rf.cli timed out after {timeout_s:.0f}s")
+        except OSError as e:  # interpreter vanished/unrunnable between check and exec
+            return SimResult(candidate_id=cand.candidate_id, status="failed",
+                             runtime_s=round(time.perf_counter() - t0, 3),
+                             notes=f"rf.cli could not be started: {e}")
+        if proc.returncode != 0 or not out_path.exists():
+            # openEMS/CSXCAD write their own progress logging straight to
+            # stdout, interleaved with anything Python prints -- neither
+            # stream is reliably a clean error message, but it's all we have
+            tail = "\n".join((proc.stderr or proc.stdout).strip().splitlines()[-12:])
+            return SimResult(candidate_id=cand.candidate_id, status="failed",
+                             runtime_s=round(time.perf_counter() - t0, 3),
+                             notes=f"rf.cli failed (rc={proc.returncode}): "
+                                   f"{tail or '(no output)'}")
+        try:
+            out = json.loads(out_path.read_text())
+        except json.JSONDecodeError as e:
+            return SimResult(candidate_id=cand.candidate_id, status="failed",
+                             runtime_s=round(time.perf_counter() - t0, 3),
+                             notes=f"rf.cli result file invalid JSON: {e}")
+    return from_result(cand, out, t0)
