@@ -28,15 +28,15 @@ export function SpectrumStrip() {
   return (
     <div className="px-3 py-2">
       <div className="mb-1 flex items-baseline justify-between">
-        <span className="text-[10px] uppercase tracking-wider text-slate-500">
-          Spectrum coverage
+        <span className="text-[10px] uppercase tracking-[0.12em] text-slate-500">
+          Spectrum
         </span>
         <span className="font-mono text-[9px] text-slate-600">
-          log scale, {F_MIN}-{F_MAX} GHz
+          target bands · resonance of each chosen design · log {F_MIN}–{F_MAX} GHz
         </span>
       </div>
 
-      <div className="relative h-11 rounded-md border border-slate-800 bg-slate-950">
+      <div className="relative h-11 rounded-md border border-slate-800/80 bg-slate-950">
         {spec.requirements.bands
           .filter((b) => enabled.includes(b.id))
           .map((b) => {

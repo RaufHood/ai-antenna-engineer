@@ -4,7 +4,6 @@ import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
-import { H, W } from "@/lib/device";
 import { SCALE, toScene } from "@/lib/geometry";
 import { useApp } from "@/lib/store";
 import type { Candidate } from "@/lib/types";
@@ -43,6 +42,8 @@ function AntennaMarker({ cand }: { cand: Candidate }) {
   const select = useApp((s) => s.selectCandidate);
   const results = useApp((s) => s.results);
   const showLabels = useApp((s) => s.showLabels);
+
+  const [W, H] = useApp((s) => s.spec.board.size_mm);
 
   const res = results[cand.candidate_id];
   const isSel = selected === cand.candidate_id;
@@ -141,10 +142,27 @@ function AntennaMarker({ cand }: { cand: Candidate }) {
   );
 }
 
+/** Where the agent may place an antenna: the anchor set, shown until it proposes. */
+function AnchorDots() {
+  const anchors = useApp((s) => s.anchors);
+  return (
+    <group>
+      {anchors.map((a) => (
+        <mesh key={a.id} position={toScene(a.pos_mm)}>
+          <sphereGeometry args={[0.022, 12, 12]} />
+          <meshBasicMaterial color="#475569" transparent opacity={0.7} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export function Antennas() {
   const show = useApp((s) => s.showPins);
+  const hasCandidates = useApp((s) => s.candidates.length > 0);
   const visible = useVisibleCandidates();
   if (!show) return null;
+  if (!hasCandidates) return <AnchorDots />;
   return (
     <group>
       {visible.map((c) => (

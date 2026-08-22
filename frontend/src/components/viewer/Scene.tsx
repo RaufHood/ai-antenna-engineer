@@ -13,10 +13,8 @@ import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useApp } from "@/lib/store";
 import { Antennas } from "./Antennas";
-import { IsolationArcs } from "./IsolationArcs";
 import { Keepouts } from "./Keepouts";
 import { PhoneModel } from "./PhoneModel";
-import { PlacementHeatmap } from "./PlacementHeatmap";
 
 export const VIEW_PRESETS: Record<string, [number, number, number]> = {
   Iso: [2.3, 1.5, 6.4],
@@ -66,7 +64,6 @@ function CameraRig() {
 }
 
 export default function Scene() {
-  const showGrid = useApp((s) => s.showGrid);
   const selectComponent = useApp((s) => s.selectComponent);
   const selectCandidate = useApp((s) => s.selectCandidate);
 
@@ -107,12 +104,10 @@ export default function Scene() {
           <Lightformer intensity={0.8} position={[0, -3, -2]} scale={[6, 3, 1]} color="#a78bfa" />
         </Environment>
 
-        <group rotation={[0, 0, 0]}>
+        <group>
           <PhoneModel />
-          <PlacementHeatmap />
           <Keepouts />
           <Antennas />
-          <IsolationArcs />
         </group>
 
         <ContactShadows
@@ -125,21 +120,19 @@ export default function Scene() {
         />
       </Suspense>
 
-      {showGrid && (
-        <Grid
-          position={[0, -1.7, 0]}
-          args={[16, 16]}
-          cellSize={0.25}
-          cellThickness={0.6}
-          cellColor="#1e293b"
-          sectionSize={1}
-          sectionThickness={1}
-          sectionColor="#334155"
-          fadeDistance={16}
-          fadeStrength={1.5}
-          infiniteGrid
-        />
-      )}
+      <Grid
+        position={[0, -1.7, 0]}
+        args={[16, 16]}
+        cellSize={0.25}
+        cellThickness={0.6}
+        cellColor="#1e293b"
+        sectionSize={1}
+        sectionThickness={1}
+        sectionColor="#334155"
+        fadeDistance={16}
+        fadeStrength={1.5}
+        infiniteGrid
+      />
     </Canvas>
   );
 }

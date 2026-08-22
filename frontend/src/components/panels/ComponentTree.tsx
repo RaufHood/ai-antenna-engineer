@@ -2,6 +2,7 @@
 
 import { sizeOf } from "@/lib/geometry";
 import { useApp } from "@/lib/store";
+import { SectionTitle } from "./SpecPanel";
 
 const EM_LABEL: Record<string, string> = {
   pec: "PEC",
@@ -10,8 +11,9 @@ const EM_LABEL: Record<string, string> = {
   air: "air",
 };
 
+/** The device's parts as the solver sees them: hover/select/hide drive the viewer. */
 export function ComponentTree() {
-  const spec = useApp((s) => s.spec);
+  const components = useApp((s) => s.spec.components);
   const hidden = useApp((s) => s.hidden);
   const selected = useApp((s) => s.selectedComponent);
   const toggleHidden = useApp((s) => s.toggleHidden);
@@ -20,21 +22,21 @@ export function ComponentTree() {
   const isolateComponent = useApp((s) => s.isolateComponent);
 
   return (
-    <section className="border-b border-slate-800">
-      <header className="flex items-center justify-between px-3 py-2">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-          Components
-        </h2>
-        <button
-          onClick={() => isolateComponent(null)}
-          className="text-[10px] text-slate-500 hover:text-sky-400"
-        >
-          show all
-        </button>
-      </header>
+    <section className="px-4 py-3">
+      <div className="mb-2 flex items-center justify-between">
+        <SectionTitle>Components</SectionTitle>
+        {hidden.length > 0 && (
+          <button
+            onClick={() => isolateComponent(null)}
+            className="text-[11px] text-sky-400 hover:text-sky-300"
+          >
+            show all
+          </button>
+        )}
+      </div>
 
-      <ul className="pb-2">
-        {spec.components.map((c) => {
+      <ul className="-mx-2">
+        {components.map((c) => {
           const isHidden = hidden.includes(c.name);
           const isSel = selected === c.name;
           const s = sizeOf(c.bbox_mm);
@@ -43,21 +45,19 @@ export function ComponentTree() {
               <div
                 onMouseEnter={() => hoverComponent(c.name)}
                 onMouseLeave={() => hoverComponent(null)}
-                className={`group flex cursor-pointer items-center gap-2 px-3 py-1.5 text-xs transition ${
-                  isSel ? "bg-sky-500/15" : "hover:bg-slate-800/60"
-                }`}
                 onClick={() => selectComponent(isSel ? null : c.name)}
+                className={`group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs transition ${
+                  isSel ? "bg-sky-500/10" : "hover:bg-slate-800/50"
+                }`}
               >
                 <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-white/20"
-                  style={{ background: c.color }}
+                  className="h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-white/15"
+                  style={{ background: c.color, opacity: isHidden ? 0.3 : 1 }}
                 />
-                <span
-                  className={`truncate ${isHidden ? "text-slate-600 line-through" : "text-slate-200"}`}
-                >
+                <span className={`truncate ${isHidden ? "text-slate-600" : "text-slate-200"}`}>
                   {c.label}
                 </span>
-                <span className="ml-auto shrink-0 font-mono text-[9px] text-slate-500">
+                <span className="ml-auto shrink-0 font-mono text-[9px] text-slate-600">
                   {EM_LABEL[c.em]}
                 </span>
                 <button
@@ -65,29 +65,41 @@ export function ComponentTree() {
                     e.stopPropagation();
                     toggleHidden(c.name);
                   }}
-                  className="shrink-0 text-[10px] text-slate-600 hover:text-sky-400"
+                  className={`w-7 shrink-0 text-right text-[10px] transition ${
+                    isHidden
+                      ? "text-slate-600 hover:text-slate-300"
+                      : "text-slate-700 opacity-0 hover:text-slate-300 group-hover:opacity-100"
+                  }`}
                   title={isHidden ? "show" : "hide"}
                 >
-                  {isHidden ? "off" : "on"}
+                  {isHidden ? "show" : "hide"}
                 </button>
               </div>
               {isSel && (
-                <div className="space-y-0.5 bg-slate-900/60 px-3 py-2 font-mono text-[10px] text-slate-400">
-                  <div>node: {c.name}</div>
+                <div className="mx-2 mb-1 space-y-0.5 rounded-md bg-slate-900/60 px-2.5 py-2 font-mono text-[10px] text-slate-400">
                   <div>
-                    size: {s.map((v) => v.toFixed(1)).join(" x ")} mm
+                    <span className="text-slate-600">node </span>
+                    {c.name}
                   </div>
                   <div>
-                    origin: {c.bbox_mm[0].map((v) => v.toFixed(1)).join(", ")} mm
+                    <span className="text-slate-600">size </span>
+                    {s.map((v) => v.toFixed(1)).join(" × ")} mm
+                  </div>
+                  <div>
+                    <span className="text-slate-600">origin </span>
+                    {c.bbox_mm[0].map((v) => v.toFixed(1)).join(", ")} mm
                   </div>
                   {c.em === "dielectric" && (
                     <div>
-                      er {c.epsilon_r} / tan-d {c.loss_tangent}
+                      <span className="text-slate-600">εr </span>
+                      {c.epsilon_r}
+                      <span className="text-slate-600"> · tan δ </span>
+                      {c.loss_tangent}
                     </div>
                   )}
                   <button
                     onClick={() => isolateComponent(c.name)}
-                    className="mt-1 rounded bg-slate-800 px-2 py-0.5 text-slate-300 hover:bg-slate-700"
+                    className="mt-1 text-sky-400 hover:text-sky-300"
                   >
                     isolate
                   </button>

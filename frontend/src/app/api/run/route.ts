@@ -1,33 +1,41 @@
 /**
- * Run endpoint — real backend first, local heuristic only as a labelled fallback.
+ * Run endpoint — a thin proxy to the backend. The browser never talks to
+ * port 8000 directly; `BACKEND_URL` is server-side.
  *
- * Previously this route called `createRun` from `@/lib/runner`, which runs
- * `simulate()` from `@/lib/rf` — a TypeScript heuristic. The UI was therefore
- * simulating itself: no agent, no electromagnetics. `@/lib/backend` talks to
- * the FastAPI service (real Devin or mock agent, real PyNEC solves, real
- * device geometry); the heuristic stays reachable so the UI still runs with
- * the backend down, but every response says which one produced it.
+ *   POST  {prompt, bands, agent?, deviceId?}  -> {runId, agent}
+ *   GET   ?runId=                             -> RunSnapshot
+ *   GET   ?runId=&artifact=report.md          -> the agent's report, as text
+ *   PATCH {runId, text}                       -> mid-run note for the agent
  *
- *   POST  {prompt, bands, agent?, deviceId?}  -> {runId, source, warning?}
- *   GET   ?runId=                             -> RunSnapshot + source
- *   PATCH {runId, text}                       -> mid-run note for the agent (backend runs only)
+ * A backend that is down is reported as such (503) — there is no local
+ * stand-in, so nothing on screen can be mistaken for a simulation.
  */
 import { NextResponse } from "next/server";
 
 import {
   AGENT,
+  BACKEND_URL,
   createBackendRun,
   postBackendMessage,
   readBackendLog,
+  readBackendReport,
   readBackendRun,
   toSnapshot,
 } from "@/lib/backend";
-import { createRun, readRun } from "@/lib/runner";
 
 export const dynamic = "force-dynamic";
 
-/** runId -> which engine served it, so GET routes to the same place as POST. */
-const backendRuns = new Set<string>();
+function fail(err: unknown) {
+  const msg = err instanceof Error ? err.message : String(err);
+  // "backend NNN: ..." is the backend refusing (no Devin credentials, unknown
+  // device, bad band) — pass it through. Anything else is the backend not
+  // answering at all.
+  if (/^backend \d{3}/.test(msg)) return NextResponse.json({ error: msg }, { status: 502 });
+  return NextResponse.json(
+    { error: `backend unreachable at ${BACKEND_URL} — start it with \`cd backend && uv run uvicorn app.main:app --port 8000\`` },
+    { status: 503 },
+  );
+}
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -41,48 +49,29 @@ export async function POST(req: Request) {
 
   try {
     const runId = await createBackendRun(prompt, bands, agent, deviceId);
-    backendRuns.add(runId);
-    return NextResponse.json({ runId, source: "backend", agent });
+    return NextResponse.json({ runId, agent });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // The backend answered but refused (no Devin credentials, unknown device,
-    // bad band): that is a real error the user must see, not a reason to
-    // quietly show a different engine.
-    if (/^backend \d{3}/.test(msg)) {
-      return NextResponse.json({ error: msg }, { status: 502 });
-    }
-    // Backend down: fall back, but never pretend.
-    const { runId } = createRun(prompt, bands, body.perBand ?? 6, body.overrides);
-    return NextResponse.json({
-      runId,
-      source: "heuristic",
-      agent: "heuristic",
-      warning:
-        `backend unavailable (${msg}); ` +
-        `showing the local heuristic solver, not a real simulation`,
-    });
+    return fail(err);
   }
 }
 
 export async function GET(req: Request) {
-  const runId = new URL(req.url).searchParams.get("runId");
+  const url = new URL(req.url);
+  const runId = url.searchParams.get("runId");
   if (!runId) return NextResponse.json({ error: "runId required" }, { status: 400 });
 
-  if (backendRuns.has(runId)) {
-    try {
-      const [run, events] = await Promise.all([readBackendRun(runId), readBackendLog(runId)]);
-      return NextResponse.json(toSnapshot(run, events));
-    } catch (err) {
-      return NextResponse.json(
-        { error: `backend run ${runId} unreadable: ${err instanceof Error ? err.message : err}` },
-        { status: 502 },
-      );
+  try {
+    if (url.searchParams.get("artifact") === "report.md") {
+      const text = await readBackendReport(runId);
+      return new Response(text, {
+        headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" },
+      });
     }
+    const [run, events] = await Promise.all([readBackendRun(runId), readBackendLog(runId)]);
+    return NextResponse.json(toSnapshot(run, events));
+  } catch (err) {
+    return fail(err);
   }
-
-  const snap = readRun(runId);
-  if (!snap) return NextResponse.json({ error: "unknown run" }, { status: 404 });
-  return NextResponse.json({ ...snap, source: "heuristic" });
 }
 
 export async function PATCH(req: Request) {
@@ -90,19 +79,10 @@ export async function PATCH(req: Request) {
   const runId: string = typeof body.runId === "string" ? body.runId : "";
   const text: string = typeof body.text === "string" ? body.text.trim() : "";
   if (!runId || !text) return NextResponse.json({ error: "runId and text required" }, { status: 400 });
-  if (!backendRuns.has(runId)) {
-    return NextResponse.json(
-      { error: "notes reach the agent only on backend runs; the heuristic has nobody to talk to" },
-      { status: 409 },
-    );
-  }
   try {
     await postBackendMessage(runId, text);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 502 },
-    );
+    return fail(err);
   }
 }

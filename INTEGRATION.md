@@ -109,28 +109,29 @@ like the table above. To test the *seam* without openEMS, see
 
 The browser never talks to port 8000. Next.js route handlers do, and
 `frontend/src/lib/backend.ts` maps the backend's shapes onto the
-`RunSnapshot` the store and every panel already consume:
+`RunSnapshot` the store and every panel consume:
 
 | UI route | backend | notes |
 |---|---|---|
-| `POST /api/run` | `POST /runs` | `{prompt, bands, agent, deviceId}`; reply carries `source: "backend"` — or `"heuristic"` plus a `warning` when the backend was **unreachable**. A backend that answers with an error (no Devin credentials, unknown device) is returned as that error, never swapped for the heuristic. |
-| `GET /api/run?runId=` | `GET /runs/{id}` + `GET /runs/{id}/log` | snapshot + event log → jobs, results, candidates (with `keepout_mm`), messages, one placement per band, pairwise isolation |
+| `POST /api/run` | `POST /runs` | `{prompt, bands, agent, deviceId}`; a backend error (no Devin credentials, unknown device, bad band) is returned as that error, a backend that is down as 503. No local stand-in. |
+| `GET /api/run?runId=` | `GET /runs/{id}` + `GET /runs/{id}/log` | snapshot + event log → jobs, results, candidates (with `keepout_mm` derived from the band's clearance), messages, one placement per band (the agent's ranking, or best-so-far while running), anchors |
+| `GET /api/run?runId=&artifact=report.md` | `GET /runs/{id}/artifacts/report.md` | the agent's report, shown in the Report tab |
 | `PATCH /api/run` | `POST /runs/{id}/messages` | mid-run note to the agent |
 | `POST /api/device` | `POST /devices` | `.blend` (+ `materials.json`) passthrough; reply has the backend's spec + anchors and a same-origin `glbUrl` for the viewer |
 | `GET /api/device?id=&artifact=` | `GET /devices/{id}/artifacts/{name}` | streamed |
 
 `BACKEND_URL` and `AGENT` in `frontend/.env.local` (see `.env.example`).
-The agent panel shows which engine produced what is on screen; the
-`mock`/`Devin` toggle picks the agent per run. Placement and isolation are
-derived in `backend.ts` with the same `rank()` / `isolationDb()` the
-heuristic uses, so the two engines read alike on screen; SAR is not modelled
-by the solver and the dock says so.
+The `Mock`/`Devin` toggle picks the agent per run. Band targets are shown
+read-only — they are the backend's catalogue, and `POST /runs` takes only
+band ids. SAR and inter-antenna isolation are not modelled by the solver and
+are therefore not on screen.
 
 The canned device on both sides is **Handset A** — `backend/app/geometry/spec.py`
 mirrors `frontend/src/lib/device.ts` box for box (ADR-8), so candidates the
 backend proposes land where the procedural viewer draws the battery, camera
-and speaker. Change both files together. An uploaded `.blend` replaces it with
-the backend's spec and `device.glb`.
+and speaker; `device.ts` also ports `make_anchors` so the anchor dots shown
+before a run are the set the agent picks from. Change both files together.
+An uploaded `.blend` replaces it with the backend's spec and `device.glb`.
 
 Below is the raw contract, for anyone driving the backend directly. Types
 already match `frontend/src/lib/types.ts`; the backend adds only **optional**

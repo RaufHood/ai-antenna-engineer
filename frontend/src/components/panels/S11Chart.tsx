@@ -32,15 +32,15 @@ export function S11Chart() {
   if (!sel || !band || !siblings.length) {
     return (
       <div className="flex h-full items-center justify-center px-4 text-center text-[11px] text-slate-600">
-        Run a placement study, then select an antenna to see its S11 sweep.
+        Select a simulated antenna to see its S11 sweep.
       </div>
     );
   }
 
   return (
     <div className="h-full w-full">
-      <div className="px-3 pt-2 text-[10px] uppercase tracking-wider text-slate-500">
-        S11 - {band.name}
+      <div className="px-3 pt-2 text-[10px] uppercase tracking-[0.12em] text-slate-500">
+        S11 · {band.name}
       </div>
       <ResponsiveContainer width="100%" height="88%">
         <LineChart margin={{ top: 8, right: 16, bottom: 18, left: 0 }}>

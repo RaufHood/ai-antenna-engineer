@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "kevin-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,7 +27,6 @@
     "@types/three": "^0.185.4",
     "eslint": "^9",
     "eslint-config-next": "15.5.23",
-    "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

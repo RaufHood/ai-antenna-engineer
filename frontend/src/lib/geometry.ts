@@ -30,14 +30,6 @@ export function sceneCenter(b: Bbox): Vec3 {
   return toScene(centerOf(b));
 }
 
-/** Euclidean distance from a point to an axis-aligned box (0 if inside). */
-export function distanceToBox(p: Vec3, [min, max]: Bbox): number {
-  const dx = Math.max(min[0] - p[0], 0, p[0] - max[0]);
-  const dy = Math.max(min[1] - p[1], 0, p[1] - max[1]);
-  const dz = Math.max(min[2] - p[2], 0, p[2] - max[2]);
-  return Math.hypot(dx, dy, dz);
-}
-
 export function boxesOverlap(a: Bbox, b: Bbox): boolean {
   return (
     a[0][0] < b[1][0] &&
@@ -63,17 +55,4 @@ export function boxIntersection(a: Bbox, b: Bbox): Bbox | null {
       Math.min(a[1][2], b[1][2]),
     ],
   ];
-}
-
-export function clamp(v: number, lo: number, hi: number) {
-  return Math.min(hi, Math.max(lo, v));
-}
-
-export function dist3(a: Vec3, b: Vec3) {
-  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-}
-
-/** Free-space quarter wavelength in mm. */
-export function quarterWaveMm(fGhz: number) {
-  return 74.948 / fGhz;
 }

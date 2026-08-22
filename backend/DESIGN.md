@@ -589,6 +589,18 @@ Rule: **always demoable** — every milestone ends in a run that completes.
 
 ## 13. Decision log
 
+- **2026-08-23 (frontend honesty pass)** The UI now shows only what the
+  backend produced. Removed: the frontend's own heuristic solver and run
+  store (`rf.ts` / `runner.ts`, which fabricated S11 curves and served as a
+  silent fallback when the backend was down — now a 503 with the start
+  command), the inputs the backend never read (board εr/tanδ, per-band target
+  editors, SAR selector, the `overrides` payload), and the visualisations
+  derived from the heuristic rather than the solver (placement heatmap,
+  "S21" isolation arcs, SAR column). Added: the agent's `report.md` in the
+  Report tab via `GET /runs/{id}/artifacts/report.md`; `make_anchors` ported
+  to `device.ts` so pre-run anchor dots are the set the agent picks from;
+  the Kevin marks. ADR-8 unchanged: `spec.py` ↔ `device.ts` still mirror.
+
 - **2026-08-22 (integration pass)** (a) Sim seam adapted to the sim team's
   actual `run_simulation(config)` contract via `rf_adapter` (§7.0) — our
   `solve()` seam stays; the adapter is the only file that knows their shape.

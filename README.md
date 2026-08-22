@@ -1,4 +1,4 @@
-# AI Antenna Engineer
+# Kevin — AI antenna engineer
 
 An autonomous agent (Devin) places antennas inside a real phone. It reads the
 build file, proposes where each antenna goes and what type it is, a solver
@@ -51,10 +51,9 @@ cd backend && uv run uvicorn app.main:app --port 8000
 cd frontend && npm install && npm run dev      # http://localhost:3000
 ```
 
-Pick bands, press **Run placement study**. The agent panel shows a
-`BACKEND` badge when the run is real and an amber `HEURISTIC` badge when the
-backend was unreachable and you are looking at a local TypeScript stand-in —
-fix the backend rather than demoing that.
+Pick bands, press **Run placement study**. Everything on screen comes from
+the backend; if it is down the UI says so and draws nothing, rather than
+showing a stand-in that could be mistaken for a simulation.
 
 ### The real agent
 
@@ -93,12 +92,12 @@ missing — say so rather than working around it.
 | path | what |
 |---|---|
 | [backend/](backend/README.md) | FastAPI service: agent port (Devin / mock), orchestrator, scoring, event log, API. [DESIGN.md](backend/DESIGN.md) has the ADRs. |
-| [frontend/](frontend/README.md) | Next.js + three.js studio. `src/lib/backend.ts` is the proxy to the backend. |
+| [frontend/](frontend/README.md) | Next.js + three.js UI. `src/lib/backend.ts` is the proxy to the backend. |
 | [rf/](rf/README.md) | openEMS FDTD solve, geometry screening, media suite. Three environments of its own — none needed for the loop. |
-| `data/` | Device assets: the iPhone 15 Pro `.blend` + materials sidecar, a synthetic 15-part fixture, a test axe. |
+| `data/` | Device assets: the iPhone 15 Pro `.blend` + materials sidecar, a synthetic 15-part fixture, a test axe, a human base-mesh bundle (unused so far). |
 | `runs/` | Committed run artifacts and the demo media (reviewers see results without running anything). |
 | `tools/` | `.blend` extraction script shared by backend and rf; synthetic fixture generator. |
-| `brand/` | The kevin marks. |
+| `brand/` | The Kevin marks (icon + lockup); the frontend inlines them. |
 | [ENTIRE.md](ENTIRE.md) | Entire session capture — mandatory for the submission, two machine-local steps. |
 | [deep_research_on_challenge.md](deep_research_on_challenge.md) | The research the JSON contracts in `types.ts` / `models.py` mirror. |
 

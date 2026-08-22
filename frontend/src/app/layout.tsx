@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Antenna Placement Studio",
+  title: "Kevin — AI antenna engineer",
   description:
-    "Agent-driven antenna placement and EM study for handset 3D models",
+    "An agent places antennas inside a real phone: it proposes, a solver scores, it iterates.",
 };
 
 export default function RootLayout({

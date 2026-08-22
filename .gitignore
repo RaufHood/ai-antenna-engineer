@@ -46,6 +46,8 @@ rf/vendor/
 node_modules/
 frontend/.next/
 frontend/out/
+frontend/next-env.d.ts
+*.tsbuildinfo
 coverage/
 npm-debug.log*
 yarn-error.log*
@@ -67,7 +69,6 @@ tmp/
 # run artifacts: media + json yes (reviewers see results without running),
 # raw field dumps no (tens of MB each)
 runs/**/Et.h5
-rf/vendor/
 # blend_loader outputs: the STLs are 29 MB of regenerable mesh, but
 # device.json is 115 KB and everything downstream needs it — without it the
 # placement screening silently degrades and the agent is handed anchors that

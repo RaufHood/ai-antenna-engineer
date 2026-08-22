@@ -111,7 +111,6 @@ export interface SimResult {
   efficiency: number;
   peak_gain_dbi: number;
   vswr: number;
-  sar_w_per_kg: number;
   meets_requirements: boolean;
   notes: string;
 }
@@ -121,9 +120,6 @@ export interface Job {
   candidate_id: string;
   band_id: string;
   status: "queued" | "running" | "complete" | "failed";
-  progress: number;
-  started_at?: number;
-  finished_at?: number;
 }
 
 export interface AgentMessage {

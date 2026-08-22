@@ -1,77 +1,56 @@
-# Antenna Placement Studio
+# Kevin — frontend
 
-UI for the agent-driven antenna placement pipeline: load a handset model, set
-per-band RF targets, ask the agent where the antennas should go, and inspect the
-resulting placements, S11 sweeps and keep-out conflicts in 3D.
+The screen for the agent loop: load a handset, pick the bands, press **Run
+placement study**, and watch the agent propose, the solver score and the
+design converge on the 3D model. Everything on screen comes from the
+backend; the browser never talks to port 8000 directly.
 
 ```bash
+cp .env.example .env.local   # BACKEND_URL, default AGENT
 npm install
-npm run dev     # http://localhost:3000
+npm run dev                  # http://localhost:3000  (backend on :8000 first)
 ```
 
-## What is real and what is a stand-in
+## What is on screen
 
-Real today:
-
-- The full UI: 3D viewer, exploded view, component labelling, keep-out volumes
-  and their conflicts, per-band placement, isolation arcs, spectrum strip,
-  ranked results table, engineering report.
-- The async job pipeline. Candidates are queued server-side, results stream back
-  as each "simulation" finishes, and state survives a page refresh because the
-  run lives in the API route, not in React.
-- The placement logic. Scores come from actual geometry: clearance to metal and
-  lossy blocks, edge access, available chassis length against a quarter
-  wavelength, and per-band region preference. Antennas are then assigned one per
-  anchor, lowest band first, skipping anchors that would break the isolation
-  target.
-
-Stand-in, to be replaced:
-
-- `src/lib/rf.ts` synthesises S11 from a single-resonator model instead of
-  solving Maxwell's equations. Swap this for openEMS output.
-- `src/lib/runner.ts` fakes elapsed simulation time. Swap the timing model for
-  real job state from the solver / Devin session.
-
-## Swapping in the real solver
-
-Everything the solver touches is behind two functions:
-
-| Replace | With |
-|---|---|
-| `simulate(spec, band, candidate)` in `src/lib/rf.ts` | parse `result.json` from an openEMS run |
-| `jobStates()` / `resultFor()` in `src/lib/runner.ts` | real queue state and artifacts from the solver or the Devin session |
-
-The UI reads only the `SimResult` shape, so as long as openEMS output is mapped
-into that shape nothing else changes. `POST /api/run` already forwards the
-user's edited constraints (keep-out, S11 target, efficiency floor, SAR standard)
-as `overrides`, so the solver receives whatever the operator set in the panel.
-
-## Contracts
-
-`src/lib/types.ts` is the shared contract with the other workstreams. It mirrors
-the JSON schemas in `../deep_research_on_challenge.md` §5.
-
-For the 3D workstream:
-
-- Units are millimetres, origin at the bottom-left-back corner of the device.
-- Each Blender object must be a separate named node, and the name must match
-  `components[].name` in the device spec (`pcb`, `ground_plane`, `battery`,
-  `camera_module`, `frame`, `screen_glass`, `back_glass`, ...).
-- Export glTF/GLB for the viewer and per-part STL for the solver.
-- `Load Blender .glb` in the Device panel drops a real export into the viewer.
-  The model is auto-centred and scaled to the spec height, so unit mismatches do
-  not break candidate alignment.
-
-## API
-
-| Method | Path | Purpose |
+| Panel | Shows | Source |
 |---|---|---|
-| `GET` | `/api/device` | device spec + candidate anchors |
-| `POST` | `/api/run` | start a study: `{prompt, bands[], perBand?, overrides?}` |
-| `GET` | `/api/run?runId=` | snapshot: jobs, results, placements, isolation, agent messages |
+| Device | Name, outline, parts; `Load .blend / .glb` | built-in Handset A, or the backend's spec after a `.blend` upload |
+| Bands | Which bands the run must satisfy, and each band's S11 / efficiency / clearance targets | the backend's band catalogue (`backend/app/geometry/bands.py`) |
+| Components | Parts as the solver sees them; hover/select/hide/isolate drive the viewer | `spec.components` |
+| Viewer | Procedural handset (or the uploaded `device.glb`), candidate antennas, keep-out volumes and their conflicts, camera presets, exploded view | candidates + results from the run |
+| Spectrum | Target bands on a log axis and where each chosen design actually resonated | results |
+| Results | Every simulated candidate: S11, f₀, bandwidth, efficiency, VSWR, pass/fail | `sim_result` events |
+| Report | The agent's own `report.md` | `GET /runs/{id}/artifacts/report.md` |
+| Agent | Live feed (Devin's words + the orchestrator narrating), sim queue, prompt, mid-run notes; `Mock` / `Devin` picks the agent per run | the run's event log |
 
-## Screenshots
+Not on screen, because nothing models it: SAR, hand/head detuning, inter-antenna
+isolation. The report says which solver produced the numbers and what its
+limits are.
 
-`node scripts/shot.mjs` drives a headless browser through a full run and writes
-PNGs to `shots/`. Useful for the demo video and for checking the 3D view without
-opening a browser.
+## Layout
+
+```
+src/app/api/run/route.ts     POST start · GET snapshot / report.md · PATCH note   -> backend /runs
+src/app/api/device/route.ts  POST .blend upload · GET artifact stream             -> backend /devices
+src/lib/backend.ts           wire shapes + the mapping onto RunSnapshot
+src/lib/store.ts             one zustand store: device, viewer state, the run
+src/lib/device.ts            Handset A, mirrored box for box from backend/app/geometry/spec.py
+src/lib/types.ts             contracts shared with backend/app/models.py
+src/components/panels/       TopBar, SpecPanel (device + bands), ComponentTree, ResultsDock, AgentPanel
+src/components/viewer/       three.js scene: PhoneModel, CustomModel, Antennas, Keepouts
+src/components/Logo.tsx      the Kevin marks, inlined from ../brand
+```
+
+If the backend is down the run button reports that and nothing else is
+drawn — there is deliberately no local stand-in that could be mistaken for
+a simulation.
+
+## Checks
+
+```bash
+npx tsc --noEmit && npx eslint src
+```
+
+Then click Run in the browser: a type-checked snapshot can still miss a
+field a panel dereferences.

@@ -1,4 +1,4 @@
-import type { Anchor, DeviceSpec } from "./types";
+import type { Anchor, DeviceSpec, RegionId, Vec3 } from "./types";
 
 // iPhone 15 class outline: 147.6 x 71.6 x 7.8 mm.
 export const W = 71.6; // x, width
@@ -224,86 +224,41 @@ export const phoneV1: DeviceSpec = {
   },
 };
 
-/** Candidate placement anchors around the device perimeter. */
-export const anchors: Anchor[] = [
-  {
-    id: "bl",
-    label: "Bottom-left corner",
-    region: "bottom",
-    pos_mm: [8, 7, 4],
-    outward: [-0.7, -0.7, 0],
-    corner: true,
-  },
-  {
-    id: "bc",
-    label: "Bottom edge centre",
-    region: "bottom",
-    pos_mm: [W / 2, 4.5, 4],
-    outward: [0, -1, 0],
-    corner: false,
-  },
-  {
-    id: "br",
-    label: "Bottom-right corner",
-    region: "bottom",
-    pos_mm: [W - 8, 7, 4],
-    outward: [0.7, -0.7, 0],
-    corner: true,
-  },
-  {
-    id: "lm",
-    label: "Left edge mid",
-    region: "left",
-    pos_mm: [4.5, H * 0.42, 4],
-    outward: [-1, 0, 0],
-    corner: false,
-  },
-  {
-    id: "rm",
-    label: "Right edge mid",
-    region: "right",
-    pos_mm: [W - 4.5, H * 0.42, 4],
-    outward: [1, 0, 0],
-    corner: false,
-  },
-  {
-    id: "lu",
-    label: "Left edge upper",
-    region: "left",
-    pos_mm: [4.5, H * 0.72, 4],
-    outward: [-1, 0, 0],
-    corner: false,
-  },
-  {
-    id: "ru",
-    label: "Right edge upper",
-    region: "right",
-    pos_mm: [W - 4.5, H * 0.72, 4],
-    outward: [1, 0, 0],
-    corner: false,
-  },
-  {
-    id: "tl",
-    label: "Top-left corner",
-    region: "top",
-    pos_mm: [8, H - 7, 4],
-    outward: [-0.7, 0.7, 0],
-    corner: true,
-  },
-  {
-    id: "tc",
-    label: "Top edge centre",
-    region: "top",
-    pos_mm: [W / 2, H - 4.5, 4],
-    outward: [0, 1, 0],
-    corner: false,
-  },
-  {
-    id: "tr",
-    label: "Top-right corner",
-    region: "top",
-    pos_mm: [W - 8, H - 7, 4],
-    outward: [0.7, 0.7, 0],
-    corner: true,
-  },
-];
+/**
+ * Candidate placement anchors along the device perimeter, at antenna height.
+ * Port of backend/app/geometry/spec.py `make_anchors`, same ids and spacing,
+ * so what the viewer shows before a run is the set the agent picks from. The
+ * backend measures its outline from its own RF sheets (1.4 mm inside ours),
+ * so positions differ by that much until a run starts and its anchors arrive.
+ */
+export function makeAnchors(spec: DeviceSpec, spacingMm = 18): Anchor[] {
+  const [w, h, t] = spec.board.size_mm;
+  const ground = spec.components.find((c) => c.name === "ground_plane") ?? spec.components[0];
+  const gTop = ground.bbox_mm[1][2];
+  const z = +Math.min(gTop + 2, Math.max(t - 0.5, gTop + 0.5)).toFixed(2);
+  const m = Math.min(6, w / 8);
+  const r = (v: number) => +v.toFixed(2);
+  const out: Anchor[] = [];
+  const add = (id: string, label: string, region: RegionId, pos: Vec3, outward: Vec3, corner: boolean) =>
+    out.push({ id, label, region, pos_mm: [r(pos[0]), r(pos[1]), r(pos[2])], outward, corner });
+
+  add("c_bl", "bottom-left corner", "bottom", [m, m, z], [-0.7, -0.7, 0], true);
+  add("c_br", "bottom-right corner", "bottom", [w - m, m, z], [0.7, -0.7, 0], true);
+  add("c_tl", "top-left corner", "top", [m, h - m, z], [-0.7, 0.7, 0], true);
+  add("c_tr", "top-right corner", "top", [w - m, h - m, z], [0.7, 0.7, 0], true);
+  const nBottom = Math.floor((w - 2 * m) / spacingMm);
+  for (let i = 1; i < nBottom; i++) {
+    const x = m + i * spacingMm;
+    add(`e_b${i}`, `bottom edge ${i}`, "bottom", [x, m, z], [0, -1, 0], false);
+    add(`e_t${i}`, `top edge ${i}`, "top", [x, h - m, z], [0, 1, 0], false);
+  }
+  const nSide = Math.floor((h - 2 * m) / spacingMm);
+  for (let i = 1; i < nSide; i++) {
+    const y = m + i * spacingMm;
+    add(`e_l${i}`, `left edge ${i}`, "left", [m, y, z], [-1, 0, 0], false);
+    add(`e_r${i}`, `right edge ${i}`, "right", [w - m, y, z], [1, 0, 0], false);
+  }
+  return out;
+}
+
+export const anchors: Anchor[] = makeAnchors(phoneV1);

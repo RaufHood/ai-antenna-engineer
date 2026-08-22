@@ -1,31 +1,23 @@
 /**
- * Proxy to the FastAPI backend — the seam that makes the UI show the real run.
+ * Proxy to the FastAPI backend — the only source of runs the UI shows.
  *
- * `lib/rf.ts` is a self-contained TypeScript heuristic: it fabricates a
- * SimResult from a score function. It was built so the UI could be developed
- * before the solver existed, and its own header says so. The consequence is
- * that a demo driven by it is the frontend simulating itself — no agent, no
- * electromagnetics — which is exactly the thing a judge asks about.
- *
- * This module talks to the Python backend instead: real Devin (or the mock
- * agent), real PyNEC solves, real device geometry. It translates between the
- * two shapes so nothing in `components/` has to change:
+ * Real Devin (or the backend's offline mock agent), real PyNEC solves, real
+ * device geometry. This module translates the backend's shapes onto the
+ * `RunSnapshot` the store consumes, so nothing in `components/` knows about
+ * the wire format:
  *
  *   POST /runs              {prompt, bands, agent, device_id}  -> {run_id}
  *   GET  /runs/{id}                                            -> status, candidates, results, final, spec
  *   GET  /runs/{id}/log                                        -> the event log (agent commentary lives here)
+ *   GET  /runs/{id}/artifacts/report.md                        -> the agent's written report
  *   POST /runs/{id}/messages {text}                            -> mid-run note for the agent
  *   POST /devices            multipart blend (+materials)      -> spec, anchors, device.glb
  *
  * `BACKEND_URL` (server-side env, defaults to http://127.0.0.1:8000) points at
- * it. When the backend is unreachable the caller falls back to the local
- * heuristic and says so, rather than showing an empty screen — but the
- * fallback is labelled, never silent, because a mock that looks real is worse
- * than one that admits it.
+ * it. When the backend is unreachable the route handlers return that as an
+ * error; there is deliberately no local stand-in that could be mistaken for
+ * a simulation.
  */
-import type { RunSnapshot } from "./runner";
-import { rank } from "./runner";
-import { isolationDb } from "./rf";
 import type {
   AgentMessage,
   Anchor,
@@ -38,6 +30,23 @@ import type {
   SimResult,
   Vec3,
 } from "./types";
+
+/** What the store consumes: one run's state, derived from the backend. */
+export interface RunSnapshot {
+  runId: string;
+  done: boolean;
+  planning: boolean;
+  status: BackendRun["status"];
+  engine: string;
+  jobs: Job[];
+  results: Record<string, SimResult>;
+  candidates: Candidate[];
+  messages: AgentMessage[];
+  /** One winning candidate per band id. */
+  placements: Record<string, string>;
+  anchors: Anchor[];
+  artifacts: string[];
+}
 
 export const BACKEND_URL =
   process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
@@ -84,7 +93,7 @@ type BackendCandidate = Omit<Candidate, "keepout_mm"> & {
   params?: Record<string, number>;
 };
 
-type BackendResult = Omit<SimResult, "sar_w_per_kg"> & {
+type BackendResult = SimResult & {
   impedance_ohm?: [number, number];
 };
 
@@ -153,16 +162,6 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-/** Is the backend up? Used to decide real-vs-heuristic without a stack trace. */
-export async function backendHealthy(): Promise<boolean> {
-  try {
-    await call<unknown>("/healthz");
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export async function createBackendRun(
   prompt: string,
   bands: string[],
@@ -181,6 +180,13 @@ export async function readBackendRun(runId: string): Promise<BackendRun> {
 export async function readBackendLog(runId: string, since = 0): Promise<BackendEvent[]> {
   const out = await call<{ events: BackendEvent[] }>(`/runs/${runId}/log?since=${since}`);
   return out.events;
+}
+
+/** The agent's written report, once the run has finished. */
+export async function readBackendReport(runId: string): Promise<string> {
+  const res = await fetch(`${BACKEND_URL}/runs/${runId}/artifacts/report.md`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`backend ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  return res.text();
 }
 
 export async function postBackendMessage(runId: string, text: string): Promise<void> {
@@ -214,10 +220,6 @@ export async function uploadBackendDevice(form: FormData): Promise<BackendDevice
   } finally {
     clearTimeout(timer);
   }
-}
-
-export function backendArtifactUrl(deviceId: string, name: string): string {
-  return `${BACKEND_URL}/devices/${deviceId}/artifacts/${name}`;
 }
 
 // ---------------------------------------------------------------- mapping
@@ -371,30 +373,25 @@ function messagesFrom(
   return out;
 }
 
+/** Composite ranking used to highlight the best result per band while the loop runs. */
+function rank(r: SimResult) {
+  return (
+    (r.meets_requirements ? 1 : 0) * 2 +
+    Math.min(-r.s11_min_db / 20, 1) +
+    r.efficiency +
+    Math.min(r.bandwidth_mhz / 600, 1) * 0.5
+  );
+}
+
 /**
- * Backend run + event log -> the snapshot shape the UI store already consumes.
+ * Backend run + event log -> the snapshot the store consumes.
  *
- * The backend has no notion of per-candidate queueing beyond `sim_started`:
- * a candidate exists once proposed and gains a result once solved. Placement
- * (one winner per band) and inter-antenna isolation are not the backend's
- * concern either — its ranking is a flat list — so they are derived here with
- * the same rank()/isolationDb() the heuristic path uses, which keeps the two
- * code paths comparable on screen.
+ * The backend has no per-candidate queue beyond `sim_started`: a candidate
+ * exists once proposed and gains a result once solved. Placement (one winner
+ * per band) follows the agent's own ranking once it has concluded, and the
+ * best complete result so far while it is still running.
  */
-export function toSnapshot(
-  run: BackendRun,
-  events: BackendEvent[],
-): RunSnapshot & {
-  source: "backend";
-  engine: string;
-  status: BackendRun["status"];
-  stage: string;
-  iteration: number;
-  artifacts: string[];
-  spec: DeviceSpec;
-  anchors: Anchor[];
-  deviceId: string | null;
-} {
+export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot {
   const size = run.spec.board.size_mm;
   const bands: Record<string, BandRequirement> = {};
   for (const b of run.spec.requirements.bands) bands[b.id] = b;
@@ -413,31 +410,18 @@ export function toSnapshot(
     };
   });
 
-  const results: Record<string, SimResult> = {};
-  for (const [id, r] of Object.entries(run.results)) {
-    // SAR is not modelled by the solver; 0 renders as "n/a" in the dock.
-    results[id] = { ...r, sar_w_per_kg: 0 };
-  }
+  const results: Record<string, SimResult> = run.results;
 
   const jobs: Job[] = candidates.map((c) => {
     const r = results[c.candidate_id];
-    const status: Job["status"] = r
-      ? r.status
-      : started.has(c.candidate_id)
-        ? "running"
-        : "queued";
     return {
       job_id: `${run.run_id}__${c.candidate_id}`,
       candidate_id: c.candidate_id,
       band_id: c.band_id,
-      status,
-      progress: status === "complete" || status === "failed" ? 1 : status === "running" ? 0.5 : 0,
+      status: r ? r.status : started.has(c.candidate_id) ? "running" : "queued",
     };
   });
 
-  // One winner per band. Prefer the agent's own ranking when it has concluded;
-  // otherwise the best complete result so far, so the viewer has something to
-  // highlight while the loop is still running.
   const placements: Record<string, string> = {};
   const ranking = run.final?.ranking ?? [];
   for (const bandId of Object.keys(bands)) {
@@ -452,43 +436,18 @@ export function toSnapshot(
     if (best) placements[bandId] = best.candidate_id;
   }
 
-  const isolation: RunSnapshot["isolation"] = [];
-  const placed = Object.entries(placements);
-  const mid = (b: BandRequirement) => (b.f_low_ghz + b.f_high_ghz) / 2;
-  for (let i = 0; i < placed.length; i++) {
-    for (let k = i + 1; k < placed.length; k++) {
-      const ca = run.candidates[placed[i][1]];
-      const cb = run.candidates[placed[k][1]];
-      const ba = bands[placed[i][0]];
-      const bb = bands[placed[k][0]];
-      if (!ca || !cb || !ba || !bb) continue;
-      isolation.push({
-        a: ca.candidate_id,
-        b: cb.candidate_id,
-        db: isolationDb(ca.position_mm, cb.position_mm, mid(ba), mid(bb)),
-      });
-    }
-  }
-
   return {
     runId: run.run_id,
     done: run.status !== "running",
     planning: run.status === "running" && candidates.length === 0,
+    status: run.status,
+    engine: "PyNEC",
     jobs,
     results,
     candidates,
     messages: messagesFrom(events, run.candidates, bands),
     placements,
-    isolation,
-    // What the UI should say out loud, so nobody mistakes one for the other.
-    source: "backend",
-    engine: `PyNEC via ${BACKEND_URL}`,
-    status: run.status,
-    stage: run.stage,
-    iteration: run.iteration,
-    artifacts: run.artifacts,
-    spec: normalizeSpec(run.spec),
     anchors: run.anchors,
-    deviceId: run.device_id,
+    artifacts: run.artifacts,
   };
 }

@@ -5,13 +5,14 @@ import { useApp } from "@/lib/store";
 import type { Candidate } from "@/lib/types";
 
 /**
- * System view shows the chosen placement per band; focus view shows every
- * candidate for the focused band so the ranking is inspectable.
+ * "Chosen" shows one placement per band (the agent's pick, or the best so
+ * far while it runs); "All for band" shows every candidate for one band so
+ * the ranking is inspectable. Until the first result lands, the proposal
+ * with the best prior per band stands in, so the viewer is never empty.
  */
 export function useVisibleCandidates(): Candidate[] {
   const candidates = useApp((s) => s.candidates);
   const placements = useApp((s) => s.placements);
-  const enabledBands = useApp((s) => s.enabledBands);
   const viewMode = useApp((s) => s.viewMode);
   const focusBand = useApp((s) => s.focusBand);
 
@@ -20,27 +21,14 @@ export function useVisibleCandidates(): Candidate[] {
       return candidates.filter((c) => c.band_id === focusBand);
     }
     const placed = Object.values(placements);
-    if (placed.length) {
-      return candidates.filter((c) => placed.includes(c.candidate_id));
+    if (placed.length) return candidates.filter((c) => placed.includes(c.candidate_id));
+    const best = new Map<string, Candidate>();
+    for (const c of candidates) {
+      const cur = best.get(c.band_id);
+      if (!cur || c.prior > cur.prior) best.set(c.band_id, c);
     }
-    // Before a run, preview the best prior per band.
-    return enabledBands
-      .map((b) =>
-        candidates
-          .filter((c) => c.band_id === b)
-          .sort((x, y) => y.prior - x.prior)[0],
-      )
-      .filter(Boolean);
-  }, [candidates, placements, enabledBands, viewMode, focusBand]);
-}
-
-export function useBandColor() {
-  const bands = useApp((s) => s.spec.requirements.bands);
-  return useMemo(() => {
-    const m: Record<string, string> = {};
-    for (const b of bands) m[b.id] = b.color;
-    return m;
-  }, [bands]);
+    return [...best.values()];
+  }, [candidates, placements, viewMode, focusBand]);
 }
 
 export function useBandMap() {

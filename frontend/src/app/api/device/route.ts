@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     cache: "no-store",
   }).catch((e: unknown) => e);
   if (!(res instanceof Response)) {
-    return NextResponse.json({ error: "backend unavailable" }, { status: 502 });
+    return NextResponse.json({ error: `backend unreachable at ${BACKEND_URL}` }, { status: 503 });
   }
   if (!res.ok) {
     return NextResponse.json({ error: await res.text() }, { status: res.status });
@@ -64,10 +64,12 @@ export async function POST(req: Request) {
       glbUrl: dev.artifacts.includes("device.glb")
         ? `/api/device?id=${encodeURIComponent(dev.device_id)}&artifact=device.glb`
         : null,
-      source: "backend",
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: /^backend \d{3}/.test(msg) ? 502 : 503 });
+    return NextResponse.json(
+      { error: /^backend \d{3}/.test(msg) ? msg : `backend unreachable at ${BACKEND_URL}` },
+      { status: /^backend \d{3}/.test(msg) ? 502 : 503 },
+    );
   }
 }

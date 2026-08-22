@@ -97,7 +97,8 @@ def clearance_at(spec: DeviceSpec, p: Vec3) -> tuple[float, str]:
     sheet (shield, backplate — >= 50 % of the device footprint) are excluded,
     as are sub-4 mm parts (screws); lateral blocks (battery, camera, speaker,
     cans) are what detune.
-    Port of frontend rf.ts clearanceAt — feeds priors and hints, not the solver."""
+    Feeds priors and hints, not the solver (ported from the frontend's early
+    heuristic, which has since been retired)."""
     best, who = 50.0, ""
     w, h, _t = device_size(spec)
     for c in spec.components:
