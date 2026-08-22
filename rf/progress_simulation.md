@@ -327,3 +327,71 @@ rf/blend_loader/.venv/Scripts/pip install -r rf/blend_loader/requirements.txt
 - VS2022 "Desktop development with C++" workload, if we want PyNEC (the
   cross-check oracle in step 4) working again on this machine — see the
   PyNEC note above. Not needed for openEMS itself.
+
+---
+
+## 2026-08-22 evening — macOS workstream (second machine online)
+
+The sim pipeline now also runs on macOS (Apple Silicon), and it is *fast*:
+the same coarse GPS-L1 demo that took ~2 min on the Windows box solves in
+**~1 s** here (48 MCells/s; the stock tutorial hits 259 MCells/s). That
+changes what's affordable: parameter sweeps are now interactive.
+
+### Environment (reproducible)
+
+```sh
+brew install cmake boost hdf5 vtk cgal qt@5
+git clone --recursive https://github.com/thliebig/openEMS-Project.git
+cd openEMS-Project
+export CMAKE_PREFIX_PATH="$(brew --prefix qt@5):$(brew --prefix vtk):$(brew --prefix hdf5)"
+./update_openEMS.sh ~/opt/openEMS --python --disable-GUI
+```
+
+Notes: `--disable-GUI` is required (QCSXCAD needs Qt and is not needed
+headless — its FIND_PACKAGE failure otherwise kills the build). `brew` no
+longer ships `tinyxml`; the build script handles it itself, but do NOT pass
+tinyxml to brew (an unknown formula aborts the whole install line, taking
+cmake with it). The python bindings install into whatever `python3` is
+active. `rf/openems_env.py` is already a no-op outside Windows.
+
+### Step 2 cross-check: DONE, PASSED
+
+The unmodified bundled tutorial (`Simple_Patch_Antenna.py`, headless) gives
+f_res = 2.4300 GHz, S11 = -27.7 dB vs. the documented ~2.40 GHz deep dip.
+The install is trustworthy; solver-setup errors are off the suspect list.
+
+### Tuning sweep: L and feed gap are NOT the lever
+
+`scripts/tune_demo.py` swept the bare-board demo candidate over arm length
+35-55 mm x feed gap 2-8 mm (77 solves, 140 s). Best of the whole grid:
+S11 -1.25 dB, VSWR ~14 — the grid barely moves the match. Combined with
+the tutorial pass, the conclusion is structural: the IFA feed/short
+arrangement in `geometry.build_ifa_geometry()` (port impedance, short-pin
+ground contact, or arm-over-ground geometry) keeps the input impedance far
+from 50 ohm everywhere. That is the next real physics task. Sweep data:
+`runs/sweep_results.json`.
+
+### New: run artifacts + media suite (rf/viz)
+
+`run_simulation(config, out_dir=...)` now persists each run's artifacts
+(config.json, result.json, Et.h5, device.json) — resolved to an absolute
+path *before* the solve, because FDTD.Run() leaves the process cwd inside
+a temp dir it then deletes. Render everything from a run dir:
+
+```sh
+python3 -m venv .venv-viz && .venv-viz/bin/pip install matplotlib numpy h5py pillow scipy
+.venv-viz/bin/python -m rf.viz.data          # fabricate runs/demo (labelled DEMO)
+.venv-viz/bin/python -m rf.viz runs/demo     # render every figure + animation
+```
+
+`rf/viz/` (dark theme, Computer Modern, 300 dpi; multi-material aware —
+parts coloured by material family, battery highlighted, origin + axis
+triad drawn explicitly in the corner-anchored frame all candidate
+coordinates live in): theme.py, data.py, s11.py, placement3d.py,
+anim_field.py, anim_orbit.py, anim_dashboard.py, __main__.py. The old
+single-file visualize.py is superseded by this package.
+
+The real iPhone manifest was regenerated on this machine (micromamba env
+`bpy`, python 3.11, `pip install bpy`; then
+`python -m rf.blend_loader.load_blend data/apple_iphone_15_pro/apple_iphone_15_pro.blend --materials data/apple_iphone_15_pro/materials.json --out rf/blend_loader/out`)
+— 191 parts, 13 materials, 71.5 x 146.6 mm footprint confirmed.

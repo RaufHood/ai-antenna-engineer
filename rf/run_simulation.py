@@ -34,11 +34,24 @@ from .postprocess import postprocess
 from .solve import run_fdtd
 
 
-def run_simulation(config: dict) -> dict:
+def run_simulation(config: dict, out_dir: str | None = None) -> dict:
     """Single entry point the FastAPI backend calls. See
     rf/progress_simulation.md for the config/result contract (mirrors
-    frontend/src/lib/types.ts Candidate/BandRequirement -> SimResult)."""
+    frontend/src/lib/types.ts Candidate/BandRequirement -> SimResult).
+
+    out_dir (optional): when given, the run's artifacts are persisted there
+    in the rf/viz run-directory layout (config.json, result.json, Et.h5 if
+    dumped, device.json if available) so `python -m rf.viz <out_dir>` can
+    render every figure/animation from this exact run -- on any machine,
+    with no solver installed. This is the seam between the solve and the
+    media pipeline; keep it stable."""
     t0 = time.time()
+    if out_dir:
+        # Resolve NOW: openEMS's FDTD.Run() leaves the process cwd inside its
+        # (deleted) temp sim dir, so a relative path resolved after the solve
+        # points at a directory that no longer exists.
+        from pathlib import Path
+        out_dir = str(Path(out_dir).resolve())
     cand = Candidate(**config["candidate"])
     band = Band(**{k: config["band"][k] for k in
                    ("id", "f_low_ghz", "f_high_ghz", "s11_db_max", "efficiency_min")
@@ -56,12 +69,9 @@ def run_simulation(config: dict) -> dict:
             runtime_s=time.time() - t0,
             **metrics,
         )
-        if sim.dump_fields:
-            from .visualize import render_field_animation
-            out = result.to_dict()
-            out["field_animation_path"] = render_field_animation(
-                port_result.sim_path, geometry_mm=port_result.geometry_mm)
-            return out
+
+        _persist(out_dir, config, result.to_dict(), port_result.sim_path)
+        return result.to_dict()
     except NotImplementedError as e:
         result = SimResult(
             candidate_id=cand.candidate_id,
@@ -71,7 +81,33 @@ def run_simulation(config: dict) -> dict:
             efficiency=0.0, peak_gain_dbi=0.0, vswr=0.0, sar_w_per_kg=0.0,
             meets_requirements=False, notes=f"not runnable yet: {e}",
         )
+        _persist(out_dir, config, result.to_dict(), None)
     return result.to_dict()
+
+
+def _persist(out_dir: str | None, config: dict, result: dict,
+             sim_path: str | None) -> None:
+    """Write the rf/viz run-directory artifacts. Never raises: persisting
+    media inputs must not be able to fail an otherwise-good solve."""
+    if not out_dir:
+        return
+    try:
+        import json
+        import shutil
+        from pathlib import Path
+        out = Path(out_dir)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "config.json").write_text(json.dumps(config, indent=2))
+        (out / "result.json").write_text(json.dumps(result, indent=2))
+        if sim_path:
+            et = Path(sim_path) / "Et.h5"
+            if et.exists():
+                shutil.copy2(et, out / "Et.h5")
+        manifest = config.get("device", {}).get("manifest_path")
+        if manifest and Path(manifest).exists():
+            shutil.copy2(manifest, out / "device.json")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[run_simulation] artifact persist failed (non-fatal): {exc}")
 
 
 if __name__ == "__main__":
@@ -94,23 +130,9 @@ if __name__ == "__main__":
                 "dump_fields": True},
     }
     import json
-    result = run_simulation(demo_config)
-    print(json.dumps(result, indent=2))
-
-    if "s11_curve" in result and result["s11_curve"]:
-        from pathlib import Path
-
-        from .models import Band
-        from .visualize import render_s11_plot
-        band = Band(**{k: demo_config["band"][k] for k in
-                       ("id", "f_low_ghz", "f_high_ghz", "s11_db_max", "efficiency_min")
-                       if k in demo_config["band"]})
-        # Absolute path, not "rf/s11_demo.png": openEMS's FDTD.Run() leaves
-        # the process cwd inside its temp sim dir, which cleanup=True then
-        # deletes -- any relative path written after run_simulation() ends
-        # up resolved against a directory that no longer exists.
-        out_png = str(Path(__file__).parent / "s11_demo.png")
-        s11_png = render_s11_plot(result["s11_curve"], band, out_png)
-        print(f"wrote {s11_png}")
-    if "field_animation_path" in result:
-        print(f"wrote {result['field_animation_path']}")
+    from pathlib import Path
+    out_dir = Path("runs") / demo_config["candidate"]["candidate_id"]
+    result = run_simulation(demo_config, out_dir=str(out_dir))
+    print(json.dumps({k: v for k, v in result.items() if k != "s11_curve"}, indent=2))
+    print(f"\nartifacts -> {out_dir}/")
+    print(f"render everything:  .venv-viz/bin/python -m rf.viz {out_dir}")

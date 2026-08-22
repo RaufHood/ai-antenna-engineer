@@ -1,0 +1,4687 @@
+{
+  "device_id": "apple_iphone_15_pro",
+  "name": "Apple iPhone 15 Pro (2023, 6.1 in)",
+  "units": "mm",
+  "source_blend": "data/apple_iphone_15_pro/apple_iphone_15_pro.blend",
+  "blender_version_used": "5.0.1",
+  "blender_version_authored": "5.2.0 LTS",
+  "material_gaps": [
+    {
+      "part": "exterior.frame.band_seg_* (titanium band)",
+      "key_used": "stainless",
+      "real_material": "Ti-6Al-4V, ASTM Grade 5",
+      "real_sigma_S_per_m": 580000.0,
+      "real_eps_r": 1.0,
+      "real_mu_r": 1.0,
+      "key_sigma_S_per_m": 1100000.0,
+      "severity": "SEVERE - the defining conductor of the object",
+      "note": "There is no titanium key.  Ti-6Al-4V is sigma ~5.8e5 S/m, roughly 60x LESS conductive than `aluminium` (3.5e7) and about half of `stainless` (1.1e6).  `stainless` is the closest of the available keys, still 1.9x too conductive.  Skin depth at 1 GHz: titanium 20.9 um, stainless 15.2 um, aluminium 2.7 um - so using `aluminium` here would be wrong by a factor of 8 in skin depth and would change the surface resistance of the dominant radiating structure by ~8x.  THIS IS THE SINGLE MOST CONSEQUENTIAL GAP IN THE ASSET."
+    },
+    {
+      "part": "exterior.glass.front_ceramic_shield",
+      "key_used": "lens",
+      "real_material": "Apple Ceramic Shield (glass-ceramic with a nanocrystalline phase)",
+      "real_eps_r": "~7.0-7.5 (glass-ceramic, not published)",
+      "key_eps_r": 5.5,
+      "real_sigma_S_per_m": "~1e-12",
+      "severity": "HIGH - the wave enters through it",
+      "note": "`lens` (eps_r 5.5) is optical glass.  Ceramic Shield is a lithium-aluminosilicate glass-ceramic whose nanocrystalline phase raises the permittivity; published values do not exist. The 0.70 mm sheet in front of the display is the largest dielectric the wave crosses on the front face."
+    },
+    {
+      "part": "exterior.glass.back / exterior.camera.plateau_glass",
+      "key_used": "lens",
+      "real_material": "textured (etched) alumino-silicate back glass",
+      "real_eps_r": "~6.5-7.0",
+      "key_eps_r": 5.5,
+      "severity": "HIGH - the second largest dielectric surface",
+      "note": "Same class of gap as the front; the etched surface is a sub-micron feature and is not modelled."
+    },
+    {
+      "part": "display.oled_panel / touch_layer / polariser",
+      "key_used": "pet",
+      "real_material": "LTPO OLED stack: polyimide substrate, organic layers, thin-film encapsulation, metal cathode",
+      "real_eps_r": "3.2-3.5 with a PARTIALLY CONDUCTING cathode (sigma ~1e6 S/m over ~100 nm)",
+      "severity": "HIGH - a partially conducting sheet modelled as a dielectric",
+      "note": "No key expresses 'dielectric stack with a thin metal cathode'. Modelled as `pet` with a separate `copper` backplate; the cathode itself is NOT represented."
+    },
+    {
+      "part": "power.magsafe.magnet_* / alignment_magnet",
+      "key_used": "steel",
+      "real_material": "sintered NdFeB, N52",
+      "real_sigma_S_per_m": 670000.0,
+      "real_mu_r": 1.05,
+      "key_sigma_S_per_m": 1450000.0,
+      "severity": "MEDIUM",
+      "note": "`steel` is 2.2x too conductive and carries no mu_r at all.  18 magnets plus the alignment magnet."
+    },
+    {
+      "part": "logic_board.shield_can_* contents (silicon dies)",
+      "key_used": "not modelled as silicon",
+      "real_material": "monocrystalline silicon",
+      "real_eps_r": 11.7,
+      "real_sigma_S_per_m": "10-1e3 (doping dependent)",
+      "severity": "MEDIUM",
+      "note": "Nothing in the vocabulary comes close to eps_r 11.7.  The dies are inside closed shield cans, so their contribution is screened; the cans themselves are `stainless`."
+    },
+    {
+      "part": "package moulding compound (A17 Pro, PoP DRAM, NAND)",
+      "key_used": "fr4",
+      "real_material": "silica-filled epoxy moulding compound",
+      "real_eps_r": "3.5-4.5",
+      "key_eps_r": 4.4,
+      "severity": "LOW - `fr4` is a good match",
+      "note": "Stated explicitly rather than silently substituted."
+    },
+    {
+      "part": "battery.cell",
+      "key_used": "lipo",
+      "real_material": "layered Li-ion pouch cell (Cu / graphite / separator / LiCoO2 / Al)",
+      "severity": "MEDIUM",
+      "note": "`lipo` is one bulk value (eps_r 1.0, sigma 1e5) for a strongly anisotropic layered stack of metal foils.  The real cell is close to a stack of conductors."
+    },
+    {
+      "part": "power.thermal.graphite_*",
+      "key_used": "cfrp",
+      "real_material": "pyrolytic graphite sheet",
+      "real_sigma_S_per_m": "in-plane ~1e6, through-plane ~1e3",
+      "key_sigma_S_per_m": 10000.0,
+      "severity": "MEDIUM",
+      "note": "Strongly anisotropic; `cfrp` is isotropic 1e4 S/m."
+    },
+    {
+      "part": "exterior.frame.split_*",
+      "key_used": "nylon",
+      "real_material": "moulded LCP / PC-ABS composite with glass fill",
+      "real_eps_r": "3.0-3.6",
+      "key_eps_r": 2.9,
+      "severity": "LOW",
+      "note": "Close enough; stated."
+    }
+  ],
+  "parts": [
+    {
+      "node_path": "acoustics.bottom_speaker.driver",
+      "blender_object": "acoustics.bottom_speaker.driver__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          16.0,
+          -65.30000305175781,
+          2.0
+        ],
+        [
+          22.0,
+          -59.29999923706055,
+          4.400000095367432
+        ]
+      ],
+      "tris": 130,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.bottom_speaker.driver.stl"
+    },
+    {
+      "node_path": "acoustics.bottom_speaker.enclosure",
+      "blender_object": "acoustics.bottom_speaker.enclosure__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          8.0,
+          -69.0,
+          1.0
+        ],
+        [
+          30.0,
+          -56.400001525878906,
+          5.199999809265137
+        ]
+      ],
+      "tris": 124,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.bottom_speaker.enclosure.stl"
+    },
+    {
+      "node_path": "acoustics.mic_bottom",
+      "blender_object": "acoustics.mic_bottom__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -13.5,
+          -69.5,
+          1.399999976158142
+        ],
+        [
+          -11.699999809265137,
+          -67.69999694824219,
+          2.5999999046325684
+        ]
+      ],
+      "tris": 66,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.mic_bottom.stl"
+    },
+    {
+      "node_path": "acoustics.mic_rear",
+      "blender_object": "acoustics.mic_rear__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -0.30000001192092896,
+          43.29999923706055,
+          1.399999976158142
+        ],
+        [
+          1.5,
+          45.099998474121094,
+          2.5999999046325684
+        ]
+      ],
+      "tris": 66,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.mic_rear.stl"
+    },
+    {
+      "node_path": "acoustics.mic_top",
+      "blender_object": "acoustics.mic_top__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -2.9000000953674316,
+          68.4000015258789,
+          1.399999976158142
+        ],
+        [
+          -1.100000023841858,
+          70.19999694824219,
+          2.5999999046325684
+        ]
+      ],
+      "tris": 66,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.mic_top.stl"
+    },
+    {
+      "node_path": "acoustics.top_speaker.driver",
+      "blender_object": "acoustics.top_speaker.driver__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -18.600000381469727,
+          57.400001525878906,
+          2.200000047683716
+        ],
+        [
+          -13.399999618530273,
+          62.599998474121094,
+          4.0
+        ]
+      ],
+      "tris": 130,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.top_speaker.driver.stl"
+    },
+    {
+      "node_path": "acoustics.top_speaker.enclosure",
+      "blender_object": "acoustics.top_speaker.enclosure__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -23.0,
+          51.0,
+          1.2000000476837158
+        ],
+        [
+          -9.5,
+          69.0,
+          4.599999904632568
+        ]
+      ],
+      "tris": 124,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/acoustics.top_speaker.enclosure.stl"
+    },
+    {
+      "node_path": "adhesive.back_glass_frame",
+      "blender_object": "adhesive.back_glass_frame__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          -72.3385009765625,
+          0.7739999890327454
+        ],
+        [
+          34.3385009765625,
+          72.3385009765625,
+          0.9200000166893005
+        ]
+      ],
+      "tris": 1312,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.back_glass_frame.stl"
+    },
+    {
+      "node_path": "adhesive.battery_tab_0",
+      "blender_object": "adhesive.battery_tab_0__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -27.0,
+          -56.29999923706055,
+          1.25
+        ],
+        [
+          -17.0,
+          -54.29999923706055,
+          1.4500000476837158
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.battery_tab_0.stl"
+    },
+    {
+      "node_path": "adhesive.battery_tab_1",
+      "blender_object": "adhesive.battery_tab_1__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -13.0,
+          -56.29999923706055,
+          1.25
+        ],
+        [
+          -3.0,
+          -54.29999923706055,
+          1.4500000476837158
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.battery_tab_1.stl"
+    },
+    {
+      "node_path": "adhesive.battery_tab_2",
+      "blender_object": "adhesive.battery_tab_2__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          2.0,
+          -56.29999923706055,
+          1.25
+        ],
+        [
+          12.0,
+          -54.29999923706055,
+          1.4500000476837158
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.battery_tab_2.stl"
+    },
+    {
+      "node_path": "adhesive.battery_tab_top",
+      "blender_object": "adhesive.battery_tab_top__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          6.0,
+          27.700000762939453,
+          1.4500000476837158
+        ],
+        [
+          20.0,
+          29.899999618530273,
+          1.649999976158142
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.battery_tab_top.stl"
+    },
+    {
+      "node_path": "adhesive.bottom_speaker_gasket",
+      "blender_object": "adhesive.bottom_speaker_gasket__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          7.5,
+          -69.5,
+          0.8500000238418579
+        ],
+        [
+          30.5,
+          -55.0,
+          1.0
+        ]
+      ],
+      "tris": 240,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.bottom_speaker_gasket.stl"
+    },
+    {
+      "node_path": "adhesive.display_frame",
+      "blender_object": "adhesive.display_frame__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          -72.3385009765625,
+          5.880000114440918
+        ],
+        [
+          34.3385009765625,
+          72.3385009765625,
+          6.03000020980835
+        ]
+      ],
+      "tris": 1312,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/adhesive.display_frame.stl"
+    },
+    {
+      "node_path": "battery.bms_flex",
+      "blender_object": "battery.bms_flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -10.5,
+          18.0,
+          4.949999809265137
+        ],
+        [
+          -6.5,
+          27.0,
+          5.099999904632568
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/battery.bms_flex.stl"
+    },
+    {
+      "node_path": "battery.cell",
+      "blender_object": "battery.cell__lipo",
+      "material_key": "lipo",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -29.399999618530273,
+          -54.5,
+          1.5499999523162842
+        ],
+        [
+          30.700000762939453,
+          27.5,
+          5.050000190734863
+        ]
+      ],
+      "tris": 68,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/battery.cell.stl"
+    },
+    {
+      "node_path": "battery.connector",
+      "blender_object": "battery.connector__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -15.5,
+          20.0,
+          4.800000190734863
+        ],
+        [
+          -11.0,
+          25.0,
+          5.400000095367432
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/battery.connector.stl"
+    },
+    {
+      "node_path": "battery.jacket",
+      "blender_object": "battery.jacket__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -29.5,
+          -54.599998474121094,
+          1.4500000476837158
+        ],
+        [
+          30.799999237060547,
+          27.600000381469727,
+          5.150000095367432
+        ]
+      ],
+      "tris": 264,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/battery.jacket.stl"
+    },
+    {
+      "node_path": "battery.tab_neg",
+      "blender_object": "battery.tab_neg__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -10.100000381469727,
+          21.0,
+          4.929999828338623
+        ],
+        [
+          -8.899999618530273,
+          25.5,
+          5.03000020980835
+        ]
+      ],
+      "tris": 22,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/battery.tab_neg.stl"
+    },
+    {
+      "node_path": "battery.tab_pos",
+      "blender_object": "battery.tab_pos__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -8.5,
+          21.0,
+          4.929999828338623
+        ],
+        [
+          -7.300000190734863,
+          25.5,
+          5.03000020980835
+        ]
+      ],
+      "tris": 22,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/battery.tab_pos.stl"
+    },
+    {
+      "node_path": "brackets.back_glass_connector_cowling",
+      "blender_object": "brackets.back_glass_connector_cowling__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -32.0,
+          -31.0,
+          3.549999952316284
+        ],
+        [
+          -25.0,
+          -24.0,
+          3.700000047683716
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.back_glass_connector_cowling.stl"
+    },
+    {
+      "node_path": "brackets.battery_shim",
+      "blender_object": "brackets.battery_shim__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -29.0,
+          -53.79999923706055,
+          1.25
+        ],
+        [
+          30.299999237060547,
+          -47.0,
+          1.4500000476837158
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.battery_shim.stl"
+    },
+    {
+      "node_path": "brackets.camera_bracket",
+      "blender_object": "brackets.camera_bracket__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          10.199999809265137,
+          32.599998474121094,
+          5.150000095367432
+        ],
+        [
+          32.20000076293945,
+          68.5999984741211,
+          5.380000114440918
+        ]
+      ],
+      "tris": 176,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.camera_bracket.stl"
+    },
+    {
+      "node_path": "brackets.camera_grounding_spring",
+      "blender_object": "brackets.camera_grounding_spring__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          30.5,
+          30.5,
+          5.0
+        ],
+        [
+          32.900001525878906,
+          34.5,
+          5.260000228881836
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.camera_grounding_spring.stl"
+    },
+    {
+      "node_path": "brackets.display_connector_bracket",
+      "blender_object": "brackets.display_connector_bracket__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.0,
+          32.0,
+          3.299999952316284
+        ],
+        [
+          -19.0,
+          37.5,
+          3.4700000286102295
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.display_connector_bracket.stl"
+    },
+    {
+      "node_path": "brackets.logic_board_cowling",
+      "blender_object": "brackets.logic_board_cowling__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -32.0,
+          -20.5,
+          3.549999952316284
+        ],
+        [
+          -7.0,
+          37.5,
+          3.700000047683716
+        ]
+      ],
+      "tris": 44,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.logic_board_cowling.stl"
+    },
+    {
+      "node_path": "brackets.taptic_grounding_spring",
+      "blender_object": "brackets.taptic_grounding_spring__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -8.0,
+          -56.5,
+          4.349999904632568
+        ],
+        [
+          -5.0,
+          -53.5,
+          4.699999809265137
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/brackets.taptic_grounding_spring.stl"
+    },
+    {
+      "node_path": "cameras.main.barrel",
+      "blender_object": "cameras.main.barrel__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          15.420499801635742,
+          53.56449890136719,
+          0.699999988079071
+        ],
+        [
+          28.997499465942383,
+          67.1415023803711,
+          3.1480000019073486
+        ]
+      ],
+      "tris": 578,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.main.barrel.stl"
+    },
+    {
+      "node_path": "cameras.main.flex",
+      "blender_object": "cameras.main.flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          10.208999633789062,
+          56.35300064086914,
+          2.0980000495910645
+        ],
+        [
+          17.208999633789062,
+          64.35299682617188,
+          2.247999906539917
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.main.flex.stl"
+    },
+    {
+      "node_path": "cameras.main.lens_stack",
+      "blender_object": "cameras.main.lens_stack__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          17.11400032043457,
+          55.257999420166016,
+          -1.7100000381469727
+        ],
+        [
+          27.304000854492188,
+          65.447998046875,
+          0.6980000138282776
+        ]
+      ],
+      "tris": 194,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.main.lens_stack.stl"
+    },
+    {
+      "node_path": "cameras.main.sensor",
+      "blender_object": "cameras.main.sensor__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          18.009000778198242,
+          57.15299987792969,
+          2.2980000972747803
+        ],
+        [
+          26.409000396728516,
+          63.553001403808594,
+          2.5480000972747803
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.main.sensor.stl"
+    },
+    {
+      "node_path": "cameras.module_shield_can",
+      "blender_object": "cameras.module_shield_can__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          12.600000381469727,
+          35.400001525878906,
+          3.299999952316284
+        ],
+        [
+          30.200000762939453,
+          66.5999984741211,
+          5.079999923706055
+        ]
+      ],
+      "tris": 134,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.module_shield_can.stl"
+    },
+    {
+      "node_path": "cameras.telephoto.barrel",
+      "blender_object": "cameras.telephoto.barrel__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -0.7944999933242798,
+          44.67850112915039,
+          0.699999988079071
+        ],
+        [
+          12.782500267028809,
+          58.25550079345703,
+          3.1480000019073486
+        ]
+      ],
+      "tris": 578,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.telephoto.barrel.stl"
+    },
+    {
+      "node_path": "cameras.telephoto.flex",
+      "blender_object": "cameras.telephoto.flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -6.00600004196167,
+          47.46699905395508,
+          2.0980000495910645
+        ],
+        [
+          0.9940000176429749,
+          55.46699905395508,
+          2.247999906539917
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.telephoto.flex.stl"
+    },
+    {
+      "node_path": "cameras.telephoto.lens_stack",
+      "blender_object": "cameras.telephoto.lens_stack__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          0.8989999890327454,
+          46.37200164794922,
+          -1.7100000381469727
+        ],
+        [
+          11.08899974822998,
+          56.5620002746582,
+          0.6980000138282776
+        ]
+      ],
+      "tris": 194,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.telephoto.lens_stack.stl"
+    },
+    {
+      "node_path": "cameras.telephoto.sensor",
+      "blender_object": "cameras.telephoto.sensor__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          1.7940000295639038,
+          48.266998291015625,
+          2.2980000972747803
+        ],
+        [
+          10.194000244140625,
+          54.66699981689453,
+          2.5480000972747803
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.telephoto.sensor.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.dot_projector",
+      "blender_object": "cameras.truedepth.dot_projector__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          1.2000000476837158,
+          64.5,
+          3.75
+        ],
+        [
+          3.799999952316284,
+          67.0999984741211,
+          4.880000114440918
+        ]
+      ],
+      "tris": 98,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.dot_projector.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.flex",
+      "blender_object": "cameras.truedepth.flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -14.0,
+          55.0,
+          5.099999904632568
+        ],
+        [
+          -6.0,
+          61.5,
+          5.25
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.flex.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.flood_illuminator",
+      "blender_object": "cameras.truedepth.flood_illuminator__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -2.299999952316284,
+          64.9000015258789,
+          3.75
+        ],
+        [
+          -0.5,
+          66.69999694824219,
+          4.880000114440918
+        ]
+      ],
+      "tris": 98,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.flood_illuminator.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.front_camera",
+      "blender_object": "cameras.truedepth.front_camera__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          5.5,
+          64.30000305175781,
+          3.75
+        ],
+        [
+          8.5,
+          67.30000305175781,
+          4.880000114440918
+        ]
+      ],
+      "tris": 98,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.front_camera.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.housing",
+      "blender_object": "cameras.truedepth.housing__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -9.5,
+          62.0,
+          3.4000000953674316
+        ],
+        [
+          9.5,
+          69.5,
+          5.28000020980835
+        ]
+      ],
+      "tris": 182,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.housing.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.ir_camera",
+      "blender_object": "cameras.truedepth.ir_camera__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -6.0,
+          64.69999694824219,
+          3.75
+        ],
+        [
+          -3.799999952316284,
+          66.9000015258789,
+          4.880000114440918
+        ]
+      ],
+      "tris": 98,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.ir_camera.stl"
+    },
+    {
+      "node_path": "cameras.truedepth.proximity_sensor",
+      "blender_object": "cameras.truedepth.proximity_sensor__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -8.399999618530273,
+          65.0,
+          3.75
+        ],
+        [
+          -6.800000190734863,
+          66.5999984741211,
+          4.880000114440918
+        ]
+      ],
+      "tris": 66,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.truedepth.proximity_sensor.stl"
+    },
+    {
+      "node_path": "cameras.ultrawide.barrel",
+      "blender_object": "cameras.ultrawide.barrel__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          15.420499801635742,
+          36.09049987792969,
+          0.699999988079071
+        ],
+        [
+          28.997499465942383,
+          49.66749954223633,
+          2.496999979019165
+        ]
+      ],
+      "tris": 578,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.ultrawide.barrel.stl"
+    },
+    {
+      "node_path": "cameras.ultrawide.flex",
+      "blender_object": "cameras.ultrawide.flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          10.208999633789062,
+          38.87900161743164,
+          1.4470000267028809
+        ],
+        [
+          17.208999633789062,
+          46.87900161743164,
+          1.597000002861023
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.ultrawide.flex.stl"
+    },
+    {
+      "node_path": "cameras.ultrawide.lens_stack",
+      "blender_object": "cameras.ultrawide.lens_stack__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          17.11400032043457,
+          37.784000396728516,
+          -1.7100000381469727
+        ],
+        [
+          27.304000854492188,
+          47.9739990234375,
+          0.04699999839067459
+        ]
+      ],
+      "tris": 194,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.ultrawide.lens_stack.stl"
+    },
+    {
+      "node_path": "cameras.ultrawide.sensor",
+      "blender_object": "cameras.ultrawide.sensor__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          18.009000778198242,
+          39.67900085449219,
+          1.6469999551773071
+        ],
+        [
+          26.409000396728516,
+          46.07899856567383,
+          1.8969999551773071
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/cameras.ultrawide.sensor.stl"
+    },
+    {
+      "node_path": "chassis.substructure.midplate",
+      "blender_object": "chassis.substructure.midplate__aluminium",
+      "material_key": "aluminium",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 35000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -32.95000076293945,
+          -70.94999694824219,
+          5.429999828338623
+        ],
+        [
+          32.95000076293945,
+          70.94999694824219,
+          5.880000114440918
+        ]
+      ],
+      "tris": 722,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/chassis.substructure.midplate.stl"
+    },
+    {
+      "node_path": "chassis.substructure.rail",
+      "blender_object": "chassis.substructure.rail__aluminium",
+      "material_key": "aluminium",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 35000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          -72.3385009765625,
+          0.9200000166893005
+        ],
+        [
+          34.3385009765625,
+          72.3385009765625,
+          5.880000114440918
+        ]
+      ],
+      "tris": 2368,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/chassis.substructure.rail.stl"
+    },
+    {
+      "node_path": "controls.action_dome",
+      "blender_object": "controls.action_dome__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -33.98849868774414,
+          37.395721435546875,
+          2.647125005722046
+        ],
+        [
+          -33.688499450683594,
+          44.12828063964844,
+          5.447875022888184
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.action_dome.stl"
+    },
+    {
+      "node_path": "controls.action_flex",
+      "blender_object": "controls.action_flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -33.688499450683594,
+          37.395721435546875,
+          2.647125005722046
+        ],
+        [
+          -33.53850173950195,
+          44.12828063964844,
+          5.447875022888184
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.action_flex.stl"
+    },
+    {
+      "node_path": "controls.action_seal",
+      "blender_object": "controls.action_seal__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          37.395721435546875,
+          2.647125005722046
+        ],
+        [
+          -33.98849868774414,
+          44.12828063964844,
+          5.447875022888184
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.action_seal.stl"
+    },
+    {
+      "node_path": "controls.side_dome",
+      "blender_object": "controls.side_dome__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          33.688499450683594,
+          9.437479972839355,
+          2.434225082397461
+        ],
+        [
+          33.98849868774414,
+          26.2385196685791,
+          5.190774917602539
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.side_dome.stl"
+    },
+    {
+      "node_path": "controls.side_flex",
+      "blender_object": "controls.side_flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          33.53850173950195,
+          9.437479972839355,
+          2.434225082397461
+        ],
+        [
+          33.688499450683594,
+          26.2385196685791,
+          5.190774917602539
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.side_flex.stl"
+    },
+    {
+      "node_path": "controls.side_seal",
+      "blender_object": "controls.side_seal__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          33.98849868774414,
+          9.437479972839355,
+          2.434225082397461
+        ],
+        [
+          34.3385009765625,
+          26.2385196685791,
+          5.190774917602539
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.side_seal.stl"
+    },
+    {
+      "node_path": "controls.vol_dn_dome",
+      "blender_object": "controls.vol_dn_dome__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -33.98849868774414,
+          9.232799530029297,
+          3.0959250926971436
+        ],
+        [
+          -33.688499450683594,
+          19.969200134277344,
+          4.999074935913086
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.vol_dn_dome.stl"
+    },
+    {
+      "node_path": "controls.vol_dn_flex",
+      "blender_object": "controls.vol_dn_flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -33.688499450683594,
+          9.232799530029297,
+          3.0959250926971436
+        ],
+        [
+          -33.53850173950195,
+          19.969200134277344,
+          4.999074935913086
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.vol_dn_flex.stl"
+    },
+    {
+      "node_path": "controls.vol_dn_seal",
+      "blender_object": "controls.vol_dn_seal__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          9.232799530029297,
+          3.0959250926971436
+        ],
+        [
+          -33.98849868774414,
+          19.969200134277344,
+          4.999074935913086
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.vol_dn_seal.stl"
+    },
+    {
+      "node_path": "controls.vol_up_dome",
+      "blender_object": "controls.vol_up_dome__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -33.98849868774414,
+          23.683839797973633,
+          3.0959250926971436
+        ],
+        [
+          -33.688499450683594,
+          34.28316116333008,
+          4.999074935913086
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.vol_up_dome.stl"
+    },
+    {
+      "node_path": "controls.vol_up_flex",
+      "blender_object": "controls.vol_up_flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -33.688499450683594,
+          23.683839797973633,
+          3.0959250926971436
+        ],
+        [
+          -33.53850173950195,
+          34.28316116333008,
+          4.999074935913086
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.vol_up_flex.stl"
+    },
+    {
+      "node_path": "controls.vol_up_seal",
+      "blender_object": "controls.vol_up_seal__rubber",
+      "material_key": "rubber",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          23.683839797973633,
+          3.0959250926971436
+        ],
+        [
+          -33.98849868774414,
+          34.28316116333008,
+          4.999074935913086
+        ]
+      ],
+      "tris": 38,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/controls.vol_up_seal.stl"
+    },
+    {
+      "node_path": "display.backplate",
+      "blender_object": "display.backplate__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.700000762939453,
+          -69.69999694824219,
+          6.179999828338623
+        ],
+        [
+          31.700000762939453,
+          69.69999694824219,
+          6.329999923706055
+        ]
+      ],
+      "tris": 776,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.backplate.stl"
+    },
+    {
+      "node_path": "display.flex_tail",
+      "blender_object": "display.flex_tail__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -28.0,
+          30.0,
+          5.199999809265137
+        ],
+        [
+          -16.0,
+          40.0,
+          5.349999904632568
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.flex_tail.stl"
+    },
+    {
+      "node_path": "display.foam",
+      "blender_object": "display.foam__foam",
+      "material_key": "foam",
+      "eps_r": 1.1,
+      "sigma_S_per_m": 0.0001,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.700000762939453,
+          -69.69999694824219,
+          6.329999923706055
+        ],
+        [
+          31.700000762939453,
+          69.69999694824219,
+          6.429999828338623
+        ]
+      ],
+      "tris": 776,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.foam.stl"
+    },
+    {
+      "node_path": "display.foam_gasket",
+      "blender_object": "display.foam_gasket__foam",
+      "material_key": "foam",
+      "eps_r": 1.1,
+      "sigma_S_per_m": 0.0001,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          -72.3385009765625,
+          6.03000020980835
+        ],
+        [
+          34.3385009765625,
+          72.3385009765625,
+          6.179999828338623
+        ]
+      ],
+      "tris": 1312,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.foam_gasket.stl"
+    },
+    {
+      "node_path": "display.oled_panel",
+      "blender_object": "display.oled_panel__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.700000762939453,
+          -69.69999694824219,
+          6.429999828338623
+        ],
+        [
+          31.700000762939453,
+          69.69999694824219,
+          6.929999828338623
+        ]
+      ],
+      "tris": 776,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.oled_panel.stl"
+    },
+    {
+      "node_path": "display.optical_adhesive",
+      "blender_object": "display.optical_adhesive__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.700000762939453,
+          -69.69999694824219,
+          7.179999828338623
+        ],
+        [
+          31.700000762939453,
+          69.69999694824219,
+          7.380000114440918
+        ]
+      ],
+      "tris": 776,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.optical_adhesive.stl"
+    },
+    {
+      "node_path": "display.polariser",
+      "blender_object": "display.polariser__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.700000762939453,
+          -69.69999694824219,
+          7.050000190734863
+        ],
+        [
+          31.700000762939453,
+          69.69999694824219,
+          7.179999828338623
+        ]
+      ],
+      "tris": 776,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.polariser.stl"
+    },
+    {
+      "node_path": "display.touch_layer",
+      "blender_object": "display.touch_layer__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.700000762939453,
+          -69.69999694824219,
+          6.929999828338623
+        ],
+        [
+          31.700000762939453,
+          69.69999694824219,
+          7.050000190734863
+        ]
+      ],
+      "tris": 776,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/display.touch_layer.stl"
+    },
+    {
+      "node_path": "exterior.button.action_cap",
+      "blender_object": "exterior.button.action_cap__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -35.702999114990234,
+          37.10300064086914,
+          2.4000000953674316
+        ],
+        [
+          -34.48849868774414,
+          44.42100143432617,
+          5.695000171661377
+        ]
+      ],
+      "tris": 78,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.button.action_cap.stl"
+    },
+    {
+      "node_path": "exterior.button.side_cap",
+      "blender_object": "exterior.button.side_cap__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          34.48849868774414,
+          8.706999778747559,
+          2.190999984741211
+        ],
+        [
+          35.75,
+          26.9689998626709,
+          5.434000015258789
+        ]
+      ],
+      "tris": 78,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.button.side_cap.stl"
+    },
+    {
+      "node_path": "exterior.button.vol_dn_cap",
+      "blender_object": "exterior.button.vol_dn_cap__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -35.702999114990234,
+          8.765999794006348,
+          2.927999973297119
+        ],
+        [
+          -34.48849868774414,
+          20.43600082397461,
+          5.166999816894531
+        ]
+      ],
+      "tris": 78,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.button.vol_dn_cap.stl"
+    },
+    {
+      "node_path": "exterior.button.vol_up_cap",
+      "blender_object": "exterior.button.vol_up_cap__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -35.702999114990234,
+          23.222999572753906,
+          2.927999973297119
+        ],
+        [
+          -34.48849868774414,
+          34.74399948120117,
+          5.166999816894531
+        ]
+      ],
+      "tris": 78,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.button.vol_up_cap.stl"
+    },
+    {
+      "node_path": "exterior.camera.flash_lens",
+      "blender_object": "exterior.camera.flash_lens__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          2.571000099182129,
+          61.45000076293945,
+          -2.4100000858306885
+        ],
+        [
+          6.870999813079834,
+          65.75,
+          -2.180000066757202
+        ]
+      ],
+      "tris": 130,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.flash_lens.stl"
+    },
+    {
+      "node_path": "exterior.camera.lens_cover_main",
+      "blender_object": "exterior.camera.lens_cover_main__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          16.11400032043457,
+          54.257999420166016,
+          -2.6600000858306885
+        ],
+        [
+          28.304000854492188,
+          66.447998046875,
+          -2.009999990463257
+        ]
+      ],
+      "tris": 194,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lens_cover_main.stl"
+    },
+    {
+      "node_path": "exterior.camera.lens_cover_telephoto",
+      "blender_object": "exterior.camera.lens_cover_telephoto__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -0.10100000351667404,
+          45.37200164794922,
+          -2.6600000858306885
+        ],
+        [
+          12.08899974822998,
+          57.5620002746582,
+          -2.009999990463257
+        ]
+      ],
+      "tris": 194,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lens_cover_telephoto.stl"
+    },
+    {
+      "node_path": "exterior.camera.lens_cover_ultrawide",
+      "blender_object": "exterior.camera.lens_cover_ultrawide__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          16.11400032043457,
+          36.784000396728516,
+          -2.6600000858306885
+        ],
+        [
+          28.304000854492188,
+          48.9739990234375,
+          -2.009999990463257
+        ]
+      ],
+      "tris": 194,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lens_cover_ultrawide.stl"
+    },
+    {
+      "node_path": "exterior.camera.lens_ring_main",
+      "blender_object": "exterior.camera.lens_ring_main__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          15.070500373840332,
+          53.214500427246094,
+          -2.7100000381469727
+        ],
+        [
+          29.34749984741211,
+          67.49150085449219,
+          -2.180000066757202
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lens_ring_main.stl"
+    },
+    {
+      "node_path": "exterior.camera.lens_ring_telephoto",
+      "blender_object": "exterior.camera.lens_ring_telephoto__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -1.1445000171661377,
+          44.32849884033203,
+          -2.7100000381469727
+        ],
+        [
+          13.132499694824219,
+          58.605499267578125,
+          -2.180000066757202
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lens_ring_telephoto.stl"
+    },
+    {
+      "node_path": "exterior.camera.lens_ring_ultrawide",
+      "blender_object": "exterior.camera.lens_ring_ultrawide__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          15.070500373840332,
+          35.740501403808594,
+          -2.7100000381469727
+        ],
+        [
+          29.34749984741211,
+          50.01750183105469,
+          -2.180000066757202
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lens_ring_ultrawide.stl"
+    },
+    {
+      "node_path": "exterior.camera.lidar_window",
+      "blender_object": "exterior.camera.lidar_window__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          2.9210000038146973,
+          37.900001525878906,
+          -2.4100000858306885
+        ],
+        [
+          6.520999908447266,
+          41.5,
+          -2.180000066757202
+        ]
+      ],
+      "tris": 130,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.lidar_window.stl"
+    },
+    {
+      "node_path": "exterior.camera.plateau_glass",
+      "blender_object": "exterior.camera.plateau_glass__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -4.111542701721191,
+          32.34280014038086,
+          -2.1600000858306885
+        ],
+        [
+          32.72697067260742,
+          70.90386199951172,
+          0.0
+        ]
+      ],
+      "tris": 3434,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.camera.plateau_glass.stl"
+    },
+    {
+      "node_path": "exterior.frame.band_seg_1",
+      "blender_object": "exterior.frame.band_seg_1__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -19.64219093322754,
+          57.67809295654297,
+          0.0
+        ],
+        [
+          35.29999923706055,
+          73.30000305175781,
+          8.095199584960938
+        ]
+      ],
+      "tris": 15550,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.band_seg_1.stl"
+    },
+    {
+      "node_path": "exterior.frame.band_seg_2",
+      "blender_object": "exterior.frame.band_seg_2__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -35.29999923706055,
+          -55.949188232421875,
+          0.0
+        ],
+        [
+          -21.947399139404297,
+          73.30000305175781,
+          8.095199584960938
+        ]
+      ],
+      "tris": 32276,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.band_seg_2.stl"
+    },
+    {
+      "node_path": "exterior.frame.band_seg_3",
+      "blender_object": "exterior.frame.band_seg_3__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -35.29999923706055,
+          -73.30000305175781,
+          0.0
+        ],
+        [
+          -20.410823822021484,
+          -57.966243743896484,
+          8.095199584960938
+        ]
+      ],
+      "tris": 5986,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.band_seg_3.stl"
+    },
+    {
+      "node_path": "exterior.frame.band_seg_4",
+      "blender_object": "exterior.frame.band_seg_4__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -18.105613708496094,
+          -73.30000305175781,
+          0.0
+        ],
+        [
+          35.29999923706055,
+          -57.87052536010742,
+          8.095199584960938
+        ]
+      ],
+      "tris": 15566,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.band_seg_4.stl"
+    },
+    {
+      "node_path": "exterior.frame.band_seg_5",
+      "blender_object": "exterior.frame.band_seg_5__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          34.3385009765625,
+          -55.85346603393555,
+          0.0
+        ],
+        [
+          35.29999923706055,
+          55.66103744506836,
+          8.095199584960938
+        ]
+      ],
+      "tris": 25970,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.band_seg_5.stl"
+    },
+    {
+      "node_path": "exterior.frame.split_p_xn_lo",
+      "blender_object": "exterior.frame.split_p_xn_lo__nylon",
+      "material_key": "nylon",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.002,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -35.29999923706055,
+          -57.966243743896484,
+          0.0
+        ],
+        [
+          -34.3385009765625,
+          -55.949188232421875,
+          8.095199584960938
+        ]
+      ],
+      "tris": 478,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.split_p_xn_lo.stl"
+    },
+    {
+      "node_path": "exterior.frame.split_p_xp_hi",
+      "blender_object": "exterior.frame.split_p_xp_hi__nylon",
+      "material_key": "nylon",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.002,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          34.3385009765625,
+          55.66103744506836,
+          0.0
+        ],
+        [
+          35.29999923706055,
+          57.67809295654297,
+          8.095199584960938
+        ]
+      ],
+      "tris": 478,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.split_p_xp_hi.stl"
+    },
+    {
+      "node_path": "exterior.frame.split_p_xp_lo",
+      "blender_object": "exterior.frame.split_p_xp_lo__nylon",
+      "material_key": "nylon",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.002,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          34.3385009765625,
+          -57.87052536010742,
+          0.0
+        ],
+        [
+          35.29999923706055,
+          -55.85346603393555,
+          8.095199584960938
+        ]
+      ],
+      "tris": 478,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.split_p_xp_lo.stl"
+    },
+    {
+      "node_path": "exterior.frame.split_p_yn",
+      "blender_object": "exterior.frame.split_p_yn__nylon",
+      "material_key": "nylon",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.002,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -20.410823822021484,
+          -73.30000305175781,
+          0.0
+        ],
+        [
+          -18.105613708496094,
+          -72.3385009765625,
+          8.095199584960938
+        ]
+      ],
+      "tris": 546,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.split_p_yn.stl"
+    },
+    {
+      "node_path": "exterior.frame.split_p_yp",
+      "blender_object": "exterior.frame.split_p_yp__nylon",
+      "material_key": "nylon",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.002,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -21.947399139404297,
+          72.3385009765625,
+          0.0
+        ],
+        [
+          -19.64219093322754,
+          73.30000305175781,
+          8.095199584960938
+        ]
+      ],
+      "tris": 546,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.frame.split_p_yp.stl"
+    },
+    {
+      "node_path": "exterior.glass.back",
+      "blender_object": "exterior.glass.back__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          -72.3385009765625,
+          0.0
+        ],
+        [
+          34.3385009765625,
+          72.3385009765625,
+          0.7741000056266785
+        ]
+      ],
+      "tris": 37098,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.glass.back.stl"
+    },
+    {
+      "node_path": "exterior.glass.front_ceramic_shield",
+      "blender_object": "exterior.glass.front_ceramic_shield__lens",
+      "material_key": "lens",
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.003,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -34.3385009765625,
+          -72.3385009765625,
+          7.395199775695801
+        ],
+        [
+          34.3385009765625,
+          72.3385009765625,
+          8.25
+        ]
+      ],
+      "tris": 36000,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/exterior.glass.front_ceramic_shield.stl"
+    },
+    {
+      "node_path": "fasteners.screw_bg_cowling",
+      "blender_object": "fasteners.screw_bg_cowling__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.610000610351562,
+          -28.610000610351562,
+          4.03000020980835
+        ],
+        [
+          -28.389999389648438,
+          -26.389999389648438,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_bg_cowling.stl"
+    },
+    {
+      "node_path": "fasteners.screw_bottom_spk_ll",
+      "blender_object": "fasteners.screw_bottom_spk_ll__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          6.489999771118164,
+          -68.91000366210938,
+          3.7300000190734863
+        ],
+        [
+          8.710000038146973,
+          -66.69000244140625,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_bottom_spk_ll.stl"
+    },
+    {
+      "node_path": "fasteners.screw_bottom_spk_lr",
+      "blender_object": "fasteners.screw_bottom_spk_lr__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          29.489999771118164,
+          -67.91000366210938,
+          3.7300000190734863
+        ],
+        [
+          31.709999084472656,
+          -65.69000244140625,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_bottom_spk_lr.stl"
+    },
+    {
+      "node_path": "fasteners.screw_bottom_spk_ul",
+      "blender_object": "fasteners.screw_bottom_spk_ul__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          5.489999771118164,
+          -57.61000061035156,
+          3.7300000190734863
+        ],
+        [
+          7.710000038146973,
+          -55.38999938964844,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_bottom_spk_ul.stl"
+    },
+    {
+      "node_path": "fasteners.screw_bottom_spk_ur",
+      "blender_object": "fasteners.screw_bottom_spk_ur__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          29.889999389648438,
+          -57.61000061035156,
+          3.7300000190734863
+        ],
+        [
+          32.11000061035156,
+          -55.38999938964844,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_bottom_spk_ur.stl"
+    },
+    {
+      "node_path": "fasteners.screw_cam_ground_spring",
+      "blender_object": "fasteners.screw_cam_ground_spring__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          30.6825008392334,
+          31.482500076293945,
+          4.130000114440918
+        ],
+        [
+          32.717498779296875,
+          33.51750183105469,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_cam_ground_spring.stl"
+    },
+    {
+      "node_path": "fasteners.screw_camera_ll",
+      "blender_object": "fasteners.screw_camera_ll__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          10.397500038146973,
+          32.1974983215332,
+          3.5299999713897705
+        ],
+        [
+          12.802499771118164,
+          34.602500915527344,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_camera_ll.stl"
+    },
+    {
+      "node_path": "fasteners.screw_camera_r",
+      "blender_object": "fasteners.screw_camera_r__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          30.397499084472656,
+          50.29750061035156,
+          3.5299999713897705
+        ],
+        [
+          32.8025016784668,
+          52.70249938964844,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_camera_r.stl"
+    },
+    {
+      "node_path": "fasteners.screw_camera_ul",
+      "blender_object": "fasteners.screw_camera_ul__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          10.397500038146973,
+          68.39749908447266,
+          3.5299999713897705
+        ],
+        [
+          12.802499771118164,
+          70.80249786376953,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_camera_ul.stl"
+    },
+    {
+      "node_path": "fasteners.screw_lb_cowling_ll",
+      "blender_object": "fasteners.screw_lb_cowling_ll__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.610000610351562,
+          -20.610000610351562,
+          3.8299999237060547
+        ],
+        [
+          -29.389999389648438,
+          -18.389999389648438,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_lb_cowling_ll.stl"
+    },
+    {
+      "node_path": "fasteners.screw_lb_cowling_lr",
+      "blender_object": "fasteners.screw_lb_cowling_lr__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -15.609999656677246,
+          -20.610000610351562,
+          3.8299999237060547
+        ],
+        [
+          -13.390000343322754,
+          -18.389999389648438,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_lb_cowling_lr.stl"
+    },
+    {
+      "node_path": "fasteners.screw_lb_cowling_mr",
+      "blender_object": "fasteners.screw_lb_cowling_mr__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -9.109999656677246,
+          8.890000343322754,
+          3.8299999237060547
+        ],
+        [
+          -6.889999866485596,
+          11.109999656677246,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_lb_cowling_mr.stl"
+    },
+    {
+      "node_path": "fasteners.screw_lb_cowling_ul",
+      "blender_object": "fasteners.screw_lb_cowling_ul__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.610000610351562,
+          34.88999938964844,
+          3.8299999237060547
+        ],
+        [
+          -29.389999389648438,
+          37.11000061035156,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_lb_cowling_ul.stl"
+    },
+    {
+      "node_path": "fasteners.screw_lb_cowling_ur",
+      "blender_object": "fasteners.screw_lb_cowling_ur__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -9.609999656677246,
+          35.38999938964844,
+          3.8299999237060547
+        ],
+        [
+          -7.389999866485596,
+          37.61000061035156,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_lb_cowling_ur.stl"
+    },
+    {
+      "node_path": "fasteners.screw_security_l",
+      "blender_object": "fasteners.screw_security_l__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -9.710000038146973,
+          -70.41000366210938,
+          4.130000114440918
+        ],
+        [
+          -7.489999771118164,
+          -68.19000244140625,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_security_l.stl"
+    },
+    {
+      "node_path": "fasteners.screw_security_r",
+      "blender_object": "fasteners.screw_security_r__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          7.489999771118164,
+          -70.41000366210938,
+          4.130000114440918
+        ],
+        [
+          9.710000038146973,
+          -68.19000244140625,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_security_r.stl"
+    },
+    {
+      "node_path": "fasteners.screw_taptic_bottom",
+      "blender_object": "fasteners.screw_taptic_bottom__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -28.110000610351562,
+          -69.61000061035156,
+          3.630000114440918
+        ],
+        [
+          -25.889999389648438,
+          -67.38999938964844,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_taptic_bottom.stl"
+    },
+    {
+      "node_path": "fasteners.screw_taptic_ground",
+      "blender_object": "fasteners.screw_taptic_ground__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -7.517499923706055,
+          -56.01750183105469,
+          4.03000020980835
+        ],
+        [
+          -5.482500076293945,
+          -53.98249816894531,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_taptic_ground.stl"
+    },
+    {
+      "node_path": "fasteners.screw_taptic_top",
+      "blender_object": "fasteners.screw_taptic_top__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -28.110000610351562,
+          -58.11000061035156,
+          3.630000114440918
+        ],
+        [
+          -25.889999389648438,
+          -55.88999938964844,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_taptic_top.stl"
+    },
+    {
+      "node_path": "fasteners.screw_top_spk_ll",
+      "blender_object": "fasteners.screw_top_spk_ll__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -25.69499969482422,
+          50.904998779296875,
+          3.3299999237060547
+        ],
+        [
+          -23.104999542236328,
+          53.494998931884766,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_top_spk_ll.stl"
+    },
+    {
+      "node_path": "fasteners.screw_top_spk_ur",
+      "blender_object": "fasteners.screw_top_spk_ur__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -11.90999984741211,
+          68.29000091552734,
+          3.8299999237060547
+        ],
+        [
+          -9.6899995803833,
+          70.51000213623047,
+          5.429999828338623
+        ]
+      ],
+      "tris": 1248,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/fasteners.screw_top_spk_ur.stl"
+    },
+    {
+      "node_path": "haptics.taptic.coil",
+      "blender_object": "haptics.taptic.coil__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -24.0,
+          -66.0,
+          1.5499999523162842
+        ],
+        [
+          -10.5,
+          -59.5,
+          2.200000047683716
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/haptics.taptic.coil.stl"
+    },
+    {
+      "node_path": "haptics.taptic.flex",
+      "blender_object": "haptics.taptic.flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -24.0,
+          -56.5,
+          4.349999904632568
+        ],
+        [
+          -14.0,
+          -53.5,
+          4.5
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/haptics.taptic.flex.stl"
+    },
+    {
+      "node_path": "haptics.taptic.housing",
+      "blender_object": "haptics.taptic.housing__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -28.5,
+          -69.19999694824219,
+          1.0499999523162842
+        ],
+        [
+          -7.199999809265137,
+          -56.599998474121094,
+          4.349999904632568
+        ]
+      ],
+      "tris": 182,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/haptics.taptic.housing.stl"
+    },
+    {
+      "node_path": "haptics.taptic.mass",
+      "blender_object": "haptics.taptic.mass__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -25.5,
+          -67.0,
+          2.299999952316284
+        ],
+        [
+          -10.5,
+          -58.5,
+          3.9200000762939453
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/haptics.taptic.mass.stl"
+    },
+    {
+      "node_path": "haptics.taptic.spring_0",
+      "blender_object": "haptics.taptic.spring_0__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -27.799999237060547,
+          -66.5,
+          2.299999952316284
+        ],
+        [
+          -26.600000381469727,
+          -59.0,
+          3.9200000762939453
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/haptics.taptic.spring_0.stl"
+    },
+    {
+      "node_path": "haptics.taptic.spring_1",
+      "blender_object": "haptics.taptic.spring_1__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -8.899999618530273,
+          -66.5,
+          2.299999952316284
+        ],
+        [
+          -7.699999809265137,
+          -59.0,
+          3.9200000762939453
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/haptics.taptic.spring_1.stl"
+    },
+    {
+      "node_path": "logic_board.connector_battery",
+      "blender_object": "logic_board.connector_battery__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -12.5,
+          23.5,
+          2.1500000953674316
+        ],
+        [
+          -7.5,
+          28.0,
+          3.200000047683716
+        ]
+      ],
+      "tris": 86,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.connector_battery.stl"
+    },
+    {
+      "node_path": "logic_board.connector_cam_main",
+      "blender_object": "logic_board.connector_cam_main__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -9.5,
+          30.0,
+          2.1500000953674316
+        ],
+        [
+          -7.0,
+          36.5,
+          3.1500000953674316
+        ]
+      ],
+      "tris": 86,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.connector_cam_main.stl"
+    },
+    {
+      "node_path": "logic_board.connector_cam_uw",
+      "blender_object": "logic_board.connector_cam_uw__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -12.5,
+          30.0,
+          2.1500000953674316
+        ],
+        [
+          -10.0,
+          36.5,
+          3.1500000953674316
+        ]
+      ],
+      "tris": 86,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.connector_cam_uw.stl"
+    },
+    {
+      "node_path": "logic_board.connector_display",
+      "blender_object": "logic_board.connector_display__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.0,
+          33.0,
+          2.1500000953674316
+        ],
+        [
+          -20.0,
+          36.5,
+          3.299999952316284
+        ]
+      ],
+      "tris": 86,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.connector_display.stl"
+    },
+    {
+      "node_path": "logic_board.connector_dock_flex",
+      "blender_object": "logic_board.connector_dock_flex__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.5,
+          -21.0,
+          2.1500000953674316
+        ],
+        [
+          -22.5,
+          -17.5,
+          3.200000047683716
+        ]
+      ],
+      "tris": 86,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.connector_dock_flex.stl"
+    },
+    {
+      "node_path": "logic_board.connector_truedepth",
+      "blender_object": "logic_board.connector_truedepth__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -20.0,
+          35.0,
+          2.1500000953674316
+        ],
+        [
+          -14.0,
+          37.5,
+          3.1500000953674316
+        ]
+      ],
+      "tris": 86,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.connector_truedepth.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_01",
+      "blender_object": "logic_board.discrete_01__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -27.5,
+          -19.25,
+          2.1500000953674316
+        ],
+        [
+          -26.5,
+          -18.75,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_01.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_02",
+      "blender_object": "logic_board.discrete_02__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -25.5,
+          -19.25,
+          2.1500000953674316
+        ],
+        [
+          -24.5,
+          -18.75,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_02.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_03",
+      "blender_object": "logic_board.discrete_03__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -23.5,
+          -19.25,
+          2.1500000953674316
+        ],
+        [
+          -22.5,
+          -18.75,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_03.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_04",
+      "blender_object": "logic_board.discrete_04__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.5,
+          20.75,
+          2.1500000953674316
+        ],
+        [
+          -30.5,
+          21.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_04.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_05",
+      "blender_object": "logic_board.discrete_05__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.5,
+          23.75,
+          2.1500000953674316
+        ],
+        [
+          -30.5,
+          24.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_05.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_06",
+      "blender_object": "logic_board.discrete_06__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.5,
+          26.75,
+          2.1500000953674316
+        ],
+        [
+          -30.5,
+          27.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_06.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_07",
+      "blender_object": "logic_board.discrete_07__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -10.0,
+          4.75,
+          2.1500000953674316
+        ],
+        [
+          -9.0,
+          5.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_07.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_08",
+      "blender_object": "logic_board.discrete_08__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -10.0,
+          7.75,
+          2.1500000953674316
+        ],
+        [
+          -9.0,
+          8.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_08.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_09",
+      "blender_object": "logic_board.discrete_09__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -16.5,
+          2.25,
+          2.1500000953674316
+        ],
+        [
+          -15.5,
+          2.75,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_09.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_10",
+      "blender_object": "logic_board.discrete_10__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -18.5,
+          2.25,
+          2.1500000953674316
+        ],
+        [
+          -17.5,
+          2.75,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_10.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_11",
+      "blender_object": "logic_board.discrete_11__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -28.5,
+          34.75,
+          2.1500000953674316
+        ],
+        [
+          -27.5,
+          35.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_11.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_12",
+      "blender_object": "logic_board.discrete_12__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -25.5,
+          34.75,
+          2.1500000953674316
+        ],
+        [
+          -24.5,
+          35.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_12.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_13",
+      "blender_object": "logic_board.discrete_13__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -11.5,
+          21.75,
+          2.1500000953674316
+        ],
+        [
+          -10.5,
+          22.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_13.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_14",
+      "blender_object": "logic_board.discrete_14__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -11.5,
+          24.75,
+          2.1500000953674316
+        ],
+        [
+          -10.5,
+          25.25,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_14.stl"
+    },
+    {
+      "node_path": "logic_board.discrete_15",
+      "blender_object": "logic_board.discrete_15__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.5,
+          3.25,
+          2.1500000953674316
+        ],
+        [
+          -30.5,
+          3.75,
+          2.5
+        ]
+      ],
+      "tris": 18,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.discrete_15.stl"
+    },
+    {
+      "node_path": "logic_board.ground_plane_bottom",
+      "blender_object": "logic_board.ground_plane_bottom__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -32.29999923706055,
+          -22.0,
+          1.350000023841858
+        ],
+        [
+          -6.5,
+          38.0,
+          1.3849999904632568
+        ]
+      ],
+      "tris": 56,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.ground_plane_bottom.stl"
+    },
+    {
+      "node_path": "logic_board.ground_plane_top",
+      "blender_object": "logic_board.ground_plane_top__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -32.29999923706055,
+          -22.0,
+          2.115000009536743
+        ],
+        [
+          -6.5,
+          38.0,
+          2.1500000953674316
+        ]
+      ],
+      "tris": 56,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.ground_plane_top.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_a17_pro",
+      "blender_object": "logic_board.shield_can_a17_pro__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.0,
+          14.0,
+          2.1500000953674316
+        ],
+        [
+          -14.0,
+          30.0,
+          3.5
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_a17_pro.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_audio_codec",
+      "blender_object": "logic_board.shield_can_audio_codec__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.0,
+          -5.5,
+          2.1500000953674316
+        ],
+        [
+          -24.0,
+          0.5,
+          2.950000047683716
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_audio_codec.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_baseband",
+      "blender_object": "logic_board.shield_can_baseband__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -20.5,
+          -16.5,
+          2.1500000953674316
+        ],
+        [
+          -13.5,
+          -7.0,
+          3.0
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_baseband.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_cam_pmu",
+      "blender_object": "logic_board.shield_can_cam_pmu__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.0,
+          31.5,
+          2.1500000953674316
+        ],
+        [
+          -25.0,
+          37.0,
+          2.8499999046325684
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_cam_pmu.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_dram_pop",
+      "blender_object": "logic_board.shield_can_dram_pop__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -13.5,
+          12.5,
+          2.1500000953674316
+        ],
+        [
+          -7.0,
+          19.0,
+          3.25
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_dram_pop.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_nand",
+      "blender_object": "logic_board.shield_can_nand__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.5,
+          2.0,
+          2.1500000953674316
+        ],
+        [
+          -20.0,
+          12.5,
+          3.0999999046325684
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_nand.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_pmic",
+      "blender_object": "logic_board.shield_can_pmic__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -19.0,
+          2.0,
+          2.1500000953674316
+        ],
+        [
+          -13.5,
+          12.5,
+          3.0999999046325684
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_pmic.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_power_stage",
+      "blender_object": "logic_board.shield_can_power_stage__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -22.5,
+          -5.5,
+          2.1500000953674316
+        ],
+        [
+          -14.0,
+          0.5,
+          2.950000047683716
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_power_stage.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_rf_transceiver",
+      "blender_object": "logic_board.shield_can_rf_transceiver__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -31.5,
+          -16.5,
+          2.1500000953674316
+        ],
+        [
+          -22.0,
+          -7.0,
+          3.0
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_rf_transceiver.stl"
+    },
+    {
+      "node_path": "logic_board.shield_can_wifi_bt",
+      "blender_object": "logic_board.shield_can_wifi_bt__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -12.0,
+          14.0,
+          2.1500000953674316
+        ],
+        [
+          -7.5,
+          21.5,
+          2.8499999046325684
+        ]
+      ],
+      "tris": 110,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.shield_can_wifi_bt.stl"
+    },
+    {
+      "node_path": "logic_board.substrate",
+      "blender_object": "logic_board.substrate__fr4",
+      "material_key": "fr4",
+      "eps_r": 4.4,
+      "sigma_S_per_m": 0.02,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -32.29999923706055,
+          -22.0,
+          1.3849999904632568
+        ],
+        [
+          -6.5,
+          38.0,
+          2.115000009536743
+        ]
+      ],
+      "tris": 56,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/logic_board.substrate.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_00",
+      "blender_object": "power.charging_coil.turn_00__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -10.5,
+          -18.5,
+          1.0199999809265137
+        ],
+        [
+          10.5,
+          2.5,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_00.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_01",
+      "blender_object": "power.charging_coil.turn_01__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -11.454545021057129,
+          -19.454545974731445,
+          1.0199999809265137
+        ],
+        [
+          11.454545021057129,
+          3.454545497894287,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_01.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_02",
+      "blender_object": "power.charging_coil.turn_02__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -12.409090995788574,
+          -20.409090042114258,
+          1.0199999809265137
+        ],
+        [
+          12.409090995788574,
+          4.409090995788574,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_02.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_03",
+      "blender_object": "power.charging_coil.turn_03__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -13.363636016845703,
+          -21.363636016845703,
+          1.0199999809265137
+        ],
+        [
+          13.363636016845703,
+          5.363636493682861,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_03.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_04",
+      "blender_object": "power.charging_coil.turn_04__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -14.318181991577148,
+          -22.31818199157715,
+          1.0199999809265137
+        ],
+        [
+          14.318181991577148,
+          6.318181991577148,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_04.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_05",
+      "blender_object": "power.charging_coil.turn_05__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -15.272727012634277,
+          -23.272727966308594,
+          1.0199999809265137
+        ],
+        [
+          15.272727012634277,
+          7.2727274894714355,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_05.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_06",
+      "blender_object": "power.charging_coil.turn_06__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -16.227272033691406,
+          -24.227272033691406,
+          1.0199999809265137
+        ],
+        [
+          16.227272033691406,
+          8.227272987365723,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_06.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_07",
+      "blender_object": "power.charging_coil.turn_07__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -17.18181800842285,
+          -25.18181800842285,
+          1.0199999809265137
+        ],
+        [
+          17.18181800842285,
+          9.181818008422852,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_07.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_08",
+      "blender_object": "power.charging_coil.turn_08__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -18.136363983154297,
+          -26.136363983154297,
+          1.0199999809265137
+        ],
+        [
+          18.136363983154297,
+          10.136363983154297,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_08.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_09",
+      "blender_object": "power.charging_coil.turn_09__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -19.090909957885742,
+          -27.090909957885742,
+          1.0199999809265137
+        ],
+        [
+          19.090909957885742,
+          11.090909004211426,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_09.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_10",
+      "blender_object": "power.charging_coil.turn_10__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -20.045454025268555,
+          -28.045454025268555,
+          1.0199999809265137
+        ],
+        [
+          20.045454025268555,
+          12.045454978942871,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_10.stl"
+    },
+    {
+      "node_path": "power.charging_coil.turn_11",
+      "blender_object": "power.charging_coil.turn_11__copper",
+      "material_key": "copper",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -21.0,
+          -29.0,
+          1.0199999809265137
+        ],
+        [
+          21.0,
+          13.0,
+          1.1799999475479126
+        ]
+      ],
+      "tris": 768,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.charging_coil.turn_11.stl"
+    },
+    {
+      "node_path": "power.dock_flex",
+      "blender_object": "power.dock_flex__pet",
+      "material_key": "pet",
+      "eps_r": 3.0,
+      "sigma_S_per_m": 0.006,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -10.0,
+          -64.0,
+          4.949999809265137
+        ],
+        [
+          7.5,
+          -60.0,
+          5.099999904632568
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.dock_flex.stl"
+    },
+    {
+      "node_path": "power.magsafe.alignment_magnet",
+      "blender_object": "power.magsafe.alignment_magnet__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -3.0,
+          -39.0,
+          0.6200000047683716
+        ],
+        [
+          3.0,
+          -36.0,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.alignment_magnet.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_00",
+      "blender_object": "power.magsafe.magnet_00__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          25.799999237060547,
+          -10.300000190734863,
+          0.6200000047683716
+        ],
+        [
+          28.200000762939453,
+          -5.699999809265137,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_00.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_01",
+      "blender_object": "power.magsafe.magnet_01__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          23.600181579589844,
+          -1.1944142580032349,
+          0.6200000047683716
+        ],
+        [
+          27.143218994140625,
+          3.6635019779205322,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_01.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_02",
+      "blender_object": "power.magsafe.magnet_02__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          18.491853713989258,
+          7.028337001800537,
+          0.6200000047683716
+        ],
+        [
+          22.87454605102539,
+          11.682193756103516,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_02.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_03",
+      "blender_object": "power.magsafe.magnet_03__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          11.091154098510742,
+          13.37646770477295,
+          0.6200000047683716
+        ],
+        [
+          15.908845901489258,
+          17.388904571533203,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_03.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_04",
+      "blender_object": "power.magsafe.magnet_04__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          2.2961957454681396,
+          17.089778900146484,
+          0.6200000047683716
+        ],
+        [
+          7.080805778503418,
+          20.0898380279541,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_04.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_05",
+      "blender_object": "power.magsafe.magnet_05__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -7.080805778503418,
+          17.089778900146484,
+          0.6200000047683716
+        ],
+        [
+          -2.2961957454681396,
+          20.0898380279541,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_05.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_06",
+      "blender_object": "power.magsafe.magnet_06__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -15.908845901489258,
+          13.37646770477295,
+          0.6200000047683716
+        ],
+        [
+          -11.091154098510742,
+          17.388904571533203,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_06.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_07",
+      "blender_object": "power.magsafe.magnet_07__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -22.87454605102539,
+          7.028337001800537,
+          0.6200000047683716
+        ],
+        [
+          -18.491853713989258,
+          11.682193756103516,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_07.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_08",
+      "blender_object": "power.magsafe.magnet_08__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -27.143218994140625,
+          -1.1944142580032349,
+          0.6200000047683716
+        ],
+        [
+          -23.600181579589844,
+          3.6635019779205322,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_08.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_09",
+      "blender_object": "power.magsafe.magnet_09__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -28.200000762939453,
+          -10.300000190734863,
+          0.6200000047683716
+        ],
+        [
+          -25.799999237060547,
+          -5.699999809265137,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_09.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_10",
+      "blender_object": "power.magsafe.magnet_10__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -27.143218994140625,
+          -19.663501739501953,
+          0.6200000047683716
+        ],
+        [
+          -23.600181579589844,
+          -14.805585861206055,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_10.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_11",
+      "blender_object": "power.magsafe.magnet_11__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -22.87454605102539,
+          -27.682193756103516,
+          0.6200000047683716
+        ],
+        [
+          -18.491853713989258,
+          -23.028337478637695,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_11.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_12",
+      "blender_object": "power.magsafe.magnet_12__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -15.908845901489258,
+          -33.3889045715332,
+          0.6200000047683716
+        ],
+        [
+          -11.091154098510742,
+          -29.376468658447266,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_12.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_13",
+      "blender_object": "power.magsafe.magnet_13__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          -7.080805778503418,
+          -36.089839935302734,
+          0.6200000047683716
+        ],
+        [
+          -2.2961957454681396,
+          -33.089778900146484,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_13.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_14",
+      "blender_object": "power.magsafe.magnet_14__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          2.2961957454681396,
+          -36.089839935302734,
+          0.6200000047683716
+        ],
+        [
+          7.080805778503418,
+          -33.089778900146484,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_14.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_15",
+      "blender_object": "power.magsafe.magnet_15__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          11.091154098510742,
+          -33.3889045715332,
+          0.6200000047683716
+        ],
+        [
+          15.908845901489258,
+          -29.376468658447266,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_15.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_16",
+      "blender_object": "power.magsafe.magnet_16__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          18.491853713989258,
+          -27.682193756103516,
+          0.6200000047683716
+        ],
+        [
+          22.87454605102539,
+          -23.028337478637695,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_16.stl"
+    },
+    {
+      "node_path": "power.magsafe.magnet_17",
+      "blender_object": "power.magsafe.magnet_17__steel",
+      "material_key": "steel",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": true,
+      "bbox_mm": [
+        [
+          23.600181579589844,
+          -19.663501739501953,
+          0.6200000047683716
+        ],
+        [
+          27.143218994140625,
+          -14.805585861206055,
+          1.0199999809265137
+        ]
+      ],
+      "tris": 30,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.magsafe.magnet_17.stl"
+    },
+    {
+      "node_path": "power.thermal.graphite_back",
+      "blender_object": "power.thermal.graphite_back__cfrp",
+      "material_key": "cfrp",
+      "eps_r": 4.5,
+      "sigma_S_per_m": 10000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.0,
+          -50.0,
+          1.2000000476837158
+        ],
+        [
+          30.0,
+          34.0,
+          1.25
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.thermal.graphite_back.stl"
+    },
+    {
+      "node_path": "power.thermal.graphite_midplate",
+      "blender_object": "power.thermal.graphite_midplate__cfrp",
+      "material_key": "cfrp",
+      "eps_r": 4.5,
+      "sigma_S_per_m": 10000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -30.0,
+          -48.0,
+          5.880000114440918
+        ],
+        [
+          30.0,
+          40.0,
+          5.929999828338623
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.thermal.graphite_midplate.stl"
+    },
+    {
+      "node_path": "power.usbc.shell",
+      "blender_object": "power.usbc.shell__stainless",
+      "material_key": "stainless",
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1100000.0,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -6.400000095367432,
+          -70.4000015258789,
+          2.299999952316284
+        ],
+        [
+          6.400000095367432,
+          -64.0,
+          5.25
+        ]
+      ],
+      "tris": 182,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.usbc.shell.stl"
+    },
+    {
+      "node_path": "power.usbc.tongue",
+      "blender_object": "power.usbc.tongue__abs",
+      "material_key": "abs",
+      "eps_r": 2.9,
+      "sigma_S_per_m": 0.005,
+      "mu_r": 1.0,
+      "mu_r_gap_flagged": false,
+      "bbox_mm": [
+        [
+          -4.599999904632568,
+          -70.0,
+          3.549999952316284
+        ],
+        [
+          4.599999904632568,
+          -68.0,
+          4.150000095367432
+        ]
+      ],
+      "tris": 62,
+      "mass_g": null,
+      "stl_path": "rf/blend_loader/out/power.usbc.tongue.stl"
+    }
+  ]
+}

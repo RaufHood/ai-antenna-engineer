@@ -49,3 +49,9 @@ Thumbs.db
 # Logs & scratch
 *.log
 tmp/
+
+# run artifacts: media + json yes (reviewers see results without running),
+# raw field dumps no (tens of MB each)
+runs/**/Et.h5
+rf/vendor/
+rf/blend_loader/out/
