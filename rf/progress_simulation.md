@@ -327,3 +327,147 @@ rf/blend_loader/.venv/Scripts/pip install -r rf/blend_loader/requirements.txt
 - VS2022 "Desktop development with C++" workload, if we want PyNEC (the
   cross-check oracle in step 4) working again on this machine — see the
   PyNEC note above. Not needed for openEMS itself.
+
+---
+
+## 2026-08-22 evening — macOS workstream (second machine online)
+
+The sim pipeline now also runs on macOS (Apple Silicon), and it is *fast*:
+the same coarse GPS-L1 demo that took ~2 min on the Windows box solves in
+**~1 s** here (48 MCells/s; the stock tutorial hits 259 MCells/s). That
+changes what's affordable: parameter sweeps are now interactive.
+
+### Environment (reproducible)
+
+```sh
+brew install cmake boost hdf5 vtk cgal qt@5
+git clone --recursive https://github.com/thliebig/openEMS-Project.git
+cd openEMS-Project
+export CMAKE_PREFIX_PATH="$(brew --prefix qt@5):$(brew --prefix vtk):$(brew --prefix hdf5)"
+./update_openEMS.sh ~/opt/openEMS --python --disable-GUI
+```
+
+Notes: `--disable-GUI` is required (QCSXCAD needs Qt and is not needed
+headless — its FIND_PACKAGE failure otherwise kills the build). `brew` no
+longer ships `tinyxml`; the build script handles it itself, but do NOT pass
+tinyxml to brew (an unknown formula aborts the whole install line, taking
+cmake with it). The python bindings install into whatever `python3` is
+active. `rf/openems_env.py` is already a no-op outside Windows.
+
+### Step 2 cross-check: DONE, PASSED
+
+The unmodified bundled tutorial (`Simple_Patch_Antenna.py`, headless) gives
+f_res = 2.4300 GHz, S11 = -27.7 dB vs. the documented ~2.40 GHz deep dip.
+The install is trustworthy; solver-setup errors are off the suspect list.
+
+### Tuning sweep: L and feed gap are NOT the lever
+
+`scripts/tune_demo.py` swept the bare-board demo candidate over arm length
+35-55 mm x feed gap 2-8 mm (77 solves, 140 s). Best of the whole grid:
+S11 -1.25 dB, VSWR ~14 — the grid barely moves the match. Combined with
+the tutorial pass, the conclusion is structural: the IFA feed/short
+arrangement in `geometry.build_ifa_geometry()` (port impedance, short-pin
+ground contact, or arm-over-ground geometry) keeps the input impedance far
+from 50 ohm everywhere. That is the next real physics task. Sweep data:
+`runs/sweep_results.json`.
+
+### New: run artifacts + media suite (rf/viz)
+
+`run_simulation(config, out_dir=...)` now persists each run's artifacts
+(config.json, result.json, Et.h5, device.json) — resolved to an absolute
+path *before* the solve, because FDTD.Run() leaves the process cwd inside
+a temp dir it then deletes. Render everything from a run dir:
+
+```sh
+python3 -m venv .venv-viz && .venv-viz/bin/pip install matplotlib numpy h5py pillow scipy
+.venv-viz/bin/python -m rf.viz.data          # fabricate runs/demo (labelled DEMO)
+.venv-viz/bin/python -m rf.viz runs/demo     # render every figure + animation
+```
+
+`rf/viz/` (dark theme, Computer Modern, 300 dpi; multi-material aware —
+parts coloured by material family, battery highlighted, origin + axis
+triad drawn explicitly in the corner-anchored frame all candidate
+coordinates live in): theme.py, data.py, s11.py, placement3d.py,
+anim_field.py, anim_orbit.py, anim_dashboard.py, __main__.py. The old
+single-file visualize.py is superseded by this package.
+
+The real iPhone manifest was regenerated on this machine (micromamba env
+`bpy`, python 3.11, `pip install bpy`; then
+`python -m rf.blend_loader.load_blend data/apple_iphone_15_pro/apple_iphone_15_pro.blend --materials data/apple_iphone_15_pro/materials.json --out rf/blend_loader/out`)
+— 191 parts, 13 materials, 71.5 x 146.6 mm footprint confirmed.
+
+### Placement screening — the agent's cheap oracle (`rf/placement.py`)
+
+FDTD is the ground truth but it is neither free nor *explanatory*: it says
+"S11 is -1.4 dB", never "because the arm is 0.6 mm from the stainless
+midframe and the only way out is through the battery". `rf/placement.py`
+answers the second question in ~1 ms straight from the manifest bboxes, so
+the agent loop can reject illegal candidates before spending a solve, rank
+the legal ones, and explain a bad solve afterwards by name.
+
+Three analyses over the same part list:
+
+- `legality()` — is the strip inside the chassis, and does it intersect any
+  discrete component? Enclosure layers (back glass, display stack, chassis
+  rails and their adhesives — anything covering >= 40% of the footprint) are
+  excluded from collision: an embedded antenna lives inside that envelope by
+  definition. Without that rule every position is "illegal" (measured:
+  0/264). With it, 455/1034 grid points are buildable. Soft materials (foam,
+  ABS, adhesive) are reported separately — shaving foam is a design change,
+  not a physical impossibility.
+- `clearance()` — what is in the near field (12 mm default) and is it a
+  mirror or a radome? Splits parts at sigma = 1e4 S/m, which sits far from
+  both stainless (~1.4e6) and ABS (~5e-3), so the classification is never
+  ambiguous. Reports nearest metal, its name, and the metal fraction.
+- `escape()` — can the signal actually leave? Fires 288 rays from the strip
+  centre and counts the fraction that exit without meeting a conductor. A
+  cheap, physically-motivated proxy for total efficiency, and the number
+  that separates "boxed in by the titanium frame" from "facing the plastic
+  back".
+
+`screen()` returns all three plus one ranking score; `scan()` sweeps a grid.
+Sanity check on the real iPhone: the best-scoring positions cluster along
+the bottom edge (y ~ 123-130 mm) — which is where real phones put their
+antennas. Honest limitation: `nearest_metal_mm` is ~0 nearly everywhere,
+because the chassis rails run the length of the device; escape fraction is
+what actually discriminates.
+
+`rf/viz/heatmap.py` renders this as a two-panel map (buildable positions /
+placement score) over the x-ray backdrop — `python -m rf.viz <run> --only map`.
+
+### Beauty renders from the real .blend (`rf/viz/blender_render.py`)
+
+The technical matplotlib view (bboxes + coordinate frame) and the beauty
+view are now separate concerns. The beauty renderer opens the actual
+`.blend`, applies a Freestyle line-art x-ray look (smooth silhouette/crease/
+border strokes coloured per material family, hidden edges drawn thin and dim
+as the depth cue, interiors transparent, true black), injects the antenna
+candidate clamped inside the chassis, and serves three consumers:
+
+    stills    hero frames (iso + top)              placement_beauty_*.png
+    orbit     N frames orbiting the real device    orbit_frames/*.png
+    overlay   ORTHOGRAPHIC top view, lines only    field_overlay.png + .json
+
+The overlay is orthographic on purpose: the projection is linear, so the PNG
+maps 1:1 onto a known millimetre rectangle (written next to it as JSON) and
+`anim_field` / `heatmap` composite the real device over their data in
+physical units with no perspective error. Two traps worth remembering:
+Cycles' default `transparent_max_bounces` (8) terminates rays inside a
+device this layered and the interior goes black — it is raised to 64; and
+Blender writes PNG row 0 at the *top*, so the overlay must be drawn with
+`origin="upper"` over data drawn `origin="lower"` or it comes out mirrored
+about the device centre.
+
+Run it in the bpy env (it cannot import `rf.viz.theme`, so the palette is
+duplicated there by hand — keep the two in sync):
+
+```sh
+~/micromamba/envs/bpy/bin/python -m rf.viz.blender_render \
+    data/apple_iphone_15_pro/apple_iphone_15_pro.blend \
+    runs/demo/config.json runs/demo/media all 60 1000
+.venv-viz/bin/python -m rf.viz.anim_orbit_beauty runs/demo   # frames -> gif+mp4
+```
+
+`rf/viz/output.py` owns animation writing for every module: GIF plus an MP4
+twin, padded to even dimensions because H.264/yuv420p requires it and fails
+*silently* otherwise (that is how field.mp4 shipped as 0 bytes).
