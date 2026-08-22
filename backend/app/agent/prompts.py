@@ -134,13 +134,40 @@ def _volume(b) -> float:
 def _device_section(ctx: RunContext) -> list[str]:
     spec = ctx.spec
     bands = [b for b in spec.requirements.bands if b.id in ctx.band_ids]
+
+    # Physics screening of every anchor against the real device geometry:
+    # legality (does the antenna volume hit a component), escape fraction
+    # (can the signal leave without meeting a conductor) and metal clearance.
+    # Costs ~8 ms per anchor and saves the agent from discovering by
+    # simulation what a bounding-box test answers instantly. Best-effort:
+    # if there is no manifest, priors come back unscreened and the rows below
+    # are exactly what they were before.
+    priors_by_id: dict[str, dict] = {}
+    screening_brief = ""
+    try:
+        from app.sim.priors import brief_for_agent, screen_anchors
+        band0 = bands[0] if bands else spec.requirements.bands[0]
+        priors = screen_anchors(spec, band0, anchors=ctx.anchors)
+        priors_by_id = {p.anchor_id: p.to_dict() for p in priors}
+        if priors and priors[0].screened:
+            screening_brief = brief_for_agent(priors)
+    except Exception:
+        pass                                  # screening is an optimisation
+
     anchor_rows = []
     for a in ctx.anchors:
         clear, blocker = clearance_at(spec, a.pos_mm)
-        anchor_rows.append({
+        row = {
             "id": a.id, "label": a.label, "region": a.region,
             "pos_mm": a.pos_mm, "corner": a.corner,
-            "clearance_mm": round(clear, 1), "nearest_metal": blocker or None})
+            "clearance_mm": round(clear, 1), "nearest_metal": blocker or None}
+        pr = priors_by_id.get(a.id)
+        if pr and pr.get("screened"):
+            row |= {"legal": pr["legal"],
+                    "escape_fraction": pr["escape_fraction"],
+                    "nearest_metal_mm": pr["nearest_metal_mm"],
+                    "why": pr["why"]}
+        anchor_rows.append(row)
     band_rows = [{k: v for k, v in b.model_dump().items()
                   if k not in ("region_pref", "color")} for b in bands]
     out = [
@@ -150,7 +177,24 @@ def _device_section(ctx: RunContext) -> list[str]:
         "\n## Candidate anchors (place antennas AT these; pick by clearance"
         " and band physics)\n```json",
         json.dumps(anchor_rows, separators=(",", ":")),
-        "```",
+        "```",]
+    if screening_brief:
+        out += [
+            "\n## Geometry screening (computed from the real device, not a guess)",
+            "Two rules decide most of the outcome, and both are physics:",
+            "- **Metal inside ~lambda/20 of the radiator dominates its impedance.**"
+            " Prefer anchors with more metal clearance.",
+            "- **A dielectric neighbour is a radome, a conductor is a wall.**"
+            " `escape_fraction` is the share of directions the signal leaves"
+            " without meeting metal — prefer high values.",
+            "",
+            "```", screening_brief, "```",
+            "Anchors marked `legal: false` intersect a real component: do not"
+            " propose them. If every legal anchor is poor, say so and explain"
+            " what would have to move — that is a real engineering answer, not"
+            " a failure.",
+        ]
+    out += [
         f"\n## Requirements\nbands: {json.dumps(band_rows)}",
         f"vswr_max: {spec.requirements.vswr_max}",
     ]
