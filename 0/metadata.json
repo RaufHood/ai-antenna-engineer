@@ -1,0 +1,62 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0N9QPNSR0MRKS4RVRQ7BVK7",
+  "session_id": "584dfaa9-d05e-4d17-b6ad-0de52cb7533a",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-22T17:54:15.050426Z",
+  "branch": "backend",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".agents/skills/blend-extract/SKILL.md",
+    "backend/DESIGN.md",
+    "backend/README.md",
+    "backend/app/agent/devin.py",
+    "backend/app/agent/port.py",
+    "backend/app/agent/prompts.py",
+    "backend/app/api/routes.py",
+    "backend/app/geometry/bands.py",
+    "backend/app/geometry/classify.py",
+    "backend/app/geometry/extract.py",
+    "backend/app/geometry/spec.py",
+    "backend/app/models.py",
+    "backend/app/runs/devices.py",
+    "backend/app/runs/orchestrator.py",
+    "backend/app/runs/store.py",
+    "backend/app/sim/chassis.py",
+    "backend/scripts/dev_run.py",
+    "tools/extract_blend.py",
+    "tools/make_phone_blend.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "4cc0f4cac8b3",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 206,
+    "cache_creation_tokens": 240409,
+    "cache_read_tokens": 18639616,
+    "output_tokens": 103223,
+    "api_call_count": 103
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-22T17:54:14.963837Z",
+    "agent_lines": 1779,
+    "agent_removed": 122,
+    "human_added": 289,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2068,
+    "total_lines_changed": 2193,
+    "agent_percentage": 86.68490652074783,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
