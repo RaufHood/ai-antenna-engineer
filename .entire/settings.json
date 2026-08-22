@@ -1,5 +1,15 @@
 {
   "enabled": true,
+  "telemetry": true,
+  "checkpoints": {
+    "primary": {
+      "type": "git-refs"
+    }
+  }
+}
+
+{
+  "enabled": true,
   "checkpoints": {
     "primary": {
       "type": "git-refs"
