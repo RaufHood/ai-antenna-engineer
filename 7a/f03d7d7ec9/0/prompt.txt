@@ -1,0 +1,50 @@
+read C:\Users\hohih\Documents\projekte\challenge\deep_research_on_challenge.md
+
+---
+
+read C:\Users\hohih\Documents\projekte\challenge\deep_research_on_challenge.md as the next step we want to use the gps antenna GPS/GNSS    ~1.559–1.610 GHz (GPS L1 1575.42, GLONASS ~1602, Galileo/BeiDou)    Dedicated or shared. what is the right antenna type. so we can start simulation with one, write down in a new markdown file the progress on simulation . first antenna type chosen and bandwidth, smaller bandwidth for faster simulation
+
+---
+
+we need a requirements.txt file for the backend that contains belnder for a venv. go! start simple with blender only and install the venv
+
+---
+
+the data we willb eusing is C:\Users\hohih\Documents\projekte\challenge\data\bellota_hunting_axe_8133 there is also a materials.json file. can you load that file? in the simulation run?
+
+---
+
+now you need to create the requirements.txt and create a venv and download openEMS
+
+---
+
+update the C:\Users\hohih\Documents\projekte\challenge\rf\progress_simulation.md
+
+---
+
+TODO(openEMS): from CSXCAD import ContinuousStructure; build FDTD +
+    CSX, add ground-plane metal box from device['board']['size_mm'],
+    add feed/short pins + arm sized from candidate.feed_point_mm /
+    candidate.length_mm, mesh at lambda/20 for band.f_high_ghz (coarser
+    if sim.mesh_res == "coarse").
+    """ now implement the build_ifa_geometry with openems
+
+---
+
+as a next step we want to make the folder rf more modular with a  file for the classes, running run_fdtd and so on, in addition you created a backend folder, ideally you move it in into the rf folder, as the backend will be created by another colleague.  create first a structure suggenstion I will review
+
+---
+
+yes
+
+---
+
+I want to be able to see the simulation run and visualize a wave propagating, I want to understand the result, briefly
+
+---
+
+command to ru the visualization
+
+---
+
+exaplin the visualization

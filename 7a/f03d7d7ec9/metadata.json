@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "7af03d7d7ec9",
+  "strategy": "manual-commit",
+  "branch": "feat/simulation",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "rf/README.md",
+    "rf/field_animation_demo.gif",
+    "rf/geometry.py",
+    "rf/models.py",
+    "rf/run_simulation.py",
+    "rf/s11_demo.png",
+    "rf/visualize.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/7a/f03d7d7ec9/0/metadata.json",
+      "transcript": "/7a/f03d7d7ec9/0/full.jsonl",
+      "compact_transcript": "/7a/f03d7d7ec9/0/transcript.jsonl",
+      "content_hash": "/7a/f03d7d7ec9/0/content_hash.txt",
+      "prompt": "/7a/f03d7d7ec9/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 442,
+    "cache_creation_tokens": 499417,
+    "cache_read_tokens": 38284873,
+    "output_tokens": 178355,
+    "api_call_count": 221
+  }
+}
