@@ -547,6 +547,14 @@ Rule: **always demoable** — every milestone ends in a run that completes.
   ~5 min wall clock end to end; structured_output populated. Bug found and
   fixed from that run: a re-roled full-face sheet must not count as a
   clearance obstacle (now excluded by footprint ≥ 50 % of the device).
+  **Real asset, live (same day):** `data/apple_iphone_15_pro` (191 parts) →
+  Devin extracted in-VM, cross-check agreed, **12 overrides** applied
+  (stainless band segments → lossy_metal, ceramic shield → display, rail →
+  frame, cans → shield…), then 3 iterations / 32 sims → 28 mm corner
+  monopole at the top-left, 3 mm above the midplate: S11 −17.6 dB at
+  2.46 GHz, VSWR 1.30, eff 0.98, **all requirements incl. the 12 mm keep-out
+  pass**; IFA family tested and rejected on evidence; `agent_report`
+  captured. Session https://app.devin.ai/sessions/4990591951a844019c131dadd5e69513.
 - **M3 — depth:** sweep action ✅ (M0), hint layer ✅ (M0), per-candidate
   band resolution for multi-band runs ✅ (2026-08-22; no isolation matrix —
   scope decision pending), `nec-builder` skill + `write_builder` calibration
