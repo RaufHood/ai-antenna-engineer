@@ -1,1 +1,0 @@
-add to the readme a simple phrase about the weather and push it
