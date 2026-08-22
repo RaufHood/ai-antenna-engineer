@@ -8,9 +8,10 @@ hint layer and sweep length on the best candidate; if the best is an IFA and
 R is off 50 ohm, sweep the feed-short gap; then conclude."""
 from __future__ import annotations
 
+from app.geometry.classify import classify
 from app.geometry.spec import clearance_at
 from app.models import (AgentRequest, Candidate, DoneRequest, IterationReport,
-                        SimulateRequest, SweepRequest)
+                        SimulateRequest, SpecComponent, SpecRequest, SweepRequest)
 from app.agent.port import RunContext
 
 C_MM_GHZ = 299.792458  # c in mm*GHz
@@ -24,14 +25,53 @@ class MockAgent:
         self.cands: dict[str, Candidate] = {}
         self._story: list[str] = []
         self._swept_gap = False
+        self._spec_pending = False
 
     async def start(self, ctx: RunContext) -> None:
         self.ctx = ctx
+        if ctx.extract_mode == "agent" and ctx.geometry:
+            # "reads the build file": same script output Devin would produce
+            self._spec_pending = True
+            self._story.append(
+                f"Extracted {ctx.blend_path.name if ctx.blend_path else 'build file'}: "
+                f"{ctx.geometry['n_parts']} parts, {ctx.geometry['size_mm']} mm.")
+        else:
+            self._story.append(
+                f"Read spec for {ctx.spec.name}: {len(ctx.spec.components)} components, "
+                f"{len(ctx.anchors)} candidate anchors. Target band(s): {ctx.band_ids}.")
+
+    async def brief(self, ctx: RunContext) -> None:
+        self.ctx = ctx
         self._story.append(
-            f"Read spec for {ctx.spec.name}: {len(ctx.spec.components)} components, "
-            f"{len(ctx.anchors)} candidate anchors. Target band(s): {ctx.band_ids}.")
+            f"Design brief received: {len(ctx.spec.components)} components, "
+            f"{len(ctx.anchors)} anchors, bands {ctx.band_ids}.")
+
+    def _spec(self) -> SpecRequest:
+        ctx = self.ctx
+        assert ctx is not None and ctx.geometry is not None
+        c = classify(ctx.geometry, ctx.band_ids)
+        metal = [x for x in c.spec.components if x.em in ("pec", "lossy_metal")
+                 and x.role in ("battery", "module", "shield")]
+        self._story.append(
+            f"Classified {len(c.spec.components)} parts; ground reference "
+            f"{next(x.name for x in c.spec.components if x.role == 'ground')}; "
+            f"{len(metal)} metal blocks to keep clear of.")
+        return SpecRequest(
+            action="spec",
+            extracted={"method": "script", "n_parts": ctx.geometry["n_parts"],
+                       "size_mm": ctx.geometry["size_mm"]},
+            ground=next(x.name for x in c.spec.components if x.role == "ground"),
+            components=[SpecComponent(name=x.name, em=x.em, role=x.role,
+                                      epsilon_r=x.epsilon_r)
+                        for x in c.spec.components if x.em_source != "sidecar"],
+            summary=f"{c.spec.name}: {c.spec.board.size_mm[0]:.0f} x "
+                    f"{c.spec.board.size_mm[1]:.0f} x {c.spec.board.size_mm[2]:.1f} mm; "
+                    f"metal blocks: {', '.join(x.label for x in metal) or 'none'}.")
 
     async def next_action(self, report: IterationReport | None) -> AgentRequest:
+        if self._spec_pending:
+            self._spec_pending = False
+            return self._spec()
         self.last = report
         self.turn += 1
         if report is None:

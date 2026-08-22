@@ -9,17 +9,23 @@ the orchestrator simulates it and lets the evidence speak first."""
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 
 from app.agent.port import AgentPort, RunContext
+from app.geometry.classify import Override, classify
+from app.geometry.spec import make_anchors
 from app.models import (Candidate, DoneRequest, EventType, IterationReport,
-                        SimulateRequest, SweepRequest, WriteBuilderRequest)
+                        SimulateRequest, SpecRequest, SweepRequest,
+                        WriteBuilderRequest)
 from app.runs.store import Run
 from app.sim import pool
 from app.sim.score import build_report
 
 MAX_WALL_CLOCK_S = 8 * 60          # crash barrier, not pacing (agent self-paces)
 MAX_BATCH = 40                      # sanity cap per simulate/sweep request
+# agent-side extraction: pip install bpy (~220 MB) + Blender load + reasoning
+EXTRACT_TIMEOUT_S = float(os.environ.get("EXTRACT_TIMEOUT_S", "600"))
 
 
 async def drive(run: Run, agent: AgentPort) -> None:
@@ -43,25 +49,52 @@ async def drive(run: Run, agent: AgentPort) -> None:
 
 
 async def _drive(run: Run, agent: AgentPort) -> None:
-    t0 = time.time()
     band = next(b for b in run.spec.requirements.bands if b.id in run.band_ids)
-
-    run.stage = "spec"
-    run.log.emit("spec", EventType.stage_started, {"stage": "spec"})
-    run.log.emit("spec", EventType.artifact, {
-        "name": "device_spec", "spec": run.spec.model_dump(),
-        "anchors": [a.model_dump() for a in run.anchors]})
-
+    device = run.device
     ctx = RunContext(
         run_id=run.id, prompt=run.prompt, spec=run.spec, anchors=run.anchors,
         band_ids=run.band_ids,
-        budget_note=f"~{MAX_WALL_CLOCK_S // 60} minutes wall clock; simulate "
-                    f"before concluding; spend the budget as you judge best.")
-    await agent.start(ctx)
-    await _narrate(run, agent)
+        budget_note=f"~{MAX_WALL_CLOCK_S // 60} minutes wall clock for the design "
+                    f"loop; simulate before concluding; spend it as you judge best.",
+        extract_mode=run.extract_mode if device else "backend",
+        blend_path=device.blend_path() if device else None,
+        sidecar_path=device.sidecar_path() if device else None,
+        geometry=device.geometry if device else None,
+        ambiguities=list(run.ambiguities))
+
+    if ctx.extract_mode == "agent":
+        # ---- EXTRACT: the agent reads the build file itself (ADR-2) ----
+        run.stage = "extract"
+        run.log.emit("extract", EventType.stage_started, {
+            "stage": "extract", "blend": ctx.blend_path.name if ctx.blend_path else None,
+            "backend_extraction": {"n_parts": ctx.geometry["n_parts"],
+                                   "size_mm": ctx.geometry["size_mm"]}})
+        await agent.start(ctx)
+        await _narrate(run, agent)
+        try:
+            action = await asyncio.wait_for(agent.next_action(None), EXTRACT_TIMEOUT_S)
+        except asyncio.TimeoutError:
+            action = None
+            run.log.emit("extract", EventType.decision, {
+                "decision": f"agent extraction exceeded {EXTRACT_TIMEOUT_S:.0f}s — "
+                            f"backend extraction used"})
+        await _narrate(run, agent)
+        crosscheck = _accept_spec(run, action)
+        ctx.spec, ctx.anchors, ctx.ambiguities = run.spec, run.anchors, list(run.ambiguities)
+        ctx.meta["crosscheck"] = crosscheck
+        _emit_spec(run)
+        await agent.brief(ctx)
+        await _narrate(run, agent)
+    else:
+        run.stage = "spec"
+        run.log.emit("spec", EventType.stage_started, {"stage": "spec"})
+        _emit_spec(run)
+        await agent.start(ctx)
+        await _narrate(run, agent)
 
     run.stage = "agent_loop"
     run.log.emit("agent_loop", EventType.stage_started, {"stage": "agent_loop"})
+    t0 = time.time()
 
     report: IterationReport | None = None
     history_best: list[float] = []
@@ -123,6 +156,12 @@ async def _drive(run: Run, agent: AgentPort) -> None:
                 "write_builder is not available yet (M3); use existing builders: "
                 "IFA, monopole")
 
+        elif isinstance(action, SpecRequest):  # late/duplicate spec (e.g. after timeout)
+            report = _protocol_error(
+                run, report,
+                "spec already accepted (backend classification in effect); continue "
+                "with simulate / sweep / done")
+
         elif isinstance(action, DoneRequest):
             ranking = [cid for cid in action.ranking if cid in run.candidates]
             if not ranking:
@@ -140,6 +179,78 @@ async def _drive(run: Run, agent: AgentPort) -> None:
                 continue  # agent sees the evidence and must conclude again
             await _finish(run, band, ranking, action.rationale, agent)
             return
+
+
+def _emit_spec(run: Run) -> None:
+    run.log.emit(run.stage, EventType.artifact, {
+        "name": "device_spec", "source": run.spec_source,
+        "spec": run.spec.model_dump(),
+        "anchors": [a.model_dump() for a in run.anchors],
+        "ambiguities": run.ambiguities})
+
+
+def _accept_spec(run: Run, action) -> str:
+    """Merge the agent's `spec` judgment into the backend extraction (facts)
+    and cross-check the two extractions. Returns the note sent back with the
+    design brief. Backend classification is the fallback in every branch —
+    never block a run on the agent's reading of the file."""
+    device = run.device
+    assert device is not None and device.geometry is not None
+    base = classify(device.geometry, run.band_ids)
+    if not isinstance(action, SpecRequest):
+        run.spec_source = "agent+backend-fallback"
+        note = ("No `spec` action received from the agent; backend extraction + "
+                "heuristic classification are in effect.")
+        run.log.emit("extract", EventType.decision, {"decision": note})
+        return note
+
+    ov = {c.name: Override(em=c.em, role=c.role, epsilon_r=c.epsilon_r, note=c.note)
+          for c in action.components}
+    merged = classify(device.geometry, run.band_ids, ov, action.ground)
+    run.spec, run.anchors, run.ambiguities = merged.spec, make_anchors(merged.spec), merged.ambiguities
+    run.spec_source = "agent"
+
+    lines = []
+    ext = action.extracted or {}
+    method = ext.get("method", "unknown")
+    if method == "failed":
+        lines.append("Your extraction failed; the backend ran the same script "
+                     "successfully — its geometry is used, your classification "
+                     "overrides applied where names matched.")
+    else:
+        ours = device.geometry
+        size_ok = n_ok = None
+        if isinstance(ext.get("size_mm"), list) and len(ext["size_mm"]) == 3:
+            size_ok = all(abs(float(a) - b) <= 0.02 * max(b, 1.0)
+                          for a, b in zip(ext["size_mm"], ours["size_mm"]))
+        if isinstance(ext.get("n_parts"), int):
+            n_ok = ext["n_parts"] == ours["n_parts"]
+        if size_ok and n_ok is not False:
+            lines.append(f"Cross-check: your extraction ({method}) agrees with the "
+                         f"backend's ({ours['n_parts']} parts, {ours['size_mm']} mm).")
+        elif size_ok is None and n_ok is None:
+            lines.append("Cross-check: no size/part count reported; backend geometry used.")
+        else:
+            lines.append(f"Cross-check MISMATCH: you reported size {ext.get('size_mm')} / "
+                         f"{ext.get('n_parts')} parts, backend has {ours['size_mm']} / "
+                         f"{ours['n_parts']}. Backend geometry is authoritative; "
+                         f"flag it if you disagree.")
+    changed = []
+    by_name = {c.name: c for c in base.spec.components}
+    for c in merged.spec.components:
+        b = by_name.get(c.name)
+        if b and (b.em != c.em or b.role != c.role or b.epsilon_r != c.epsilon_r):
+            changed.append(f"{c.name}: {b.em}/{b.role} -> {c.em}/{c.role}")
+    if action.ground and action.ground != next(
+            c.name for c in base.spec.components if c.role == "ground"):
+        changed.append(f"ground reference -> {action.ground}")
+    lines.append(f"Applied {len(changed)} classification override(s)"
+                 + (": " + "; ".join(changed) if changed else "."))
+    note = " ".join(lines)
+    run.log.emit("extract", EventType.decision, {
+        "decision": "spec accepted", "crosscheck": note, "overrides": changed,
+        "agent_summary": action.summary, "extracted": ext})
+    return note
 
 
 async def _simulate_batch(run: Run, band, cands: list[Candidate]):

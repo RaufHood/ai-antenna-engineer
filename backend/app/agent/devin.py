@@ -15,6 +15,7 @@ import json
 import os
 import re
 import time
+from pathlib import Path
 
 import httpx
 from pydantic import TypeAdapter, ValidationError
@@ -57,19 +58,32 @@ class DevinAgent:
     # ------------------------------------------------------------ AgentPort --
 
     async def start(self, ctx: RunContext) -> None:
+        repo = os.environ.get("DEVIN_REPO") or None
         body = {
-            "prompt": prompts.initial_prompt(ctx),
             "title": f"antenna-run {ctx.run_id}",
             "tags": ["antenna", ctx.run_id],
             "structured_output_schema": prompts.STRUCTURED_OUTPUT_SCHEMA,
             "structured_output_required": False,
         }
+        if ctx.extract_mode == "agent" and ctx.blend_path:
+            urls = [await self._upload(ctx.blend_path)]
+            if ctx.sidecar_path:
+                urls.append(await self._upload(ctx.sidecar_path))
+            body["attachment_urls"] = urls
+            # private repo + no GitHub integration -> inline the script instead
+            body["prompt"] = prompts.extraction_prompt(
+                ctx, repo, None if repo else prompts.script_source())
+            self._narration.append(
+                f"Uploaded {ctx.blend_path.name} to the session; the agent reads "
+                f"the build file itself ({'repo skill' if repo else 'inlined script'}).")
+        else:
+            body["prompt"] = prompts.initial_prompt(ctx)
         if os.environ.get("DEVIN_MAX_ACU"):
             body["max_acu_limit"] = int(os.environ["DEVIN_MAX_ACU"])
         if os.environ.get("DEVIN_MODE"):
             body["devin_mode"] = os.environ["DEVIN_MODE"]
-        if os.environ.get("DEVIN_REPO"):
-            body["repos"] = [os.environ["DEVIN_REPO"]]
+        if repo:
+            body["repos"] = [repo]
         r = await self._request("POST", f"{self._org_base}/sessions", json=body)
         data = r.json()
         self.session_id = data["session_id"]
@@ -77,6 +91,19 @@ class DevinAgent:
         self._last_send = time.monotonic()
         self._narration.append(
             f"Devin session started: {self._session_url or self.session_id}")
+
+    async def brief(self, ctx: RunContext) -> None:
+        await self._send(prompts.brief_message(ctx, ctx.meta.get("crosscheck", "")))
+
+    async def _upload(self, path: Path) -> str:
+        """POST /attachments (multipart `file`) -> pre-signed URL for
+        `attachment_urls` (v3 docs, verified 2026-08-22)."""
+        with path.open("rb") as f:
+            r = await self._request(
+                "POST", f"{self._org_base}/attachments",
+                files={"file": (path.name, f, "application/octet-stream")},
+                timeout=600.0)
+        return r.json()["url"]
 
     async def next_action(self, report: IterationReport | None) -> AgentRequest:
         if report is not None:

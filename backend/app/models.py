@@ -16,6 +16,12 @@ AntennaType = Literal[
     "IFA", "PIFA", "monopole", "loop", "frame_slot", "patch_array", "ceramic_chip"
 ]
 RegionId = Literal["bottom", "top", "left", "right"]
+# Structural role of a part in the RF model. Additive to the frontend schema
+# (optional field; the viewer ignores it). `ground` = the reference plane the
+# solver builds the chassis from; `display`/`ground` are excluded from the
+# clearance metric because the antenna volume necessarily sits above them.
+ComponentRole = Literal["ground", "display", "frame", "battery", "back_cover",
+                        "board", "shield", "module", "other"]
 
 
 class DeviceComponent(BaseModel):
@@ -25,6 +31,10 @@ class DeviceComponent(BaseModel):
     epsilon_r: float | None = None
     loss_tangent: float | None = None
     bbox_mm: Bbox
+    role: ComponentRole = "other"
+    # provenance of the em classification: sidecar | name-heuristic | agent | canned
+    em_source: str = "canned"
+    sigma_s_per_m: float | None = None
 
 
 class BandRequirement(BaseModel):
@@ -38,6 +48,8 @@ class BandRequirement(BaseModel):
     s11_db_max: float
     efficiency_min: float
     antenna_types: list[AntennaType]
+    region_pref: dict[str, float] = Field(default_factory=dict)  # frontend hint
+    color: str = ""
 
     @property
     def f_mid_ghz(self) -> float:
@@ -154,7 +166,28 @@ class DoneRequest(BaseModel):
     rationale: str
 
 
-AgentRequest = SimulateRequest | SweepRequest | WriteBuilderRequest | DoneRequest
+class SpecComponent(BaseModel):
+    """Agent's EM judgment for one extracted part (DESIGN.md §8). Any field
+    left null keeps the backend's heuristic classification."""
+    name: str  # blender object name (or node_path)
+    em: EmClass | None = None
+    role: ComponentRole | None = None
+    epsilon_r: float | None = None
+    note: str = ""
+
+
+class SpecRequest(BaseModel):
+    """First turn of an agent-side extraction: what the agent read from the
+    build file and how it classifies the parts for the RF model."""
+    action: Literal["spec"]
+    extracted: dict = Field(default_factory=dict)  # method, n_parts, size_mm, notes
+    ground: str | None = None      # part that serves as the ground reference
+    components: list[SpecComponent] = Field(default_factory=list)
+    summary: str = ""
+
+
+AgentRequest = (SimulateRequest | SweepRequest | WriteBuilderRequest | DoneRequest
+                | SpecRequest)
 
 
 class RequirementDiff(BaseModel):

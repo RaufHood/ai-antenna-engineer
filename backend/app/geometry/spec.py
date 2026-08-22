@@ -1,14 +1,20 @@
-"""Canned device spec + anchor generation for M0.
+"""Anchor generation + clearance metric over a DeviceSpec, and the canned M0
+spec (kept as the offline regression baseline; real devices come from
+tools/extract_blend.py via classify.py).
 
-Replaced by real .blend extraction in M2 (tools/extract_blend.py); the shapes
-here ARE the contract, so swapping the source changes no downstream code.
-Approximate iPhone-class device: 147 x 72 x 7.8 mm, origin bottom-left-back.
-"""
+Every function here derives from the spec — device size is the union of the
+component boxes, the antenna height sits just above the ground reference —
+so a 147 mm handset and a 374 mm axe get sensible anchors alike."""
 from __future__ import annotations
 
-from app.models import Anchor, BandRequirement, DeviceSpec, Vec3
+from app.geometry.classify import device_size, ground_of
+from app.models import Anchor, DeviceSpec, Vec3
 
-W, H, T = 72.0, 147.0, 7.8  # x (width), y (height), z (thickness)
+W, H, T = 72.0, 147.0, 7.8  # canned phone outline (x width, y height, z thickness)
+
+# roles whose boxes the antenna volume necessarily sits on/inside — they are
+# the environment, not obstacles (the frame is usually the antenna's own metal)
+_NOT_OBSTACLES = {"ground", "display", "back_cover", "board", "frame"}
 
 
 def phone_v1() -> DeviceSpec:
@@ -20,17 +26,17 @@ def phone_v1() -> DeviceSpec:
         "enclosure": {"back": "glass", "frame": "aluminum", "epsilon_r_back": 5.5},
         "components": [
             {"name": "pcb_ground", "label": "PCB ground plane", "em": "pec",
-             "bbox_mm": ((2, 3, 3.0), (W - 2, H - 3, 4.0))},
+             "role": "ground", "bbox_mm": ((2, 3, 3.0), (W - 2, H - 3, 4.0))},
             {"name": "battery", "label": "Battery", "em": "lossy_metal",
-             "bbox_mm": ((6, 40, 4.2), (48, 105, 7.2))},
+             "role": "battery", "bbox_mm": ((6, 40, 4.2), (48, 105, 7.2))},
             {"name": "camera", "label": "Camera module", "em": "pec",
-             "bbox_mm": ((4, 118, 4.2), (34, 143, 7.6))},
+             "role": "module", "bbox_mm": ((4, 118, 4.2), (34, 143, 7.6))},
             {"name": "speaker_bottom", "label": "Speaker", "em": "lossy_metal",
-             "bbox_mm": ((40, 4, 4.2), (66, 16, 7.0))},
+             "role": "module", "bbox_mm": ((40, 4, 4.2), (66, 16, 7.0))},
             {"name": "usb", "label": "USB-C block", "em": "pec",
-             "bbox_mm": ((28, 2, 4.2), (44, 10, 6.5))},
+             "role": "module", "bbox_mm": ((28, 2, 4.2), (44, 10, 6.5))},
             {"name": "display", "label": "Display metal sheet", "em": "pec",
-             "bbox_mm": ((1, 1, 0.8), (W - 1, H - 1, 2.2))},
+             "role": "display", "bbox_mm": ((1, 1, 0.8), (W - 1, H - 1, 2.2))},
         ],
         "requirements": {
             "bands": [
@@ -46,47 +52,58 @@ def phone_v1() -> DeviceSpec:
     })
 
 
+def antenna_z(spec: DeviceSpec) -> float:
+    """Height of the antenna volume: just above the ground reference, inside
+    the device."""
+    _, _, t = device_size(spec)
+    g_top = ground_of(spec).bbox_mm[1][2]
+    return min(g_top + 2.0, max(t - 0.5, g_top + 0.5))
+
+
 def make_anchors(spec: DeviceSpec, spacing_mm: float = 18.0) -> list[Anchor]:
-    """Discrete candidate positions along the device perimeter at antenna height
-    (above the board, z mid-gap). Corners flagged — they clear in two directions."""
-    w, h, _t = spec.board.size_mm
-    z = 5.5  # antenna volume sits above ground plane (3..4) and below back glass
+    """Discrete candidate positions along the device perimeter at antenna
+    height. Corners flagged — they clear in two directions."""
+    w, h, _t = device_size(spec)
+    z = round(antenna_z(spec), 2)
     anchors: list[Anchor] = []
 
     def add(aid: str, label: str, region: str, pos: Vec3, outward: Vec3, corner: bool):
-        anchors.append(Anchor(id=aid, label=label, region=region, pos_mm=pos,
+        anchors.append(Anchor(id=aid, label=label, region=region,
+                              pos_mm=tuple(round(v, 2) for v in pos),
                               outward=outward, corner=corner))
 
-    margin = 6.0
-    # corners first — the classic antenna real estate
+    margin = min(6.0, w / 8)
     add("c_bl", "bottom-left corner", "bottom", (margin, margin, z), (-0.7, -0.7, 0), True)
-    add("c_br", "bottom-right corner", "bottom", (W - margin, margin, z), (0.7, -0.7, 0), True)
-    add("c_tl", "top-left corner", "top", (margin, H - margin, z), (-0.7, 0.7, 0), True)
-    add("c_tr", "top-right corner", "top", (W - margin, H - margin, z), (0.7, 0.7, 0), True)
-    # edge anchors
-    n_bottom = int((W - 2 * margin) // spacing_mm)
+    add("c_br", "bottom-right corner", "bottom", (w - margin, margin, z), (0.7, -0.7, 0), True)
+    add("c_tl", "top-left corner", "top", (margin, h - margin, z), (-0.7, 0.7, 0), True)
+    add("c_tr", "top-right corner", "top", (w - margin, h - margin, z), (0.7, 0.7, 0), True)
+    n_bottom = int((w - 2 * margin) // spacing_mm)
     for i in range(1, n_bottom):
         x = margin + i * spacing_mm
         add(f"e_b{i}", f"bottom edge {i}", "bottom", (x, margin, z), (0, -1, 0), False)
-        add(f"e_t{i}", f"top edge {i}", "top", (x, H - margin, z), (0, 1, 0), False)
-    n_side = int((H - 2 * margin) // spacing_mm)
+        add(f"e_t{i}", f"top edge {i}", "top", (x, h - margin, z), (0, 1, 0), False)
+    n_side = int((h - 2 * margin) // spacing_mm)
     for i in range(1, n_side):
         y = margin + i * spacing_mm
         add(f"e_l{i}", f"left edge {i}", "left", (margin, y, z), (-1, 0, 0), False)
-        add(f"e_r{i}", f"right edge {i}", "right", (W - margin, y, z), (1, 0, 0), False)
+        add(f"e_r{i}", f"right edge {i}", "right", (w - margin, y, z), (1, 0, 0), False)
     return anchors
 
 
 def clearance_at(spec: DeviceSpec, p: Vec3) -> tuple[float, str]:
-    """Distance from point to nearest metal/lossy component (frame excluded).
-    Port of frontend rf.ts clearanceAt — feeds priors and hints, not the solver.
-    Ground plane and display sheet excluded: the antenna volume necessarily sits
-    above them; lateral blocks (battery, camera, speaker) are what detune."""
+    """Distance from point to nearest metal/lossy obstacle. Sheets the antenna
+    volume sits on (ground, display, covers, board, frame) and any full-face
+    sheet (shield, backplate — >= 50 % of the device footprint) are excluded;
+    lateral blocks (battery, camera, speaker, cans) are what detune.
+    Port of frontend rf.ts clearanceAt — feeds priors and hints, not the solver."""
     best, who = 50.0, ""
+    w, h, _t = device_size(spec)
     for c in spec.components:
-        if c.em not in ("pec", "lossy_metal") or c.name in ("pcb_ground", "display"):
+        if c.em not in ("pec", "lossy_metal") or c.role in _NOT_OBSTACLES:
             continue
         (x0, y0, z0), (x1, y1, z1) = c.bbox_mm
+        if (x1 - x0) * (y1 - y0) >= 0.5 * w * h:
+            continue
         dx = max(x0 - p[0], 0, p[0] - x1)
         dy = max(y0 - p[1], 0, p[1] - y1)
         dz = max(z0 - p[2], 0, p[2] - z1)

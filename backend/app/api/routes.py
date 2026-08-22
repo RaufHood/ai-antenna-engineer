@@ -2,35 +2,123 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import secrets
+import shutil
+from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import (APIRouter, File, Form, HTTPException, UploadFile, WebSocket,
+                     WebSocketDisconnect)
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.agent.devin import DevinAgent, DevinConfigError
 from app.agent.mock import MockAgent
+from app.geometry import bands
+from app.geometry import extract as ex
 from app.geometry.spec import make_anchors, phone_v1
-from app.runs import orchestrator, store
+from app.runs import devices, orchestrator, store
 from app.runs.store import Run
 
 router = APIRouter()
 
+_MEDIA = {".glb": "model/gltf-binary", ".json": "application/json",
+          ".stl": "model/stl"}
+
+
+# ------------------------------------------------------------------ devices --
+
+@router.post("/devices")
+async def create_device(blend: UploadFile = File(...),
+                        materials: UploadFile | None = File(None),
+                        wait: bool = Form(True)) -> dict:
+    """Upload a .blend (+ optional materials.json sidecar). Runs the shared
+    extraction script, classifies, and returns spec + anchors + artifact list.
+    `wait=false` returns immediately with status=extracting; poll GET."""
+    if not (blend.filename or "").lower().endswith(".blend"):
+        raise HTTPException(400, "expected a .blend file")
+    up = ex.VAR_DIR / "uploads" / secrets.token_hex(4)
+    up.mkdir(parents=True, exist_ok=True)
+    bpath = up / Path(blend.filename).name
+    with bpath.open("wb") as f:
+        shutil.copyfileobj(blend.file, f)
+    spath = None
+    if materials is not None and materials.filename:
+        spath = up / "materials.json"
+        with spath.open("wb") as f:
+            shutil.copyfileobj(materials.file, f)
+    device = devices.register(bpath, spath)
+    shutil.rmtree(up, ignore_errors=True)
+    if wait:
+        await devices.prepare(device)
+        if device.status == "failed":
+            raise HTTPException(422, f"extraction failed: {device.error}")
+    else:
+        await devices.prepare_background(device)
+    return devices.snapshot(device)
+
+
+@router.get("/devices")
+async def list_devices() -> list[dict]:
+    return [{"device_id": d.id, "name": d.name, "status": d.status}
+            for d in store.all_devices()]
+
+
+@router.get("/devices/{device_id}")
+async def get_device(device_id: str) -> dict:
+    d = store.get_device(device_id)
+    if d is None:
+        raise HTTPException(404, "unknown device")
+    return devices.snapshot(d)
+
+
+@router.get("/devices/{device_id}/artifacts/{name:path}")
+async def device_artifact(device_id: str, name: str) -> FileResponse:
+    d = store.get_device(device_id)
+    if d is None:
+        raise HTTPException(404, "unknown device")
+    p = ex.artifact_path(d.dir, name)
+    if p is None:
+        raise HTTPException(404, f"no artifact {name!r}; have {d.artifacts()}")
+    return FileResponse(p, media_type=_MEDIA.get(p.suffix, "application/octet-stream"),
+                        filename=p.name)
+
+
+# --------------------------------------------------------------------- runs --
 
 class CreateRun(BaseModel):
     prompt: str = ""
     bands: list[str] = ["wifi24"]
-    agent: str = "devin"  # devin (default) | mock (offline fallback)
+    agent: str = "devin"          # devin (default) | mock (offline fallback)
+    device_id: str | None = None  # from POST /devices; None -> canned phone_v1
+    # agent: Devin reads the .blend itself (skill), backend result is the
+    # cross-check/fallback. backend: spec is final before the session starts.
+    extract: str | None = None    # default from EXTRACT_MODE env, else "agent"
 
 
 @router.post("/runs")
 async def create_run(body: CreateRun) -> dict:
-    spec = phone_v1()  # M2 replaces with .blend extraction
-    known = {b.id for b in spec.requirements.bands}
-    if not set(body.bands) & known:
-        raise HTTPException(400, f"no known band in {body.bands}; have {sorted(known)}")
-    run = Run(id=f"run_{secrets.token_hex(4)}", prompt=body.prompt,
-              band_ids=body.bands, spec=spec, anchors=make_anchors(spec))
-    store.put(run)
+    if body.device_id:
+        device = store.get_device(body.device_id)
+        if device is None:
+            raise HTTPException(404, "unknown device")
+        if device.status != "ready":
+            raise HTTPException(409, f"device is {device.status}: {device.error or ''}")
+        if bad := bands.unknown(body.bands):
+            raise HTTPException(400, f"unknown bands {bad}; have {sorted(bands.CATALOG)}")
+        spec = device.spec.model_copy(
+            update={"requirements": bands.requirements_for(body.bands)})
+        anchors = device.anchors
+        mode = body.extract or os.environ.get("EXTRACT_MODE", "agent")
+    else:
+        device, spec, mode = None, phone_v1(), "backend"
+        known = {b.id for b in spec.requirements.bands}
+        if not set(body.bands) & known:
+            raise HTTPException(400, f"no known band in {body.bands}; have {sorted(known)}")
+        anchors = make_anchors(spec)
+    if mode not in ("agent", "backend"):
+        raise HTTPException(400, "extract must be 'agent' or 'backend'")
+
     if body.agent == "devin":
         try:
             agent = DevinAgent()
@@ -41,8 +129,15 @@ async def create_run(body: CreateRun) -> dict:
         agent = MockAgent()
     else:
         raise HTTPException(400, f"unknown agent {body.agent!r}")
+
+    run = Run(id=f"run_{secrets.token_hex(4)}", prompt=body.prompt,
+              band_ids=body.bands, spec=spec, anchors=anchors, device=device,
+              extract_mode=mode, ambiguities=list(device.ambiguities) if device else [],
+              spec_source="backend" if device else "canned")
+    store.put(run)
     run.task = asyncio.create_task(orchestrator.drive(run, agent))
-    return {"run_id": run.id}
+    return {"run_id": run.id, "device_id": device.id if device else None,
+            "extract_mode": mode}
 
 
 @router.get("/runs/{run_id}")
@@ -52,11 +147,16 @@ async def get_run(run_id: str) -> dict:
         raise HTTPException(404, "unknown run")
     return {
         "run_id": run.id,
+        "device_id": run.device.id if run.device else None,
         "status": run.status,
         "stage": run.stage,
         "iteration": run.iteration,
         "truncated": run.truncated,
+        "spec_source": run.spec_source,
+        "ambiguities": run.ambiguities,
         "n_events": len(run.log.events),
+        "spec": run.spec.model_dump(),
+        "anchors": [a.model_dump() for a in run.anchors],
         "candidates": {k: c.model_dump() for k, c in run.candidates.items()},
         "results": {k: r.model_dump() for k, r in run.results.items()},
         "final": run.final,
@@ -85,4 +185,4 @@ async def run_events(ws: WebSocket, run_id: str, since: int = 0) -> None:
 
 @router.get("/healthz")
 async def healthz() -> dict:
-    return {"ok": True, "runs": len(store.all_runs())}
+    return {"ok": True, "runs": len(store.all_runs()), "devices": len(store.all_devices())}

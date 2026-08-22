@@ -54,9 +54,10 @@ backend/
     main.py              FastAPI app, CORS, lifespan
     api/                 routes: runs, ws, artifacts, health
     runs/
-      orchestrator.py    state machine (§5)
+      orchestrator.py    state machine (§5) incl. EXTRACT stage + spec cross-check
+      devices.py         device lifecycle: ingest → extract → classify → anchors
       events.py          append-only event log, seq numbers, WS fan-out
-      store.py           in-memory run registry
+      store.py           in-memory run + device registries
     agent/
       port.py            AgentPort protocol (§4.1) + RunContext
       devin.py           Devin v3 client + session driver
@@ -64,9 +65,10 @@ backend/
       protocol.py        wire-message parse/render (§6.3)
       prompts.py         playbook text, schemas
     geometry/
-      spec.py            DeviceSpec models + validation
-      classify.py        object name/material → EmClass heuristics
-      export.py          glb export for the viewer
+      spec.py            canned phone_v1, anchors + clearance derived from any spec
+      classify.py        geometry.json → DeviceSpec (EmClass, roles, ground, ambiguities)
+      bands.py           band catalogue (mirror of frontend device.ts)
+      extract.py         backend runner for tools/extract_blend.py (bpy interpreter, cache)
     sim/
       oracle.py          PyNEC wrapper: chassis wire-grid + antenna on top
       builders/          monopole.py ifa.py meander.py loop.py + agent-authored
@@ -77,9 +79,11 @@ backend/
     dev_run.py           no-HTTP end-to-end driver
 tools/
   extract_blend.py       SHARED bpy extraction script (§8) — run by Devin AND backend
+  make_phone_blend.py    synthetic handset fixture generator (asset convention)
+data/phone_synth_v1/     fixture .blend + materials.json
 .agents/skills/
   blend-extract/SKILL.md
-  nec-builder/SKILL.md
+  nec-builder/SKILL.md   (M3)
 ```
 
 ---
@@ -243,8 +247,9 @@ INGEST ──► EXTRACT ──► SPEC ──► AGENT LOOP ──► REPORT
 | Stage | Actor | Emits | Exit |
 |---|---|---|---|
 | INGEST | backend | `stage_started`, artifact refs | file stored, run registered |
-| EXTRACT | Devin (skill) / backend fallback | `stage_progress`, `artifact(geometry.json)` | valid geometry.json |
-| SPEC | backend | `artifact(device_spec)` | DeviceSpec validated, glb exported |
+| INGEST→EXTRACT (device) | backend | `POST /devices` is synchronous: geometry.json, glb, STLs | device `ready` |
+| EXTRACT (run, `extract=agent`) | Devin (skill / inlined script) + backend cross-check | `stage_started{backend_extraction}`, `decision{spec accepted, crosscheck, overrides}` | `spec` action or timeout → brief sent |
+| SPEC | backend | `artifact(device_spec{source, ambiguities})` | DeviceSpec + anchors final |
 | AGENT LOOP | both | `agent_message`, `candidates_proposed`, `sim_started/​sim_result` per sim, `iteration_scored`, `decision` | agent `done` + gate |
 | REPORT | both | `artifact(report.md)`, `run_finished` | structured_output stored |
 
@@ -292,6 +297,10 @@ Agent → backend, one block per turn:
 { "action": "write_builder", "name": "meander_ifa",
   "attachment": "meander_ifa.py", "params_doc": { } }
 { "action": "done", "ranking": ["c012", "c007"], "rationale": "…" }
+{ "action": "spec", "extracted": {"method": "skill|script|failed", "n_parts": 15,
+  "size_mm": [71.6, 147.6, 7.8]}, "ground": "pcb.ground_pour__copper",
+  "components": [{"name": "…", "em": "lossy_metal", "role": "battery"}],
+  "summary": "…" }        // first turn of an agent-side extraction only (§8)
 ```
 
 `sweep` is the leverage move: sims cost ms, agent turns cost minutes — a
@@ -389,20 +398,66 @@ emits `sim_result` on the WS the moment it lands.
 
 ---
 
-## 8. Geometry ingestion
+## 8. Geometry ingestion — M2, live-verified 2026-08-22
 
-**Primary (agent-side, ADR-2):** the session receives the `.blend` attachment
-+ our repo; the `blend-extract` skill has Devin run `tools/extract_blend.py`
-in its VM → `geometry.json` (named objects, world-space bboxes, material →
-EmClass classification, unit scale) → returned as attachment + summary message.
+**Facts vs judgment.** `tools/extract_blend.py` (bpy) produces *facts*:
+every mesh object's world bbox in a canonical frame (mm; x width, y height,
+z thickness; origin at the min corner), material key, `eps_r` /
+`sigma_S_per_m`, triangle count. It never decides what a part *is* for the
+RF model. `classify.py` adds the *judgment* heuristically (EmClass from
+sigma/eps, structural `role` from names, ground-plane choice) and lists every
+ambiguity. The agent can override any of it (the `spec` action, §6.3).
 
-**Fallback (backend, demo insurance):** identical script, run locally via
-`bpy` wheel, triggered if the agent path fails or for offline dev. One script,
-two runners — no drift.
+**Asset convention (shared with the sim workstream, `data/*/materials.json`):**
+object name `<node_path>__<material_key>`, custom props `node_path` /
+`material_key`, sidecar `material_vocabulary_used[key] = {eps_r, sigma}` plus
+`material_gaps` (the author's own caveats). Without a sidecar the script falls
+back to Blender material / object names and a small built-in vocabulary, and
+says so (`em_source`). `geometry.json` is a **superset of the sim team's
+`device.json` manifest** (`parts[].{node_path, material_key, eps_r,
+sigma_S_per_m, bbox_mm, stl_path…}`) so `rf/run_simulation.py:load_device`
+reads it unchanged; STLs per part go to `parts/`.
 
-`geometry.json → DeviceSpec`: `classify.py` maps object names/materials to
-`EmClass` heuristically; ambiguities are listed in the spec message so the
-agent can question them. Viewer gets a `device.glb` export.
+**Frame normalisation is explicit.** Units are resolved sidecar → scene
+`unit_settings` → extent heuristic (a handset is 50–300 mm), axes permuted so
+the longest extent is y and the shortest z (proper rotation only), then name
+votes (display ⇒ high z, camera ⇒ high y, USB/speaker ⇒ low y) fix the two
+remaining 180° ambiguities. Everything applied is reported under `frame`.
+Verified on fixtures: a canonical, a standing-metre-scaled and an upside-down
+synthetic phone all normalise to identical bboxes; the sim team's 757k-tri
+Blender-5.2 axe asset extracts in 5 s (sidecar, custom props, 2.8 MB
+decimated glb).
+
+**Two runners, one script (ADR-2).**
+- *Agent-side (default, `extract=agent`)*: the session is created with the
+  `.blend` (+ sidecar) as `attachment_urls`; the prompt asks Devin to run the
+  script — via the `blend-extract` skill when `DEVIN_REPO` is set, otherwise
+  the script is **inlined in the prompt** (the repo is private; this removes
+  the GitHub-integration dependency) — and reply with a `spec` action
+  (extraction digest, ground choice, classification overrides, layout
+  summary). The backend has *already* run the same script at `POST /devices`
+  (it needs the glb for the viewer regardless); it cross-checks size and part
+  count, merges the agent's overrides, emits a `decision{spec accepted,
+  crosscheck, overrides}` event, and sends the design brief (spec, anchors,
+  requirements). Timeout (`EXTRACT_TIMEOUT_S`, 600) or a `failed` method ⇒
+  backend classification stands and the run proceeds. The design-loop wall
+  clock starts *after* the brief.
+- *Backend-only (`extract=backend`)*: spec is final before the session; the
+  create prompt carries everything (M1 behaviour). Use for tight demos.
+
+**Device lifecycle / HTTP:** `POST /devices` (multipart `blend`, optional
+`materials`) → extraction → `{device_id, spec, anchors, ambiguities,
+artifacts}`; `GET /devices/{id}/artifacts/{device.glb|geometry.json|
+materials.json|parts/*.stl}`; `POST /runs {device_id, bands, agent,
+extract}`. Devices are content-addressed (`dev_<sha256[:10]>`), cached under
+`backend/var/devices/`. No `device_id` ⇒ canned `phone_v1` (regression
+baseline). Requirements are not in the `.blend`: `bands.py` mirrors the
+frontend band catalogue; the run's `bands[]` selects.
+
+**Fixture:** `tools/make_phone_blend.py` generates a 15-part synthetic handset
+in the asset convention (`data/phone_synth_v1/`), with `--standing
+--metres --upside-down` variants for normalisation tests. Replace with the
+real iPhone `.blend` when it lands — nothing downstream changes.
 
 ---
 
@@ -451,8 +506,21 @@ Rule: **always demoable** — every milestone ends in a run that completes.
   best-so-far done). Devin is the DEFAULT agent; `agent="mock"` explicit
   fallback. Playbook deferred: protocol text ships in the create prompt for
   now (playbook_id is config once org access exists).
-- **M2 — geometry:** `tools/extract_blend.py` + `blend-extract` skill; real
-  `.blend` in, glb out.
+- **M2 — geometry: LIVE-VERIFIED 2026-08-22** (§8). `tools/extract_blend.py` +
+  `blend-extract` skill + `classify.py`; `POST /devices` → spec/anchors/glb;
+  agent-side extraction turn with backend cross-check and fallback; anchors
+  and the reference solver's ground plane derived from the real spec (role
+  field). Fixture generator stands in for the missing iPhone `.blend`.
+  Live run (synthetic phone, `extract=agent`, script inlined): Devin
+  installed bpy and ran the script in its VM (~2 min), returned a `spec`
+  with four unprompted layout observations (oversized ground pour, unslotted
+  rails, full-face shield, battery block), cross-check agreed (15 parts /
+  size), 1 override applied (display shield → `shield`, correct), then
+  3 iterations / 46 sims → monopole @ top-right corner, L 27.75 mm, h 4 mm,
+  S11 −24.3 dB, VSWR 1.21, with a tolerance analysis in the rationale.
+  ~5 min wall clock end to end; structured_output populated. Bug found and
+  fixed from that run: a re-roled full-face sheet must not count as a
+  clearance obstacle (now excluded by footprint ≥ 50 % of the device).
 - **M3 — depth:** sweep action, hint layer, `nec-builder` + calibration gate.
 - **M4 — polish:** report.md generation, structured_output schema final,
   openEMS single-shot confirmation of the winner (stretch).
@@ -461,18 +529,38 @@ Rule: **always demoable** — every milestone ends in a run that completes.
 
 ## 12. Open questions
 
-1. **Devin credentials** — need `org_id` + `cog_` service-user key (blocks M1;
-   M0 doesn't wait for it). If it turns out to be a personal access token or a
-   v1 `apk_` key, the client changes slightly.
+1. ~~Devin credentials~~ — resolved (service user, v3). Open: does the org's
+   GitHub integration see `RaufHood/challenge` (private)? Until confirmed,
+   `DEVIN_REPO` stays unset and the extraction script is inlined (§8).
 2. **Demo scope: single-band (Wi-Fi 2.4) vs multi-band** — test prompt says
    2.4 GHz; frontend models multi-band + isolation. Recommend: build
    single-band, keep contracts multi-band-shaped (they already are).
 3. Which iPhone `.blend` asset; object naming quality decides how much
-   classification pain §8 absorbs.
+   classification pain §8 absorbs. The synthetic fixture follows the sim
+   team's `materials.json` convention — if the real asset does too,
+   classification is exact; if not, the name heuristics + agent overrides
+   carry it.
 4. Entire capture is mandatory for submission — hooks are repo-committed, but
    each teammate must `entire login` locally.
 
 ## 13. Decision log
+
+- **2026-08-22 (M2)** (a) Extraction split into facts (script) vs judgment
+  (classify + agent `spec` action) — the agent "reads the build file" AND the
+  backend always has the same geometry for the viewer/cross-check; neither
+  waits on the other. (b) `geometry.json` made a superset of the sim team's
+  `device.json` manifest (their `feat/simulation` branch, `backend/load_blend.py`)
+  rather than a second format — one extraction for both workstreams; to
+  raise with them: retire `backend/load_blend.py` in favour of
+  `tools/extract_blend.py`, and note `backend/requirements.txt`(bpy) collides
+  with our uv project — bpy needs Python 3.11, so the backend runs it in a
+  subprocess (`BPY_PYTHON` / `BLENDER` / ephemeral `uv run --with bpy`).
+  (c) Optional `role` / `em_source` fields added to `DeviceComponent` and
+  `region_pref`/`color` to `BandRequirement` — additive to the frontend
+  schema (ADR-8 kept: names/shapes verbatim, extras optional). (d) Repo is
+  private → script inlined in the Devin prompt unless `DEVIN_REPO` is set.
+  (e) Frontend glb: exported with `export_yup=False` in the canonical frame
+  so node names and coordinates match `spec.components[].bbox_mm` directly.
 
 - **2026-08-22 (build)** M0 shipped; M1 code shipped. Changes while building:
   (a) **Sim demoted to an external boundary** — user direction: sim is another

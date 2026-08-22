@@ -5,6 +5,7 @@ drop-in and the workflow fully controlled by OUR code, not the vendor's."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Protocol
 
 from app.models import AgentRequest, Anchor, DeviceSpec, IterationReport
@@ -18,12 +19,26 @@ class RunContext:
     anchors: list[Anchor]
     band_ids: list[str]
     budget_note: str = ""
+    # agent-side extraction (DESIGN.md §8): the build file goes to the agent,
+    # which must answer with a `spec` action before the design brief is sent
+    extract_mode: str = "backend"          # agent | backend
+    blend_path: Path | None = None
+    sidecar_path: Path | None = None
+    geometry: dict | None = None           # backend extraction (facts) if any
+    ambiguities: list[str] = field(default_factory=list)
     meta: dict = field(default_factory=dict)
 
 
 class AgentPort(Protocol):
     async def start(self, ctx: RunContext) -> None:
-        """Open the session; deliver spec, anchors, requirements, budget."""
+        """Open the session. backend mode: deliver spec, anchors, requirements,
+        budget. agent mode: deliver the build file + extraction instructions;
+        the spec follows via `brief` once the agent has answered with `spec`."""
+        ...
+
+    async def brief(self, ctx: RunContext) -> None:
+        """Deliver the design brief (final spec + anchors + requirements) after
+        an agent-side extraction. No-op for backend mode."""
         ...
 
     async def next_action(self, report: IterationReport | None) -> AgentRequest:

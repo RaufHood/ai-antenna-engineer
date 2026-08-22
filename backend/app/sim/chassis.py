@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from app.geometry.classify import ground_of
 from app.models import DeviceSpec
 
 C = 299_792_458.0
@@ -22,8 +23,7 @@ class ChassisModel:
 
 
 def chassis_from_spec(spec: DeviceSpec, f_high_ghz: float) -> ChassisModel:
-    ground = next(c for c in spec.components if c.name == "pcb_ground")
-    (x0, y0, z0), (x1, y1, z1) = ground.bbox_mm
+    (x0, y0, z0), (x1, y1, z1) = ground_of(spec).bbox_mm
     lam = C / (f_high_ghz * 1e9)
     pitch = lam / 10.0
     w, h = (x1 - x0) / 1000.0, (y1 - y0) / 1000.0
