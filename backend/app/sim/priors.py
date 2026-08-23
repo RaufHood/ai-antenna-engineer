@@ -331,3 +331,33 @@ if __name__ == "__main__":
         p2 = screen_anchors(spec, band, anchors=derived)
         print(brief_for_agent(p2))
         print(f"\n{len(derived)} anchors derived in {dt:.1f} s")
+
+
+def anchors_for(spec: DeviceSpec, band_ids: list[str]) -> tuple[list[Anchor], str]:
+    """The positions the agent is allowed to choose from, and where they came from.
+
+    This is the product thesis in one function. `make_anchors()` answers "where
+    could an antenna go on a box this size" — a perimeter lattice that would be
+    the same for any phone with these outside dimensions, which is why the
+    placements it yields look generic: they are. The scan answers "where can an
+    antenna go in THIS phone", by sweeping the real internals, rejecting every
+    point that collides or sits too close to metal, and ranking what survives by
+    how much of the field escapes the chassis. It is the same field the
+    placement map draws, so the spots on screen and the spots the agent may pick
+    are one set of numbers.
+
+    The lowest band picks the anchors when several are studied: it needs the
+    longest radiator and the most clearance, so its legal set is the strictest.
+
+    Falls back to the lattice — and says so — when there is no manifest to scan.
+    """
+    from app.geometry.bands import CATALOG
+    from app.geometry.spec import make_anchors
+
+    bands = [CATALOG[b] for b in band_ids if b in CATALOG]
+    if bands:
+        lowest = min(bands, key=lambda b: b.f_low_ghz)
+        scanned = anchors_from_scan(spec, lowest)
+        if scanned:
+            return scanned, f"scan:{lowest.id}"
+    return make_anchors(spec), "lattice"

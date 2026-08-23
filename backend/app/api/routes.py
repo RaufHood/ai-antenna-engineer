@@ -14,9 +14,11 @@ from pydantic import BaseModel
 
 from app.agent.devin import DevinAgent, DevinConfigError
 from app.agent.mock import MockAgent
+from app.geometry import bands as bands_mod
 from app.geometry import bands
 from app.geometry import extract as ex
 from app.geometry.spec import default_spec, make_anchors
+from app.sim.priors import anchors_for
 from app.models import EventType
 from app.runs import devices, orchestrator, report, store
 from app.runs.store import Run
@@ -59,6 +61,25 @@ async def create_device(blend: UploadFile = File(...),
     return devices.snapshot(device)
 
 
+@router.get("/default-device")
+async def default_device(bands: str = "wifi24") -> dict:
+    """The device a run gets when none was uploaded — spec and anchors.
+
+    The UI used to draw a hard-coded slab here while the solver read the real
+    iPhone manifest, so the panel claimed a 9-part "Handset A" was the solver
+    geometry. One of them was wrong and it was not the solver.
+    """
+    ids = [b for b in bands.split(",") if b]
+    if bad := bands_mod.unknown(ids):
+        raise HTTPException(400, f"unknown bands {bad}")
+    spec = default_spec(ids).model_copy(
+        update={"requirements": bands_mod.requirements_for(ids)})
+    anchors, source = anchors_for(spec, ids)
+    return {"spec": spec.model_dump(),
+            "anchors": [a.model_dump() for a in anchors],
+            "anchor_source": source}
+
+
 @router.get("/devices")
 async def list_devices() -> list[dict]:
     return [{"device_id": d.id, "name": d.name, "status": d.status}
@@ -95,6 +116,9 @@ class CreateRun(BaseModel):
     # agent: Devin reads the .blend itself (skill), backend result is the
     # cross-check/fallback. backend: spec is final before the session starts.
     extract: str | None = None    # default from EXTRACT_MODE env, else "agent"
+    # Render this run's own placement maps, x-ray, S11 and field animation
+    # once it concludes, instead of shipping a demo run's pictures.
+    media: bool = False
 
 
 @router.post("/runs")
@@ -109,14 +133,23 @@ async def create_run(body: CreateRun) -> dict:
             raise HTTPException(400, f"unknown bands {bad}; have {sorted(bands.CATALOG)}")
         spec = device.spec.model_copy(
             update={"requirements": bands.requirements_for(body.bands)})
-        anchors = device.anchors
+        anchors, anchor_source = await asyncio.to_thread(anchors_for, spec, body.bands)
+        if not anchors:
+            anchors, anchor_source = device.anchors, "device"
         mode = body.extract or os.environ.get("EXTRACT_MODE", "agent")
     else:
         if bad := bands.unknown(body.bands):
             raise HTTPException(400, f"unknown bands {bad}; have {sorted(bands.CATALOG)}")
         spec = default_spec(body.bands).model_copy(
             update={"requirements": bands.requirements_for(body.bands)})
-        device, mode, anchors = None, "backend", make_anchors(spec)
+        # Where the agent is allowed to put an antenna. Derived by sweeping
+        # this device's real internals, not from a lattice on its bounding box
+        # — otherwise every phone of the same outside size gets the same
+        # placements, which is the opposite of what this tool claims to do.
+        # The first scan of a device+band costs ~5 s and is cached after; it
+        # goes to a thread so it cannot stall the event loop.
+        anchors, anchor_source = await asyncio.to_thread(anchors_for, spec, body.bands)
+        device, mode = None, "backend"
     if mode not in ("agent", "backend"):
         raise HTTPException(400, "extract must be 'agent' or 'backend'")
 
@@ -146,11 +179,11 @@ async def create_run(body: CreateRun) -> dict:
     run = Run(id=f"run_{secrets.token_hex(4)}", prompt=body.prompt,
               band_ids=body.bands, spec=spec, anchors=anchors, device=device,
               extract_mode=mode, ambiguities=list(device.ambiguities) if device else [],
-              spec_source="backend" if device else "canned")
+              spec_source="backend" if device else "canned", media=body.media)
     store.put(run)
     run.task = asyncio.create_task(orchestrator.drive(run, agent))
     return {"run_id": run.id, "device_id": device.id if device else None,
-            "extract_mode": mode}
+            "extract_mode": mode, "anchor_source": anchor_source}
 
 
 @router.get("/runs")
@@ -194,6 +227,20 @@ async def run_artifact(run_id: str, name: str) -> Response:
     return Response(content=body, media_type=media)
 
 
+@router.get("/runs/{run_id}/media/{name}")
+async def run_media(run_id: str, name: str) -> FileResponse:
+    """Serve one rendered artifact. `artifact_path` refuses anything that
+    resolves outside the run's own media directory."""
+    from app.runs import media as media_mod
+
+    p = media_mod.artifact_path(run_id, name)
+    if p is None:
+        raise HTTPException(404, "no such media artifact")
+    kind = {".png": "image/png", ".gif": "image/gif",
+            ".mp4": "video/mp4"}.get(p.suffix, "application/octet-stream")
+    return FileResponse(p, media_type=kind, filename=p.name)
+
+
 @router.get("/runs/{run_id}")
 async def get_run(run_id: str) -> dict:
     run = store.get(run_id)
@@ -209,6 +256,8 @@ async def get_run(run_id: str) -> dict:
         "spec_source": run.spec_source,
         "ambiguities": run.ambiguities,
         "artifacts": report.artifact_names(run),
+        "media": run.media_artifacts,
+        "media_requested": run.media,
         "n_events": len(run.log.events),
         "spec": run.spec.model_dump(),
         "anchors": [a.model_dump() for a in run.anchors],

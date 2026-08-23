@@ -272,6 +272,8 @@ export function AgentPanel() {
   const prompt = useApp((s) => s.prompt);
   const setPrompt = useApp((s) => s.setPrompt);
   const startRun = useApp((s) => s.startRun);
+  const wantMedia = useApp((s) => s.wantMedia);
+  const setWantMedia = useApp((s) => s.setWantMedia);
   const poll = useApp((s) => s.poll);
   const running = useApp((s) => s.running);
   const planning = useApp((s) => s.planning);
@@ -292,11 +294,17 @@ export function AgentPanel() {
   const [elapsed, setElapsed] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
 
+  // The study finishing is not the end of the run: the evidence renders after
+  // run_finished so it can never gate the result, which means `running` goes
+  // false while artifacts are still landing. Keep polling — more slowly — until
+  // the media stage is done too, or the gallery stays empty forever.
+  const stage = useApp((s) => s.stage);
+  const rendering = stage === "media";
   useEffect(() => {
-    if (!running || !runId) return;
-    const t = setInterval(() => void poll(), 600);
+    if (!runId || (!running && !rendering)) return;
+    const t = setInterval(() => void poll(), running ? 600 : 2000);
     return () => clearInterval(t);
-  }, [running, runId, poll]);
+  }, [running, rendering, runId, poll]);
 
   // Devin runs for minutes: a clock is the difference between "working" and
   // "stuck". It freezes where the run ended.
@@ -512,6 +520,43 @@ export function AgentPanel() {
                 bands enabled on the device.
               </p>
             )}
+
+            {/* The study answers "where"; this decides whether it also draws
+                the answer. Kept beside the spec because it is part of what you
+                are asking for, and it costs seconds the run has already spent
+                by the time it matters. */}
+            <label
+              className={`mt-4 flex cursor-pointer gap-2.5 rounded-md border px-3 py-2.5 transition ${
+                wantMedia ? "border-ink-600 bg-ink-850" : "border-ink-800 hover:bg-ink-900"
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={wantMedia}
+                disabled={running}
+                onChange={(e) => setWantMedia(e.target.checked)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className={`mt-px flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent ${
+                  wantMedia ? "border-accent bg-accent" : "border-ink-600"
+                }`}
+              >
+                {wantMedia && (
+                  <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-ink-950" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M1.5 5.2l2.2 2.2L8.5 2.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <span className="min-w-0">
+                <span className="text-[12px] font-medium text-fg">Render evidence</span>
+                <span className="mt-0.5 block text-[11px] leading-5 text-fg-muted">
+                  Draw a placement map for each band, the winner inside the mesh, its response,
+                  and the field leaving it — for this device, after the study concludes.
+                </span>
+              </span>
+            </label>
 
             <div className="mt-3 flex items-center gap-3">
               <button

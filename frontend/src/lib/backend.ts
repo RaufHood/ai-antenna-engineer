@@ -50,10 +50,23 @@ export interface RunSnapshot {
    *  because the real one died. Shown, never hidden. */
   agentFellBack: boolean;
   tapeOtherDevice: boolean;
+  media: MediaArtifact[];
+  /** Backend pipeline stage: ingest | spec | agent_loop | report | media. */
+  stage: string;
 }
 
 export const BACKEND_URL =
   process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
+
+/** One rendered artifact: a placement map, an x-ray, an S11 plot, a field clip. */
+export interface MediaArtifact {
+  name: string;
+  kind: "image" | "animation";
+  title: string;
+  caption: string;
+  /** Proxied through Next: the browser never reaches the backend directly. */
+  url: string;
+}
 
 export type AgentKind = "devin" | "replay" | "mock";
 
@@ -75,6 +88,9 @@ export type BackendRun = {
   spec_source: string;
   ambiguities: unknown[];
   artifacts: string[];
+  /** Rendered evidence, appended as each render lands after the run ends. */
+  media?: Omit<MediaArtifact, "url">[] & { url?: string }[];
+  media_requested?: boolean;
   n_events: number;
   spec: BackendSpec;
   anchors: Anchor[];
@@ -175,8 +191,9 @@ export async function createBackendRun(
   bands: string[],
   agent: AgentKind = AGENT,
   deviceId: string | null = null,
+  media = false,
 ): Promise<string> {
-  const body = JSON.stringify({ prompt, bands, agent, device_id: deviceId });
+  const body = JSON.stringify({ prompt, bands, agent, device_id: deviceId, media });
   const out = await call<{ run_id: string }>("/runs", { method: "POST", body });
   return out.run_id;
 }
@@ -469,6 +486,7 @@ export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot
     done: run.status !== "running",
     planning: run.status === "running" && candidates.length === 0,
     status: run.status,
+    stage: run.stage,
     engine: "PyNEC",
     // The orchestrator restarts a dead agent channel on the built-in heuristic
     // so a demo always ends with a result, and marks the run
@@ -480,6 +498,12 @@ export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot
     // solves below are live against the device actually loaded, but the words
     // are the recording's — say which phone they were about.
     tapeOtherDevice: run.spec_source.includes("tape-other-device"),
+    // The backend hands back its own paths; rewrite them onto the Next proxy
+    // so the browser can actually load them.
+    media: (run.media ?? []).map((m) => ({
+      ...m,
+      url: `/api/media/${encodeURIComponent(run.run_id)}/${encodeURIComponent(m.name)}`,
+    })),
     jobs,
     results,
     candidates,

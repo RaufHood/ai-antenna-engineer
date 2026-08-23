@@ -2,7 +2,7 @@
  * Run endpoint — a thin proxy to the backend. The browser never talks to
  * port 8000 directly; `BACKEND_URL` is server-side.
  *
- *   POST  {prompt, bands, agent?, deviceId?}  -> {runId, agent}
+ *   POST  {prompt, bands, agent?, deviceId?, media?}  -> {runId, agent}
  *   GET   ?runId=                             -> RunSnapshot
  *   GET   ?runId=&artifact=report.md          -> the agent's report, as text
  *   PATCH {runId, text}                       -> mid-run note for the agent
@@ -14,6 +14,7 @@ import { NextResponse } from "next/server";
 
 import {
   AGENT,
+  type AgentKind,
   BACKEND_URL,
   createBackendRun,
   postBackendMessage,
@@ -44,11 +45,18 @@ export async function POST(req: Request) {
   if (!bands.length) {
     return NextResponse.json({ error: "no bands selected" }, { status: 400 });
   }
-  const agent = body.agent === "devin" ? "devin" : body.agent === "mock" ? "mock" : AGENT;
+  // "replay" used to fall through this ladder to AGENT, so picking the
+  // recorded Devin run in the UI silently started the heuristic instead —
+  // the one substitution this app must never make quietly.
+  const agent: AgentKind =
+    body.agent === "devin" || body.agent === "mock" || body.agent === "replay"
+      ? body.agent
+      : AGENT;
   const deviceId: string | null = typeof body.deviceId === "string" ? body.deviceId : null;
+  const media: boolean = body.media === true;
 
   try {
-    const runId = await createBackendRun(prompt, bands, agent, deviceId);
+    const runId = await createBackendRun(prompt, bands, agent, deviceId, media);
     return NextResponse.json({ runId, agent });
   } catch (err) {
     return fail(err);

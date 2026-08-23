@@ -3,8 +3,9 @@
     from rf.viz.anim_field import render_field_animation
     render_field_animation(load_run("runs/demo"), "runs/demo/media/field.gif")
 
-Reads run['field_h5'] (openEMS layout: /FieldData/TD/<8-digit-step> arrays of
-shape (3, nz, ny, nx), /Mesh/x|y|z in metres) and renders |E| on the z-slice
+Reads run['field_h5'] (/FieldData/TD/<8-digit-step> field arrays plus
+/Mesh/x|y|z in metres; the spatial axis order varies, so it is recovered by
+matching axis lengths against the mesh rather than assumed) and renders |E| on the z-slice
 as a GIF (plus an .mp4 next to it when ffmpeg is on PATH).
 
 Two deliberate correctness choices over the old debug plot:
@@ -22,7 +23,7 @@ from pathlib import Path
 import numpy as np
 
 from ..models import IFA_ARM_WIDTH_MM
-from .theme import FG, GRID, PALETTE, apply_theme
+from .theme import FG, GRID, PALETTE, apply_theme, cm_text
 
 # Layout constants (inches / figure fractions) -- geometry, not style.
 _FIGSIZE = (6.6, 9.2)
@@ -60,9 +61,33 @@ def _read_field_frames(h5_path, max_frames: int) -> dict | None:
         have_time = True
         for k in keys:
             ds = td[k]
-            arr = np.asarray(ds)                              # (3, nz, ny, nx)
-            comp = arr[:, iz].astype(np.float64)              # (3, ny, nx)
-            mags.append(np.sqrt((comp ** 2).sum(axis=0)))
+            arr = np.asarray(ds)
+            # openEMS does not guarantee the spatial axis order, and it is not
+            # the one this reader used to assume: a phone-sized dump comes back
+            # (3, nx, ny, nz), the reverse of the (3, nz, ny, nx) that a wide
+            # flat demo board happened to look like. Guessing gave a (24, 1)
+            # slab against a 17-point x axis and pcolormesh refused it.
+            #
+            # The dump writes its own sub-sampled mesh alongside the data, so
+            # the axis lengths identify the axes outright. Match z first: the
+            # dump is a plane, so its z axis is the degenerate one and unique.
+            # x before y afterwards makes openEMS's own (x, y, z) order the
+            # tie-break if a square dump ever makes the two ambiguous.
+            used: set[int] = set()
+            axis: dict[str, int] = {}
+            for name, n in (("z", len(z_mm)), ("x", len(x_mm)), ("y", len(y_mm))):
+                for i, d in enumerate(arr.shape[1:]):
+                    if d == n and i not in used:
+                        axis[name] = i
+                        used.add(i)
+                        break
+            if len(axis) < 3:
+                raise ValueError(
+                    f"field dump {arr.shape[1:]} does not match its mesh "
+                    f"(x={len(x_mm)}, y={len(y_mm)}, z={len(z_mm)})")
+            comp = np.moveaxis(arr, [1 + axis["z"], 1 + axis["y"], 1 + axis["x"]],
+                               [1, 2, 3]).astype(np.float64)   # (3, nz, ny, nx)
+            mags.append(np.sqrt((comp[:, iz] ** 2).sum(axis=0)))   # (ny, nx)
             steps.append(int(k))
             t = ds.attrs.get("time")                          # openEMS may stamp it
             if t is None:
@@ -328,7 +353,7 @@ def render_field_animation(run: dict, out_gif: str, max_frames: int = 64,
     ant = candidate.get("antenna_type") or "Antenna"
     cid = candidate.get("candidate_id") or "?"
     fig.text(0.5, 0.968,
-             f"{ant} {cid} - transient $|E|$, z = {data['z_mm']:.2f} mm slice",
+             f"{ant} {cm_text(cid)} - transient $|E|$, z = {data['z_mm']:.2f} mm slice",
              ha="center", va="top", fontsize=14)
     f_lo, f_hi = band.get("f_low_ghz"), band.get("f_high_ghz")
     if f_lo is not None and f_hi is not None:

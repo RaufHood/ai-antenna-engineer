@@ -244,7 +244,10 @@ async def _solve_field(media_dir: Path, config: dict) -> bool:
     if py is None:
         return False
     cfg = dict(config)
-    cfg["sim"] = {**cfg.get("sim", {}), "dump_fields": True, "mesh_res": "coarse"}
+    # "coarse" is lambda/10 at f_high — 12 mm cells at 2.4 GHz, which is wider
+    # than the phone is thick. The field dump then comes back one cell deep and
+    # the animation has nothing to draw. "fine" (lambda/20) resolves the slice.
+    cfg["sim"] = {**cfg.get("sim", {}), "dump_fields": True, "mesh_res": "fine"}
     cfg_path = media_dir / "field_config.json"
     cfg_path.write_text(json.dumps(cfg))
 

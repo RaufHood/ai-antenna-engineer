@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 
 from .placement3d import build_scene
-from .theme import FG, apply_theme
+from .theme import FG, apply_theme, cm_text
 
 # Layout constants -- geometry, not style.
 _FIGSIZE = (9.8, 8.0)
@@ -60,7 +60,7 @@ def render_orbit(run: dict, out_gif: str, seconds: float = 8, fps: int = 15,
         ax.text2D(0.012, 1.018, f"{n_parts} parts", transform=ax.transAxes,
                   ha="left", va="top", fontsize=10, color=FG, alpha=0.6)
     # Fixed dim caption, bottom-centre: what device, which candidate.
-    fig.text(0.5, 0.015, f"{name} - candidate {cid}", ha="center",
+    fig.text(0.5, 0.015, f"{name} - candidate {cm_text(cid)}", ha="center",
              va="bottom", fontsize=10.5, color=FG, alpha=0.55)
     if "DEMO" in (result.get("notes") or "").upper():
         fig.text(0.015, 0.012, "demo data", ha="left", va="bottom",

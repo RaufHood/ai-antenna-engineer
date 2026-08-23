@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { rankKey, reasonFor, verdictOf } from "@/lib/evidence";
 import { useApp } from "@/lib/store";
 import type { Anchor, BandRequirement, Candidate, SimResult } from "@/lib/types";
+import { EvidenceGallery } from "./EvidenceGallery";
 import { Markdown } from "./Markdown";
 import { S11Chart } from "./S11Chart";
 import { BandCoverage } from "./SpectrumStrip";
@@ -173,10 +174,13 @@ function ReportView() {
 }
 
 export function ResultsDock() {
-  const [tab, setTab] = useState<"results" | "report">("results");
+  const [tab, setTab] = useState<"results" | "report" | "evidence">("results");
   const candidates = useApp((s) => s.candidates);
   const report = useApp((s) => s.report);
   const running = useApp((s) => s.running);
+  const media = useApp((s) => s.media);
+  const stage = useApp((s) => s.stage);
+  const wantMedia = useApp((s) => s.wantMedia);
 
   if (!candidates.length) {
     return (
@@ -188,16 +192,22 @@ export function ResultsDock() {
     );
   }
 
-  const showing = report ? tab : "results";
+  // A tab only exists once it has something behind it, so the strip never
+  // offers a dead end.
+  const hasEvidence = media.length > 0 || stage === "media" || wantMedia;
+  const tabs = (
+    ["results", ...(report ? ["report"] : []), ...(hasEvidence ? ["evidence"] : [])] as const
+  ) as readonly ("results" | "report" | "evidence")[];
+  const showing = tabs.includes(tab) ? tab : "results";
   return (
     <div className="flex h-full min-h-0 flex-col">
       <BandCoverage />
 
       <div className="flex min-h-0 flex-1">
         <div className="flex min-w-0 flex-1 flex-col border-r border-ink-800">
-          {report && (
+          {tabs.length > 1 && (
             <div className="flex shrink-0 gap-4 border-b border-ink-800 px-4">
-              {(["results", "report"] as const).map((t) => (
+              {tabs.map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -209,17 +219,31 @@ export function ResultsDock() {
                       : "border-transparent text-fg-muted hover:text-fg"
                   }`}
                 >
-                  {t === "results" ? `Candidates (${candidates.length})` : "Report"}
+                  {t === "results"
+                    ? `Candidates (${candidates.length})`
+                    : t === "report"
+                      ? "Report"
+                      : `Evidence${media.length ? ` (${media.length})` : ""}`}
                 </button>
               ))}
             </div>
           )}
-          {showing === "results" ? <CandidateTable /> : <ReportView />}
+          {showing === "results" ? (
+            <CandidateTable />
+          ) : showing === "report" ? (
+            <ReportView />
+          ) : (
+            <EvidenceGallery />
+          )}
         </div>
 
-        <aside className="w-[380px] shrink-0">
-          <S11Chart />
-        </aside>
+        {/* The sweep belongs beside the table; the gallery is already pictures
+            and wants the width. */}
+        {showing !== "evidence" && (
+          <aside className="w-[380px] shrink-0">
+            <S11Chart />
+          </aside>
+        )}
       </div>
     </div>
   );

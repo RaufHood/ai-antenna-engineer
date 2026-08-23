@@ -312,6 +312,17 @@ function fmtMs(ms: number) {
 
 const ghz = (v: number) => v.toFixed(3);
 
+/** The printed strip rf/placement.py collides against: 1.8 mm wide, 0.9 mm
+ *  proud of the surface. Only its length changes with the band. */
+const ARM_W_MM = 1.8;
+const ARM_H_MM = 0.9;
+const C_MM_GHZ = 299.792458;
+
+/** Quarter wave at the band centre — the arm the solver starts from. */
+function armMm(b: { f_low_ghz: number; f_high_ghz: number }): number {
+  return C_MM_GHZ / ((b.f_low_ghz + b.f_high_ghz) / 2) / 4;
+}
+
 function Req({ label, value }: { label: string; value: string }) {
   return (
     <span className="whitespace-nowrap">
@@ -429,6 +440,18 @@ function TargetBand() {
             <Req label="S11" value={`≤ ${primary.s11_db_max} dB`} />
             <Req label="Efficiency" value={`≥ ${Math.round(primary.efficiency_min * 100)}%`} />
             <Req label="Clearance" value={`≥ ${primary.clearance_mm} mm`} />
+          </div>
+          {/* The band is not just a frequency: it fixes how much room the
+              radiator needs. A quarter wave at 850 MHz is 87 mm of arm in a
+              147 mm phone; at 5 GHz it is 13 mm. That is why the legal region
+              and the placement map differ per band, and why the same device
+              can host one antenna and refuse another. */}
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <Req
+              label="Radiator"
+              value={`${armMm(primary).toFixed(0)} × ${ARM_W_MM} × ${ARM_H_MM} mm`}
+            />
+            <Req label="Type" value={(primary.antenna_types ?? ["IFA"]).join(" / ")} />
           </div>
           {enabled.length > 1 && (
             <button

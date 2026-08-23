@@ -50,6 +50,7 @@ import os
 import subprocess
 import tempfile
 import time
+from functools import lru_cache
 from pathlib import Path
 
 from app.models import BandRequirement, Candidate, DeviceSpec, S11Point, SimResult
@@ -66,10 +67,32 @@ def _rf_python() -> Path | None:
         p = Path(py)
         return p if p.exists() else None
     for candidate in (REPO_DIR / "rf" / ".venv" / "Scripts" / "python.exe",  # Windows
-                     REPO_DIR / "rf" / ".venv" / "bin" / "python"):          # posix
-        if candidate.exists():
+                     REPO_DIR / "rf" / ".venv" / "bin" / "python",           # posix
+                     # openEMS is built and installed by hand (there is no
+                     # wheel), so the interpreter that has it is often a venv
+                     # beside the checkout rather than inside it. Probe those
+                     # too — but confirm the import instead of trusting the
+                     # path, or a stale venv silently means "no field data".
+                     REPO_DIR.parent / "venv" / "bin" / "python",
+                     REPO_DIR.parent / ".venv" / "bin" / "python"):
+        if candidate.exists() and _can_import_openems(candidate):
             return candidate
     return None
+
+
+@lru_cache(maxsize=8)
+def _can_import_openems(py: Path) -> bool:
+    """Does this interpreter actually have the openEMS bindings?
+
+    Cached: the answer cannot change inside a process, and the check costs a
+    subprocess launch that would otherwise repeat on every solve.
+    """
+    try:
+        r = subprocess.run([str(py), "-c", "import openEMS, CSXCAD"],
+                           capture_output=True, timeout=30)
+        return r.returncode == 0
+    except Exception:
+        return False
 
 
 def build_config(spec: DeviceSpec, band: BandRequirement, cand: Candidate) -> dict:

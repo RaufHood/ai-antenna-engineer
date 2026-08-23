@@ -25,7 +25,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .theme import BG, FG, GRID, PALETTE, apply_theme
+from .theme import BG, FG, GRID, PALETTE, apply_theme, cm_text
 
 # ---------------------------------------------------------------- geometry
 _FIGSIZE = (12.8, 7.2)        # 16:9
@@ -203,7 +203,7 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
              fontsize=17.5, color=FG, ha="left", va="center")
     demo_tag = " | DEMO data" if "DEMO" in (result.get("notes") or "") else ""
     fig.text(0.955, 0.935,
-             f"candidate {cid} | {band_id} | openEMS FDTD{demo_tag}",
+             f"candidate {cm_text(cid)} | {cm_text(band_id)} | openEMS FDTD{demo_tag}",
              fontsize=10.5, color=FG, alpha=0.55, ha="right", va="center")
     fig.add_artist(Line2D([0.045, 0.955], [0.905, 0.905],
                           transform=fig.transFigure, color=GRID, lw=0.8))

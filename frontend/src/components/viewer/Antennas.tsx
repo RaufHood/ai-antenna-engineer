@@ -142,27 +142,15 @@ function AntennaMarker({ cand }: { cand: Candidate }) {
   );
 }
 
-/** Where the agent may place an antenna: the anchor set, shown until it proposes. */
-function AnchorDots() {
-  const anchors = useApp((s) => s.anchors);
-  return (
-    <group>
-      {anchors.map((a) => (
-        <mesh key={a.id} position={toScene(a.pos_mm)}>
-          <sphereGeometry args={[0.022, 12, 12]} />
-          <meshBasicMaterial color="#475569" transparent opacity={0.7} toneMapped={false} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
 export function Antennas() {
   const show = useApp((s) => s.showPins);
-  const hasCandidates = useApp((s) => s.candidates.length > 0);
   const visible = useVisibleCandidates();
   if (!show) return null;
-  if (!hasCandidates) return <AnchorDots />;
+  // Nothing is drawn until the agent has proposed something. The dots that
+  // used to sit here marked the anchor set, and they read as antennas already
+  // placed in a phone nobody had asked about yet — the device is the subject
+  // before a run, and the legal region has a proper home in the placement map,
+  // where it is drawn with its scores instead of as anonymous specks.
   return (
     <group>
       {visible.map((c) => (

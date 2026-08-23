@@ -7,6 +7,7 @@ import { SpecPanel } from "@/components/panels/SpecPanel";
 import { TopBar } from "@/components/panels/TopBar";
 import { Viewport } from "@/components/viewer/Viewport";
 import { useApp } from "@/lib/store";
+import { useEffect } from "react";
 
 /**
  * Three zones, ordered the way the work actually flows: what you asked for,
@@ -21,6 +22,12 @@ import { useApp } from "@/lib/store";
 export default function Home() {
   const hasResults = useApp((s) => Object.keys(s.results).length > 0);
   const running = useApp((s) => s.running);
+  const loadDefaultDevice = useApp((s) => s.loadDefaultDevice);
+
+  // The device the solver will read, adopted before anything is asked of it.
+  useEffect(() => {
+    void loadDefaultDevice();
+  }, [loadDefaultDevice]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-ink-950 text-fg">

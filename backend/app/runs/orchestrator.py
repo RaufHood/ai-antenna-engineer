@@ -409,6 +409,48 @@ async def _finish(run: Run, ranking: list[str], rationale: str,
     run.log.emit("report", EventType.artifact, {
         "name": "report.md", "url": f"/runs/{run.id}/artifacts/report.md"})
 
+    if run.media:
+        await _render_media(run)
+
+
+async def _render_media(run: Run) -> None:
+    """Draw this run's evidence — after run_finished, never before.
+
+    Same contract as _confirm_winner: the study is already complete and
+    reported, so a missing renderer, a missing openEMS or a slow field solve
+    costs the gallery an image, never the run. Each artifact is announced the
+    moment it lands, so the placement maps appear while the field is still
+    solving instead of everything arriving at the end.
+    """
+    from app.runs import media as media_mod
+
+    run.stage = "media"
+    run.log.emit("media", EventType.stage_started,
+                 {"stage": "media", "bands": list(run.band_ids)})
+
+    def announce(art) -> None:
+        item = {"name": art.name, "kind": art.kind, "title": art.title,
+                "caption": art.caption, "url": f"/runs/{run.id}/media/{art.name}"}
+        run.media_artifacts.append(item)
+        run.log.emit("media", EventType.artifact, item)
+
+    try:
+        made = await media_mod.render(run, with_field=True, on_artifact=announce)
+    except Exception as e:
+        run.log.emit("media", EventType.error, {"error": f"media render: {e}"})
+        run.stage = "report"
+        return
+    if not made:
+        run.log.emit("media", EventType.decision, {
+            "decision": "no media rendered — the renderer venv (.venv-viz) or a "
+                        "winning candidate was missing; the study itself is "
+                        "unaffected"})
+    # Leave the media stage explicitly: the UI keeps polling while it is set,
+    # because `running` went false back when the study concluded.
+    run.stage = "report"
+    run.log.emit("report", EventType.decision,
+                 {"decision": f"evidence rendered: {len(made)} artifact(s)"})
+
 
 async def _confirm_winner(run: Run, best: str) -> None:
     """One real-solver confirmation of the agent's already-decided winner

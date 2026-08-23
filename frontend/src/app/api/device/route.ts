@@ -1,7 +1,7 @@
 /**
  * Device endpoint.
  *
- *   GET                      -> the built-in Handset A (spec + anchors), for the viewer's default
+ *   GET [?bands=]            -> the default device the backend will solve (spec + anchors)
  *   POST multipart           -> passthrough to backend POST /devices: .blend (+ materials.json)
  *                               in, spec + anchors + artifact list out, plus a same-origin
  *                               URL for device.glb so the viewer can load it without CORS
@@ -22,7 +22,23 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
   const artifact = url.searchParams.get("artifact");
-  if (!id || !artifact) return NextResponse.json({ spec: phoneV1, anchors });
+  if (!id || !artifact) {
+    // The default device is whatever the backend will actually solve — the
+    // real iPhone manifest when it is present. Returning the built-in slab
+    // here made the panel claim the solver read nine parts while it read 176.
+    const bands = url.searchParams.get("bands") ?? "wifi24";
+    const res = await fetch(
+      `${BACKEND_URL}/default-device?bands=${encodeURIComponent(bands)}`,
+      { cache: "no-store" },
+    ).catch(() => null);
+    if (res?.ok) {
+      const body = (await res.json()) as { spec: unknown; anchors: unknown };
+      return NextResponse.json({ spec: normalizeSpec(body.spec as never), anchors: body.anchors });
+    }
+    // Backend down: the built-in spec is the honest fallback, and the viewer
+    // says which one it is holding.
+    return NextResponse.json({ spec: phoneV1, anchors, fallback: true });
+  }
 
   const res = await fetch(`${BACKEND_URL}/devices/${id}/artifacts/${artifact}`, {
     cache: "no-store",

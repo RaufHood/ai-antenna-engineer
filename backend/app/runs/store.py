@@ -64,6 +64,12 @@ class Run:
     reports: list[IterationReport] = field(default_factory=list)
     final: dict | None = None
     inbox: list[str] = field(default_factory=list)   # user notes for the agent
+    # Render the visual evidence for THIS run after it concludes: the per-band
+    # placement maps, the winner drawn inside the real mesh, its S11, and the
+    # field leaving it. Opt-in because the field animation costs an openEMS
+    # solve; everything cheaper still lands first.
+    media: bool = False
+    media_artifacts: list[dict] = field(default_factory=list)
     finished_at: float | None = None
     log: EventLog = None  # type: ignore[assignment]
     task: asyncio.Task | None = None

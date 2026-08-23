@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .theme import FG, PALETTE, apply_theme
+from .theme import FG, PALETTE, apply_theme, cm_text
 
 # Layout constants (inches / points) — geometry, not style.
 _FIGSIZE = (9.6, 5.6)
@@ -151,7 +151,7 @@ def render_s11(run: dict, out_png: str) -> str:
     ant = candidate.get("antenna_type") or "Antenna"
     cid = candidate.get("candidate_id") or "?"
     hint = (device or {}).get("name") or ""
-    title = f"{ant} candidate {cid}" + (f" - {hint}" if hint else "")
+    title = f"{ant} candidate {cm_text(cid)}" + (f" - {hint}" if hint else "")
     sim = config.get("sim") or {}
     if sim:
         subtitle = (f"openEMS FDTD - {sim.get('mesh_res', '?')} mesh"

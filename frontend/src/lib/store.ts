@@ -16,7 +16,7 @@ export type ViewMode = "system" | "focus";
 // these values. Two copies had already drifted apart ("replay" existed in one
 // and not the other), which the compiler only caught at the call site.
 export type { AgentKind } from "./backend";
-import type { AgentKind } from "./backend";
+import type { AgentKind, MediaArtifact } from "./backend";
 export type Layer = "showKeepouts" | "showPins" | "showLabels";
 
 interface AppState {
@@ -53,6 +53,11 @@ interface AppState {
   /** The real agent died and the heuristic finished the run. Never hide this. */
   agentFellBack: boolean;
   tapeOtherDevice: boolean;
+  /** Render this run's own maps, x-ray and field clip once it concludes. */
+  wantMedia: boolean;
+  media: MediaArtifact[];
+  /** Backend stage — 'media' means the evidence is still rendering. */
+  stage: string;
   error: string | null;
   candidates: Candidate[];
   results: Record<string, SimResult>;
@@ -78,6 +83,9 @@ interface AppState {
   selectCandidate: (id: string | null) => void;
   setPrompt: (p: string) => void;
   setAgent: (a: AgentKind) => void;
+  setWantMedia: (v: boolean) => void;
+  /** Adopt the device the backend will actually solve. Runs once on mount. */
+  loadDefaultDevice: () => Promise<void>;
   startRun: () => Promise<void>;
   /** Mid-run note to the agent. */
   sendNote: (text: string) => Promise<void>;
@@ -94,6 +102,8 @@ const EMPTY_RUN = {
   engine: null,
   agentFellBack: false,
   tapeOtherDevice: false,
+  media: [] as MediaArtifact[],
+  stage: "ingest",
   error: null,
   candidates: [] as Candidate[],
   results: {} as Record<string, SimResult>,
@@ -126,6 +136,10 @@ export const useApp = create<AppState>((set, get) => ({
   prompt:
     "Where should the antennas be placed in this phone? Pick the type, target band and expected performance for each, and respect the keep-out limits.",
   agent: "mock",
+  // On by default: the maps and the field clip are the evidence an RF
+  // engineer would actually hand to a mechanical one, and they cost a few
+  // seconds after the study has already finished and reported.
+  wantMedia: true,
   ...EMPTY_RUN,
 
   setModel: (url, name) => set({ modelUrl: url, modelName: name }),
@@ -199,10 +213,37 @@ export const useApp = create<AppState>((set, get) => ({
   toggle: (key) => set({ [key]: !get()[key] } as Partial<AppState>),
   selectCandidate: (id) => set({ selectedCandidate: id }),
   setPrompt: (p) => set({ prompt: p }),
+  setWantMedia: (v) => set({ wantMedia: v }),
   setAgent: (a) => set({ agent: a }),
 
+  loadDefaultDevice: async () => {
+    // Until this lands the panel shows the built-in spec, which is a different
+    // phone from the one the solver reads. Adopt the real one before the first
+    // run so nothing on screen describes geometry nobody is solving.
+    if (get().deviceId) return;                 // an uploaded device wins
+    try {
+      const bands = get().enabledBands.join(",");
+      const res = await fetch(`/api/device?bands=${encodeURIComponent(bands)}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const body = await res.json();
+      if (body.fallback || !body.spec) return;  // backend down; keep the built-in
+      const spec: DeviceSpec = body.spec;
+      set({
+        spec,
+        anchors: body.anchors ?? get().anchors,
+        enabledBands: get().enabledBands.filter((id) =>
+          spec.requirements.bands.some((b) => b.id === id),
+        ),
+      });
+    } catch {
+      /* offline: the built-in spec stays, and the panel says which it is */
+    }
+  },
+
   startRun: async () => {
-    const { enabledBands, prompt, agent, deviceId } = get();
+    const { enabledBands, prompt, agent, deviceId, wantMedia } = get();
     if (!enabledBands.length) {
       set({ error: "Select at least one band before running." });
       return;
@@ -217,7 +258,7 @@ export const useApp = create<AppState>((set, get) => ({
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt, bands: enabledBands, agent, deviceId }),
+        body: JSON.stringify({ prompt, bands: enabledBands, agent, deviceId, media: wantMedia }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "run failed");
       const { runId } = await res.json();
@@ -269,6 +310,8 @@ export const useApp = create<AppState>((set, get) => ({
       engine: snap.engine ?? get().engine,
       agentFellBack: !!snap.agentFellBack,
       tapeOtherDevice: !!snap.tapeOtherDevice,
+      media: snap.media ?? [],
+      stage: snap.stage ?? "ingest",
       messages: [...(userMsg ? [userMsg] : []), ...(snap.messages ?? [])],
       error: snap.status === "failed" ? "run failed — see the agent feed" : get().error,
       selectedCandidate:

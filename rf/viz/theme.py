@@ -81,3 +81,13 @@ def part_color(material_key: str) -> str:
     if any(m in k for m in ("alumin", "copper", "steel", "titan", "gold", "metal")):
         return PALETTE["metal"]
     return PALETTE["dielectric"]
+
+def cm_text(s: str) -> str:
+    """Make a string safe to draw in Computer Modern.
+
+    cmr10 is an OT1-encoded TeX text font: codepoint 0x5F is the dot accent,
+    not an underscore. So `c004_ifa_e_t1` renders as `c004˙ifa˙e˙t1` in
+    every figure that shows an identifier. Nothing in these labels needs a
+    literal underscore, so trade it for the space it was standing in for.
+    """
+    return s.replace("__", " - ").replace("_", " ")
