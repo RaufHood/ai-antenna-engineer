@@ -1,0 +1,18 @@
+i was sleeping from around 2 am german time , update me on what my teammates didi until nwo while i was not there
+
+---
+
+okay, now we have the credits, but jsut start the agent for now, iwa nt to test it. and first sync origin again
+
+---
+
+<!-- attach -->
+> Unrelated to the test, still outstanding from the night: 597 skill files (.agents/, .github/, .gemini/, .cursor/) swept into a1c11e0 by a git add -A. Still in dev.
+
+waht about htem , explain
+
+---
+
+2 things, can you check if that repo contains any pitchdeck some where, my team mate added it and doenst know where it is
+
+and feel free to delete and untrack anything if you are sure it wont hurt anything
