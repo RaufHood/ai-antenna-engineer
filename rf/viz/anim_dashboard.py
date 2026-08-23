@@ -11,7 +11,8 @@ One dark 16:9 card, three zones:
          count up and settle once the cursor passes resonance; each tile's
          border flips to PALETTE good/bad against its target.
 - BOTTOM a fact ticker fading through real project milestones.
-- END    a PASS/FAIL stamp from result.meets_requirements, then a hold.
+- END    a hold on the settled tiles; the verdict is each tile's border
+         against its own target, not a stamp over the measurements.
 
 Always writes the GIF; writes an H.264 MP4 twin when ffmpeg is on PATH.
 Styling comes exclusively from rf.viz.theme (dark, Computer Modern).
@@ -44,8 +45,6 @@ _TILE_STAGGER = 0.18          # per-tile count-up offset after resonance
 _TILE_RAMP = 1.1              # count-up duration per tile
 _FACT_DUR = 2.1               # seconds per ticker fact (fade in/out inside)
 _FACT_FADE = 0.42
-_T_STAMP = 10.55              # PASS/FAIL stamp entrance
-_STAMP_RAMP = 0.45
 
 # Real project facts (verbatim numbers from rf/progress_simulation.md);
 # symbols are typeset with mathtext because cmr10's OT1 layout has no
@@ -290,19 +289,11 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
     ticker = axt.text(0.5, 0.5, "", ha="center", va="center",
                       fontsize=13, color=FG, alpha=0.0)
 
-    # END: verdict stamp --------------------------------------------------------
-    verdict = "PASS" if meets else "FAIL"
-    v_color = PALETTE["good"] if meets else PALETTE["bad"]
-    overlay = Rectangle((0, 0), 1, 1, transform=fig.transFigure,
-                        facecolor=BG, edgecolor="none", alpha=0.0, zorder=20)
-    fig.add_artist(overlay)
-    stamp = fig.text(0.5, 0.545, verdict, ha="center", va="center",
-                     fontsize=84, color=v_color, alpha=0.0,
-                     rotation=8, zorder=22)
-    stamp_sub = fig.text(0.5, 0.36,
-                         "requirements met" if meets else "requirements not met",
-                         ha="center", va="center", fontsize=15, color=FG,
-                         alpha=0.0, zorder=22)
+    # No verdict stamp. A 100 pt PASS across the middle dimmed the response
+    # curve and the tiles behind it — the measurements the panel exists to
+    # show — to announce something they already say: each tile's border is
+    # green or red against its own target, and that is the verdict, per
+    # requirement, without covering the evidence for it.
 
     # ------------------------------------------------------------------ update
     def update(i):
@@ -377,16 +368,6 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
         else:
             ticker.set_alpha(0.0)
 
-        # -- ending: verdict stamp over a dimming overlay
-        if t >= _T_STAMP:
-            u = _ease_out((t - _T_STAMP) / _STAMP_RAMP)
-            overlay.set_alpha(0.55 * u)
-            stamp.set_alpha(u)
-            stamp.set_fontsize(100.0 - 22.0 * u)
-            stamp.set_bbox(dict(boxstyle="round,pad=0.45", facecolor=BG,
-                                edgecolor=v_color, linewidth=3.5,
-                                alpha=0.85 * u))
-            stamp_sub.set_alpha(0.8 * u)
         return []
 
     anim = FuncAnimation(fig, update, frames=n_frames, interval=1000.0 / fps)
