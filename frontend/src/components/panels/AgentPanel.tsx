@@ -591,7 +591,9 @@ export function AgentPanel() {
       <div ref={feedRef} className="min-h-0 flex-1 overflow-y-auto">
         {specOpen && (
           <div className={`px-5 pb-5 pt-5 ${started ? "border-b border-ink-800" : ""}`}>
-            <div className="rounded-lg border border-ink-700 bg-ink-900 transition focus-within:border-accent">
+            {/* The box resizes as a whole, so the grip sits at its corner
+                beside Run rather than in the middle above it. */}
+            <div className="flex min-h-[11rem] resize-y flex-col overflow-hidden rounded-lg border border-ink-700 bg-ink-900 transition focus-within:border-accent">
               <textarea
                 id="antenna-spec"
                 aria-label="Antenna spec"
@@ -602,9 +604,9 @@ export function AgentPanel() {
                 }}
                 spellCheck={false}
                 placeholder="2.4 GHz Wi-Fi antenna on the bottom edge. 6 mm clear of the battery, VSWR under 2 in band, efficiency above 55%."
-                className="block min-h-[8.5rem] w-full resize-y bg-transparent px-3.5 py-3 text-[13px] leading-6 text-fg outline-none placeholder:text-fg-faint"
+                className="block min-h-0 w-full flex-1 resize-none bg-transparent px-3.5 py-3 text-[13px] leading-6 text-fg outline-none placeholder:text-fg-faint"
               />
-              <div className="flex items-center gap-2 px-2 pb-2">
+              <div className="flex shrink-0 items-center gap-2 px-2 pb-2">
                 <AgentMenu value={agent} onChange={setAgent} disabled={running} />
                 {started && (
                   <button
