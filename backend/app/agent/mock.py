@@ -235,12 +235,19 @@ class MockAgent:
         out, self._story = self._story, []
         return out
 
+    async def abort(self, reason: str) -> None:
+        return None
+
     async def close(self, reason: str) -> dict | None:
         if not self.last or not self.last.reports:
             return None
         top = self.last.reports[0]
         return {"status": "concluded", "current_best": top.candidate_id,
-                "iterations_done": self.turn,
+                # Iterations SIMULATED, not turns taken. `turn` also counts the
+                # concluding turn, which proposes nothing, so reporting it made
+                # the agent's own report claim one more iteration than the run
+                # header on the same page.
+                "iterations_done": self.last.iteration,
                 "final": {"ranking": [cr.candidate_id for cr in self.last.reports[:3]],
                           "antenna_type": self.cands.get(
                               top.candidate_id.split("__")[0], top).antenna_type

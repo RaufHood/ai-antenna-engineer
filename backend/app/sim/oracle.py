@@ -63,12 +63,18 @@ def _postprocess(cand: Candidate, band: BandRequirement, curve: list[S11Point],
     g_mid = abs((z_mid - Z0) / (z_mid + Z0))
     vswr = (1 + g_mid) / max(1 - g_mid, 1e-6)
 
-    k_res = min(range(len(zs)), key=lambda k: abs(zs[k].imag))
-    resonant = curve[k_res].f_ghz
-    s11_min = min(p.s11_db for p in curve)
+    # f0 is where the match is deepest, not where Im(Z) crosses zero. For an
+    # IFA fed off-centre the two sit a grid step or more apart, and reporting
+    # the zero-reactance point put f0 at 2.499 GHz on a design whose S11 dip
+    # was dead centre at 2.442: the UI said "resonance 16 MHz high", the hint
+    # told the agent to lengthen the element, and lengthening it pushed the
+    # dip out of the band. The openEMS path (rf/postprocess.py) and report.md
+    # ("S11 minimum at f0") already mean the dip; this now agrees with them.
+    k_min = min(range(len(curve)), key=lambda k: curve[k].s11_db)
+    resonant = curve[k_min].f_ghz
+    s11_min = curve[k_min].s11_db
 
     # -6 dB bandwidth around the S11 minimum (contiguous)
-    k_min = min(range(len(curve)), key=lambda k: curve[k].s11_db)
     lo = hi = k_min
     if curve[k_min].s11_db <= -6.0:
         while lo > 0 and curve[lo - 1].s11_db <= -6.0:

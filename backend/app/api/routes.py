@@ -243,6 +243,28 @@ async def post_message(run_id: str, body: UserMessage) -> dict:
     return {"queued": len(run.inbox), "seq": ev.seq}
 
 
+@router.post("/runs/{run_id}/stop")
+async def stop_run(run_id: str) -> dict:
+    """Stop a run for real: cancel the orchestrator task, which terminates
+    the agent session (Devin: DELETE the session) and records the run as
+    `stopped` with whatever was simulated so far. Also cuts short the
+    evidence render of a run that has already concluded. Idempotent."""
+    run = store.get(run_id)
+    if run is None:
+        raise HTTPException(404, "unknown run")
+    task = run.task
+    if task is None or task.done():
+        return {"status": run.status, "stopped": False}
+    task.cancel()
+    try:
+        await asyncio.wait_for(asyncio.shield(task), 45.0)
+    except (asyncio.TimeoutError, asyncio.CancelledError):
+        pass
+    except Exception:
+        pass
+    return {"status": run.status, "stopped": True}
+
+
 @router.get("/runs/{run_id}/artifacts/{name}")
 async def run_artifact(run_id: str, name: str) -> Response:
     run = store.get(run_id)

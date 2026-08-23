@@ -41,14 +41,20 @@ CONFIRM_SOLVER = os.environ.get("CONFIRM_SOLVER")
 async def drive(run: Run, agent: AgentPort) -> None:
     try:
         await _drive(run, agent)
+    except asyncio.CancelledError:
+        # The user pressed Stop (routes: POST /runs/{id}/stop cancels this
+        # task). Not an error and not a conclusion: record what was simulated,
+        # say it was stopped, and kill the agent session so it stops spending.
+        await _stop(run, agent)
     except Exception as e:
-        run.log.emit(run.stage, EventType.error, {"error": str(e)})
+        detail = str(e) or type(e).__name__     # httpx timeouts stringify to ""
+        run.log.emit(run.stage, EventType.error, {"error": detail})
         ranking = _best_ranking(run)
         if ranking:
             # never fail empty: agent-channel death degrades to best-so-far
             run.truncated = True
             await _finish(run, ranking,
-                          f"agent channel failed ({e}); best simulated design "
+                          f"agent channel failed ({detail}); best simulated design "
                           f"returned", agent)
             return
         if type(agent).__name__ != "MockAgent":
@@ -56,7 +62,7 @@ async def drive(run: Run, agent: AgentPort) -> None:
             # (DESIGN.md §6.3/§10): the demo always ends with a result
             from app.agent.mock import MockAgent
             run.log.emit(run.stage, EventType.decision, {
-                "decision": f"agent channel failed before any simulation ({e}); "
+                "decision": f"agent channel failed before any simulation ({detail}); "
                             f"falling back to the built-in heuristic agent"})
             run.spec_source += "+mock-fallback"
             try:
@@ -413,6 +419,48 @@ async def _finish(run: Run, ranking: list[str], rationale: str,
         await _render_media(run)
 
 
+async def _stop(run: Run, agent: AgentPort) -> None:
+    reason = "stopped by user"
+    if run.status == "running":
+        ranking = _best_ranking(run)
+        best = ranking[0] if ranking else None
+        run.status = "stopped"
+        run.truncated = True
+        run.finished_at = time.time()
+        run.final = {
+            "status": "stopped",
+            "ranking": ranking,
+            "rationale": reason + (" — best simulated design so far listed, "
+                                   "not a recommendation" if best else
+                                   " before anything was simulated"),
+            "truncated": True,
+            "best": run.results[best].model_dump() if best else None,
+            "best_candidate": run.candidates[best].model_dump() if best else None,
+            "iterations": run.iteration,
+            "total_sims": len(run.results),
+            "spec_source": run.spec_source,
+        }
+        run.log.emit(run.stage, EventType.decision, {
+            "decision": "stopped",
+            "rationale": f"{reason} during {run.stage}; the agent session is "
+                         f"being terminated"})
+        run.stage = "report"
+        run.log.emit("report", EventType.run_finished, run.final)
+    else:
+        # Already concluded; what got cut short was the closing report or the
+        # evidence render. The result stands.
+        run.log.emit(run.stage, EventType.decision, {
+            "decision": "stopped",
+            "rationale": f"{reason} during {run.stage}; the study had already "
+                         f"concluded and its result stands"})
+        run.stage = "report"
+    try:
+        await asyncio.wait_for(agent.abort(reason), 30.0)
+    except Exception as e:
+        run.log.emit("report", EventType.error, {"error": f"agent abort: {e}"})
+    await _narrate(run, agent)
+
+
 async def _render_media(run: Run) -> None:
     """Draw this run's evidence — after run_finished, never before.
 
@@ -428,6 +476,22 @@ async def _render_media(run: Run) -> None:
     run.log.emit("media", EventType.stage_started,
                  {"stage": "media", "bands": list(run.band_ids)})
 
+    # Say which precondition is missing rather than listing both: an empty
+    # gallery with a vague excuse reads like a bug, a named one reads like a
+    # setup step.
+    if media_mod._viz_python() is None:
+        run.log.emit("media", EventType.decision, {
+            "decision": "no evidence rendered — this machine has no renderer "
+                        "interpreter (.venv-viz at the repo root, or VIZ_PYTHON); "
+                        "see rf/README.md. The study itself is unaffected"})
+        run.stage = "report"
+        return
+    if not (run.final or {}).get("ranking"):
+        run.log.emit("media", EventType.decision, {
+            "decision": "no evidence rendered — no simulated design to draw"})
+        run.stage = "report"
+        return
+
     def announce(art) -> None:
         item = {"name": art.name, "kind": art.kind, "title": art.title,
                 "caption": art.caption, "band_id": art.band_id,
@@ -441,16 +505,13 @@ async def _render_media(run: Run) -> None:
         run.log.emit("media", EventType.error, {"error": f"media render: {e}"})
         run.stage = "report"
         return
-    if not made:
-        run.log.emit("media", EventType.decision, {
-            "decision": "no media rendered — the renderer venv (.venv-viz) or a "
-                        "winning candidate was missing; the study itself is "
-                        "unaffected"})
     # Leave the media stage explicitly: the UI keeps polling while it is set,
     # because `running` went false back when the study concluded.
     run.stage = "report"
-    run.log.emit("report", EventType.decision,
-                 {"decision": f"evidence rendered: {len(made)} artifact(s)"})
+    run.log.emit("report", EventType.decision, {
+        "decision": f"evidence rendered: {len(made)} artifact(s)" if made else
+                    "no evidence rendered — the renderer produced no files; "
+                    "its errors are in the backend log"})
 
 
 async def _confirm_winner(run: Run, best: str) -> None:

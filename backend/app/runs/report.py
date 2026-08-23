@@ -51,6 +51,32 @@ def run_json(run: Run) -> dict:
     }
 
 
+def _worst_in_band(r, band) -> float:
+    """The S11 the requirement is judged on: worst point inside the band."""
+    pts = [p.s11_db for p in r.s11_curve
+           if band.f_low_ghz <= p.f_ghz <= band.f_high_ghz]
+    return max(pts) if pts else r.s11_min_db
+
+
+def _best_for_band(run: Run, band_id: str):
+    """(candidate_id, result) for this band's best complete solve, or (None, None).
+    Prefers a design that meets the requirements, then depth of in-band match."""
+    band = next((b for b in run.spec.requirements.bands if b.id == band_id), None)
+    best = (None, None)
+    best_key = None
+    for cid, c in run.candidates.items():
+        if c.band_id != band_id:
+            continue
+        r = run.results.get(cid)
+        if r is None or r.status != "complete":
+            continue
+        key = (1 if r.meets_requirements else 0,
+               -(_worst_in_band(r, band) if band else r.s11_min_db))
+        if best_key is None or key > best_key:
+            best_key, best = key, (cid, r)
+    return best
+
+
 def markdown(run: Run) -> str:
     spec, f = run.spec, run.final or {}
     bands = [b for b in spec.requirements.bands if b.id in run.band_ids]
@@ -65,6 +91,31 @@ def markdown(run: Run) -> str:
         out.append(f"- **{b.name}** ({b.f_low_ghz}–{b.f_high_ghz} GHz): S11 ≤ {b.s11_db_max} dB, "
                    f"efficiency ≥ {b.efficiency_min}, clearance ≥ {b.clearance_mm} mm, "
                    f"VSWR ≤ {spec.requirements.vswr_max}")
+    # Per-band verdict, ALWAYS, before the single recommendation below.
+    # A multi-band run recommends one antenna; without this the report listed
+    # two required bands, recommended a 5 GHz monopole and said "meets
+    # requirements: yes", never mentioning that 2.4 GHz was left without a
+    # working design. The reader has to be told which of the bands they asked
+    # for actually came out with one.
+    if len(bands) > 1:
+        out += ["", "## Per-band outcome", "",
+                "| Band | Best design | In-band S11 | Verdict |", "|---|---|---|---|"]
+        for b in bands:
+            best_cid, best_r = _best_for_band(run, b.id)
+            if best_r is None:
+                out.append(f"| **{b.name}** | — | — | **no simulated design** |")
+                continue
+            worst = _worst_in_band(best_r, b)
+            ok = best_r.meets_requirements
+            out.append(
+                f"| **{b.name}** | `{best_cid}` | {worst:.1f} dB "
+                f"(target {b.s11_db_max}) | **{'met' if ok else 'NOT met'}** |")
+        unmet = [b.name for b in bands
+                 if (lambda r: r is None or not r.meets_requirements)(_best_for_band(run, b.id)[1])]
+        out += ["", (f"**{len(bands) - len(unmet)} of {len(bands)} bands have a design that "
+                     f"meets the requirements.**"
+                     + (f" Still unmet: {', '.join(unmet)}." if unmet else "")), ""]
+
     out += ["", "## Recommendation", ""]
     if f.get("best"):
         b, c = f["best"], f["best_candidate"]

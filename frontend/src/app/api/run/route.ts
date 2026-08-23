@@ -6,6 +6,8 @@
  *   GET   ?runId=                             -> RunSnapshot
  *   GET   ?runId=&artifact=report.md          -> the agent's report, as text
  *   PATCH {runId, text}                       -> mid-run note for the agent
+ *   DELETE ?runId=                            -> stop the run (backend cancels the loop and
+ *                                                terminates the agent session)
  *
  * A backend that is down is reported as such (503) — there is no local
  * stand-in, so nothing on screen can be mistaken for a simulation.
@@ -21,6 +23,7 @@ import {
   readBackendLog,
   readBackendReport,
   readBackendRun,
+  stopBackendRun,
   toSnapshot,
 } from "@/lib/backend";
 
@@ -91,6 +94,17 @@ export async function PATCH(req: Request) {
   try {
     await postBackendMessage(runId, text);
     return NextResponse.json({ ok: true });
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  const runId = url.searchParams.get("runId");
+  if (!runId) return NextResponse.json({ error: "runId required" }, { status: 400 });
+  try {
+    return NextResponse.json(await stopBackendRun(runId));
   } catch (err) {
     return fail(err);
   }

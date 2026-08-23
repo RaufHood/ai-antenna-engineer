@@ -116,6 +116,11 @@ class RecordingAgent:
         self._flush()
         return out
 
+    async def abort(self, reason: str) -> None:
+        await self.inner.abort(reason)
+        self.turns.append({"kind": "abort", "reason": reason})
+        self._flush()
+
     # --------------------------------------------------------------------- --
 
     def _flush(self) -> None:
@@ -222,3 +227,6 @@ class ReplayAgent:
     async def close(self, reason: str) -> dict | None:
         turn = self._take("close")
         return turn.get("report") if turn else None
+
+    async def abort(self, reason: str) -> None:
+        return None

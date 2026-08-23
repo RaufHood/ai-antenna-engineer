@@ -55,12 +55,17 @@ Assets: the real iPhone 15 Pro `.blend` + `materials.json` lives on branch
 | POST | `/runs` | `{"device_id"?: str, "prompt": str, "bands": ["wifi24"], "agent": "devin"\|"mock", "extract"?: "agent"\|"backend"}` → `{run_id}`; no `device_id` ⇒ canned spec |
 | GET | `/runs` | list runs |
 | GET | `/runs/{id}` | snapshot: status, stage, spec, anchors, spec_source, ambiguities, candidates, results, final (incl. `agent_report`), artifacts |
+| POST | `/runs/{id}/stop` | stop the run for real: cancels the loop, terminates the agent session (Devin: DELETE), records `status="stopped"` with whatever was simulated. Idempotent |
 | POST | `/runs/{id}/messages` | `{"text": str}` — mid-run user feedback; delivered with the agent's next evidence message, echoed as `agent_message{role: user}` |
 | GET | `/runs/{id}/artifacts/{name}` | `report.md`, `run.json`, `s11_<candidate_id>.csv` |
 | WS | `/runs/{id}/events?since=N` | event stream; replays everything after seq N on (re)connect |
 | GET | `/healthz` | liveness |
 
 Bands: `lte_low gps_l1 wifi24 n78 wifi5` (mirror of the frontend catalogue).
+
+Run status is `running | finished | stopped | failed`; `stopped` is the user
+pressing Stop, and its `run_finished` payload carries `status: "stopped"` with
+the best-so-far ranking, which is evidence, not a recommendation.
 
 Event envelope: `{run_id, seq, ts, stage, type, payload}` with `type` one of
 `stage_started stage_progress agent_message candidates_proposed sim_started

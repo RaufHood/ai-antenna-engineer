@@ -636,6 +636,31 @@ Rule: **always demoable** — every milestone ends in a run that completes.
   (e) Frontend glb: exported with `export_yup=False` in the canonical frame
   so node names and coordinates match `spec.components[].bbox_mm` directly.
 
+- **2026-08-23 (end-to-end test pass)** Driving the whole loop through the UI
+  turned up five things the type-checker could not:
+  (a) **Stop, for real.** `POST /runs/{id}/stop` cancels the orchestrator task;
+  `drive()` catches `CancelledError`, records the run `stopped` (a fourth
+  status) with whatever was simulated, and calls the new `AgentPort.abort()`.
+  `DevinAgent.abort()` DELETEs the session — stopping from the UI must stop
+  the spend, not just the polling.
+  (b) **f0 is the S11 dip, not the reactance zero.** The oracle reported
+  `Im(Z)=0`, which for an off-centre-fed IFA sits a grid step away from the
+  dip: the UI said "resonance 16 MHz high" for a design whose dip was dead
+  centre, and the hint told the agent to lengthen the element — away from the
+  answer. Now agrees with `rf/postprocess.py` and with report.md's own wording.
+  (c) **"Bandwidth covers band" compared widths, not positions** — a 115 MHz
+  window centred 60 MHz below the band passed that line while the line above
+  it failed the same design for in-band S11. Now interval overlap, graded by
+  covered fraction.
+  (d) **The report claimed "meets requirements: yes" for a multi-band run that
+  designed one band.** Added a per-band outcome table before the single
+  recommendation.
+  (e) **A transient network blip killed live runs.** `_request` retried only
+  429, so one dropped poll mid-reasoning ended the run and silently fell back
+  to the heuristic — logged as `error: ""`, because httpx timeouts stringify
+  to nothing. Transport errors now retry with backoff and every error carries
+  a non-empty message.
+
 - **2026-08-22 (build)** M0 shipped; M1 code shipped. Changes while building:
   (a) **Sim demoted to an external boundary** — user direction: sim is another
   teammate's workstream; we integrate via the single `solve()` contract +

@@ -54,3 +54,8 @@ class AgentPort(Protocol):
         """End the session. Returns the agent's own final structured report
         if it produced one (Devin: structured_output), else None."""
         ...
+
+    async def abort(self, reason: str) -> None:
+        """The user pressed Stop. Kill the session now -- no closing message,
+        no waiting for a report, no rate-limit pause. Must not raise."""
+        ...

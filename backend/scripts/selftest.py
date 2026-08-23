@@ -18,7 +18,7 @@ import types
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from app.geometry.spec import make_anchors, phone_v1  # noqa: E402
-from app.models import Candidate, DoneRequest, SimResult, SimulateRequest  # noqa: E402
+from app.models import Candidate, DoneRequest, EventType, SimResult, SimulateRequest  # noqa: E402
 from app.runs import orchestrator, report  # noqa: E402
 from app.runs.store import Run  # noqa: E402
 from app.sim import pool, rf_adapter  # noqa: E402
@@ -120,6 +120,36 @@ class _Noting:
     async def close(self, reason): return {"status": "concluded", "final": {"rationale": "r"}}
 
 
+class _Slow(_Noting):
+    """Simulates once, then thinks forever -- a Devin mid-reasoning."""
+    aborted: str | None = None
+
+    async def next_action(self, rep):
+        if self.n == 0:
+            return await super().next_action(rep)
+        await asyncio.sleep(3600)
+
+    async def abort(self, reason):
+        _Slow.aborted = reason
+
+
+async def test_stop() -> None:
+    spec = phone_v1()
+    run = Run(id="t_stop", prompt="p", band_ids=["wifi24"], spec=spec, anchors=make_anchors(spec))
+    run.task = asyncio.create_task(orchestrator.drive(run, _Slow()))
+    while "x1" not in run.results:          # let the one solve land
+        await asyncio.sleep(0.05)
+    run.task.cancel()
+    await run.task                            # drive() swallows the cancel
+    assert run.status == "stopped" and run.truncated
+    assert run.final["status"] == "stopped" and run.final["ranking"] == ["x1"]
+    assert _Slow.aborted == "stopped by user", _Slow.aborted
+    types = [e.type for e in run.log.events]
+    assert EventType.run_finished in types and types.count(EventType.run_finished) == 1
+    assert "stopped" in report.markdown(run)
+    print("ok  stop mid-reasoning: agent aborted, run recorded as stopped with its one solve")
+
+
 async def test_loop() -> None:
     spec = phone_v1()
     run = Run(id="t_canned", prompt="p", band_ids=["wifi24"], spec=spec, anchors=make_anchors(spec))
@@ -215,6 +245,7 @@ async def main() -> None:
     pool.start_pool()
     try:
         await test_loop()
+        await test_stop()
         await test_device_loop()
         await test_confirm_winner()
     finally:

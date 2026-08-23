@@ -404,7 +404,10 @@ export function S11Chart() {
         <Stat label="BW MHz" value={Math.round(res.bandwidth_mhz).toString()} />
         <Stat label="η" value={`${Math.round(res.efficiency * 100)}%`} />
         <Stat label="VSWR" value={res.vswr.toFixed(2)} />
-        <Stat label="Gain dBi" value={res.peak_gain_dbi.toFixed(1)} />
+        {/* Neither bundled path computes a far field (PyNEC: PEC wire grid;
+            openEMS: no NF2FF run) and both report exactly 0 for it. A "0.0"
+            in a row of measurements reads as a measurement. */}
+        <Stat label="Gain dBi" value={res.peak_gain_dbi === 0 ? "—" : res.peak_gain_dbi.toFixed(1)} />
       </dl>
     </div>
   );

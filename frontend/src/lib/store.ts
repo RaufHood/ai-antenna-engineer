@@ -55,6 +55,10 @@ interface AppState {
   runId: string | null;
   running: boolean;
   planning: boolean;
+  /** Stop was pressed and the backend has not confirmed yet. */
+  stopping: boolean;
+  /** The run ended because the user stopped it, not because the agent concluded. */
+  stopped: boolean;
   engine: string | null;
   /** The real agent died and the heuristic finished the run. Never hide this. */
   agentFellBack: boolean;
@@ -78,6 +82,8 @@ interface AppState {
   jobs: Job[];
   placements: Record<string, string>;
   selectedCandidate: string | null;
+  /** The user picked that candidate themselves; stop following the run's winner. */
+  pinnedCandidate: boolean;
   messages: AgentMessage[];
   /** The agent's report.md, fetched once the run has finished. */
   report: string | null;
@@ -106,6 +112,8 @@ interface AppState {
   startRun: () => Promise<void>;
   /** Mid-run note to the agent. */
   sendNote: (text: string) => Promise<void>;
+  /** Stop the run for real: the backend cancels the loop and kills the agent session. */
+  stopRun: () => Promise<void>;
   poll: () => Promise<void>;
   reset: () => void;
 }
@@ -118,6 +126,8 @@ const EMPTY_RUN = {
   runId: null,
   running: false,
   planning: false,
+  stopping: false,
+  stopped: false,
   engine: null,
   agentFellBack: false,
   tapeOtherDevice: false,
@@ -129,6 +139,7 @@ const EMPTY_RUN = {
   jobs: [] as Job[],
   placements: {} as Record<string, string>,
   selectedCandidate: null,
+  pinnedCandidate: false,
   messages: [] as AgentMessage[],
   report: null,
 };
@@ -237,7 +248,9 @@ export const useApp = create<AppState>((set, get) => ({
   selectComponent: (name) => set({ selectedComponent: name }),
   hoverComponent: (name) => set({ hoveredComponent: name }),
   toggle: (key) => set({ [key]: !get()[key] } as Partial<AppState>),
-  selectCandidate: (id) => set({ selectedCandidate: id }),
+  // An explicit pick pins the inspector to it; clearing the pick hands the
+  // inspector back to whichever candidate the run currently favours.
+  selectCandidate: (id) => set({ selectedCandidate: id, pinnedCandidate: id !== null }),
   setPrompt: (p) => set({ prompt: p }),
   setDockTab: (t) => set({ dockTab: t }),
   setDockHeight: (px) => set({ dockHeight: px }),
@@ -341,6 +354,22 @@ export const useApp = create<AppState>((set, get) => ({
     await get().poll();
   },
 
+  stopRun: async () => {
+    const runId = get().runId;
+    if (!runId || get().stopping) return;
+    set({ stopping: true });
+    try {
+      const res = await fetch(`/api/run?runId=${encodeURIComponent(runId)}`, { method: "DELETE" });
+      if (!res.ok) {
+        set({ error: (await res.json().catch(() => ({}))).error ?? "stop not delivered" });
+        return;
+      }
+      await get().poll();
+    } finally {
+      set({ stopping: false });
+    }
+  },
+
   poll: async () => {
     const runId = get().runId;
     if (!runId) return;
@@ -363,6 +392,7 @@ export const useApp = create<AppState>((set, get) => ({
       anchors: snap.anchors?.length ? snap.anchors : get().anchors,
       planning: !!snap.planning,
       running: !done,
+      stopped: snap.status === "stopped",
       engine: snap.engine ?? get().engine,
       agentFellBack: !!snap.agentFellBack,
       tapeOtherDevice: !!snap.tapeOtherDevice,
@@ -370,8 +400,15 @@ export const useApp = create<AppState>((set, get) => ({
       stage: snap.stage ?? "ingest",
       messages: [...(userMsg ? [userMsg] : []), ...(snap.messages ?? [])],
       error: snap.status === "failed" ? "run failed — see the agent feed" : get().error,
-      selectedCandidate:
-        get().selectedCandidate ?? (Object.values(placements)[0] as string | undefined) ?? null,
+      // Follow the run's own winner until the user picks a candidate. Latching
+      // onto the first best-so-far left the S11 panel showing a losing design
+      // — chip "Fail" — beside a table whose winner passed, after the final
+      // ranking had already moved on.
+      selectedCandidate: get().pinnedCandidate
+        ? get().selectedCandidate
+        : ((Object.values(placements)[0] as string | undefined) ??
+          get().selectedCandidate ??
+          null),
     });
     if (done && !get().report && (snap.artifacts ?? []).includes("report.md")) {
       const r = await fetch(`/api/run?runId=${runId}&artifact=report.md`);
