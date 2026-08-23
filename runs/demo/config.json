@@ -1,0 +1,45 @@
+{
+  "candidate": {
+    "candidate_id": "demo-c003",
+    "antenna_type": "IFA",
+    "position_mm": [
+      4.0,
+      118.0,
+      4.0
+    ],
+    "feed_point_mm": [
+      4.0,
+      115.0,
+      4.0
+    ],
+    "length_mm": 27.5,
+    "orientation": "edge",
+    "keepout_mm": [
+      [
+        0.0,
+        100.0,
+        0.0
+      ],
+      [
+        16.0,
+        146.6,
+        8.25
+      ]
+    ]
+  },
+  "band": {
+    "id": "gps_l1",
+    "f_low_ghz": 1.565,
+    "f_high_ghz": 1.585,
+    "s11_db_max": -8.0,
+    "efficiency_min": 0.45
+  },
+  "device": {
+    "manifest": "device.json"
+  },
+  "sim": {
+    "mesh_res": "coarse",
+    "boundary": "MUR",
+    "freq_points": 81
+  }
+}

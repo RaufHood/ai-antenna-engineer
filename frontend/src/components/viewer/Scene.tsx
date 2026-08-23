@@ -1,0 +1,165 @@
+"use client";
+
+import {
+  ContactShadows,
+  Environment,
+  Grid,
+  Lightformer,
+  OrbitControls,
+  PerspectiveCamera,
+} from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Suspense, useEffect, useRef } from "react";
+import * as THREE from "three";
+import { useApp } from "@/lib/store";
+import { Antennas } from "./Antennas";
+import { Keepouts } from "./Keepouts";
+import { PathTracer } from "./PathTracer";
+import { PhoneModel } from "./PhoneModel";
+
+export const VIEW_PRESETS: Record<string, [number, number, number]> = {
+  Iso: [2.3, 1.5, 6.4],
+  Front: [0, 0, 6.6],
+  Back: [0, 0, -6.6],
+  Edge: [6.4, 0, 0.8],
+  Top: [0.5, 6.2, 1.4],
+};
+
+/** Smoothly flies the camera to a preset when the HUD dispatches `view-preset`. */
+function CameraRig() {
+  const camera = useThree((s) => s.camera);
+  const target = useRef<THREE.Vector3 | null>(null);
+
+  useEffect(() => {
+    const onPreset = (e: Event) => {
+      const name = (e as CustomEvent<string>).detail;
+      const p = VIEW_PRESETS[name];
+      if (p) target.current = new THREE.Vector3(...p);
+    };
+    window.addEventListener("view-preset", onPreset);
+    return () => window.removeEventListener("view-preset", onPreset);
+  }, []);
+
+  // Orbit along a spherical path: a straight lerp between opposite presets
+  // passes through the origin, where OrbitControls' minDistance clamp traps it.
+  useFrame(() => {
+    if (!target.current) return;
+    const cur = new THREE.Spherical().setFromVector3(camera.position);
+    const dst = new THREE.Spherical().setFromVector3(target.current);
+    let dTheta = dst.theta - cur.theta;
+    while (dTheta > Math.PI) dTheta -= Math.PI * 2;
+    while (dTheta < -Math.PI) dTheta += Math.PI * 2;
+
+    const k = 0.1;
+    camera.position.setFromSpherical(
+      new THREE.Spherical(
+        THREE.MathUtils.lerp(cur.radius, dst.radius, k),
+        THREE.MathUtils.lerp(cur.phi, dst.phi, k),
+        cur.theta + dTheta * k,
+      ),
+    );
+    camera.lookAt(0, 0, 0);
+    if (camera.position.distanceTo(target.current) < 0.04) target.current = null;
+  });
+  return null;
+}
+
+export default function Scene() {
+  const explode = useApp((s) => s.explode);
+  const shaded = useApp((s) => s.showShaded);
+  const size = useApp((s) => s.spec.board.size_mm);
+  // 146.6 mm is the phone this viewport's camera framing was tuned around.
+  const deviceFit = 146.6 / Math.max(size[0], size[1], size[2], 1);
+  const selectComponent = useApp((s) => s.selectComponent);
+  const selectCandidate = useApp((s) => s.selectCandidate);
+
+  return (
+    <Canvas
+      shadows
+      dpr={[1, 2]}
+      gl={{ antialias: true, preserveDrawingBuffer: true }}
+      onPointerMissed={() => {
+        selectComponent(null);
+        selectCandidate(null);
+      }}
+    >
+      <color attach="background" args={["#070a12"]} />
+      <fog attach="fog" args={["#070a12", 11, 22]} />
+
+      <PerspectiveCamera makeDefault position={[2.3, 1.5, 6.4]} fov={30} near={0.05} far={60} />
+      <OrbitControls
+        makeDefault
+        enableDamping
+        dampingFactor={0.08}
+        minDistance={2}
+        maxDistance={16}
+        target={[0, 0, 0]}
+      />
+      <CameraRig />
+      {/* Real ray tracing, but only where it belongs: shaded surfaces, and
+          only once the camera is still. See PathTracer for why. */}
+      <PathTracer enabled={shaded} />
+
+      <ambientLight intensity={1.1} />
+      <directionalLight position={[3, 5, 4]} intensity={2.2} castShadow />
+      <directionalLight position={[-4, 2, -3]} intensity={1.2} color="#7dd3fc" />
+      <directionalLight position={[0, -3, -5]} intensity={0.9} color="#c4b5fd" />
+
+      <Suspense fallback={null}>
+        <Environment resolution={512} frames={1}>
+          {/* A dim shell all the way round. The four panels below are key
+              lights and they leave everything they do not face pitch black —
+              fine for raster, where ambientLight fills in, and wrong for the
+              path tracer, which has no ambient term and takes every photon
+              from here. This is the room those lights are standing in. */}
+          <Lightformer form="ring" intensity={0.5} scale={40} position={[0, 0, -20]} color="#7c8aa5" />
+          <Lightformer form="ring" intensity={0.4} scale={40} position={[0, 0, 20]} color="#5a6a85" />
+          <Lightformer intensity={3.4} position={[0, 4, 3]} scale={[12, 6, 1]} color="#ffffff" />
+          <Lightformer intensity={2.0} position={[-6, 1, 2]} scale={[5, 10, 1]} color="#60a5fa" />
+          <Lightformer intensity={1.7} position={[6, -1, 2]} scale={[5, 10, 1]} color="#f472b6" />
+          <Lightformer intensity={1.4} position={[0, -4, -3]} scale={[12, 6, 1]} color="#a78bfa" />
+        </Environment>
+
+        {/* The assembly grows as it comes apart, so the whole scene is scaled
+            back by the same amount and keeps the framing the intact phone had
+            — otherwise the outer layers leave the viewport at half travel.
+            Applied here and not inside the device: the antenna pins and
+            keep-outs live in the same frame and have to travel with it, or the
+            placement stops sitting where it was placed. */}
+        {/* Two device sizes now: a 147 mm phone and a 313 mm laptop. SCALE is
+            the fixed mm-to-scene factor every candidate pin is placed with, so
+            it cannot change per device — instead the whole group, pins and
+            keep-outs included, is normalised by the device's longest side.
+            Everything stays aligned and both objects arrive framed. */}
+        <group scale={deviceFit / (1 + 0.55 * explode)}>
+          <PhoneModel />
+          <Keepouts />
+          <Antennas />
+        </group>
+
+        <ContactShadows
+          position={[0, -1.68, 0]}
+          opacity={0.5}
+          scale={9}
+          blur={2.6}
+          far={4}
+          color="#000000"
+        />
+      </Suspense>
+
+      <Grid
+        position={[0, -1.7, 0]}
+        args={[16, 16]}
+        cellSize={0.25}
+        cellThickness={0.6}
+        cellColor="#1e293b"
+        sectionSize={1}
+        sectionThickness={1}
+        sectionColor="#334155"
+        fadeDistance={16}
+        fadeStrength={1.5}
+        infiniteGrid
+      />
+    </Canvas>
+  );
+}

@@ -1,0 +1,245 @@
+{
+  "object": "Synthetic handset (iPhone-15-class outline)",
+  "model": "phone_synth_v1",
+  "units": "mm",
+  "blend_file": "phone_synth_v1.blend",
+  "blender_version": "5.0.1",
+  "how_material_identity_is_carried": [
+    "object NAME encodes it: <node_path>__<material_key>",
+    "object custom property 'material_key' (and 'node_path')",
+    "material MAT_<key>, kept in the file with a fake user"
+  ],
+  "material_vocabulary_used": {
+    "aluminum": {
+      "eps_r": 1.0,
+      "sigma_S_per_m": 35000000.0,
+      "what": "6000-series aluminium frame"
+    },
+    "glass": {
+      "eps_r": 5.5,
+      "sigma_S_per_m": 0.0,
+      "what": "aluminosilicate cover glass"
+    },
+    "fr4": {
+      "eps_r": 4.4,
+      "sigma_S_per_m": 0.004,
+      "what": "FR-4 laminate"
+    },
+    "copper": {
+      "eps_r": 1.0,
+      "sigma_S_per_m": 58000000.0,
+      "what": "copper ground pour"
+    },
+    "lithium": {
+      "eps_r": 1.0,
+      "sigma_S_per_m": 100000.0,
+      "what": "Li-ion pouch (lossy metal proxy)"
+    },
+    "steel": {
+      "eps_r": 1.0,
+      "sigma_S_per_m": 1450000.0,
+      "what": "stainless shield cans"
+    },
+    "abs": {
+      "eps_r": 2.8,
+      "sigma_S_per_m": 0.001,
+      "what": "ABS plastic carrier"
+    }
+  },
+  "parts": [
+    {
+      "node_path": "frame.rail_left",
+      "blender_object": "frame.rail_left__aluminum",
+      "material_key": "aluminum",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 35000000.0,
+        "what": "6000-series aluminium frame"
+      },
+      "volume_mm3": 2072.3,
+      "tris": 12
+    },
+    {
+      "node_path": "frame.rail_right",
+      "blender_object": "frame.rail_right__aluminum",
+      "material_key": "aluminum",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 35000000.0,
+        "what": "6000-series aluminium frame"
+      },
+      "volume_mm3": 2072.3,
+      "tris": 12
+    },
+    {
+      "node_path": "frame.rail_bottom",
+      "blender_object": "frame.rail_bottom__aluminum",
+      "material_key": "aluminum",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 35000000.0,
+        "what": "6000-series aluminium frame"
+      },
+      "volume_mm3": 954.7,
+      "tris": 12
+    },
+    {
+      "node_path": "frame.rail_top",
+      "blender_object": "frame.rail_top__aluminum",
+      "material_key": "aluminum",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 35000000.0,
+        "what": "6000-series aluminium frame"
+      },
+      "volume_mm3": 954.7,
+      "tris": 12
+    },
+    {
+      "node_path": "back.glass",
+      "blender_object": "back.glass__glass",
+      "material_key": "glass",
+      "em_from_vocabulary": {
+        "eps_r": 5.5,
+        "sigma_S_per_m": 0.0,
+        "what": "aluminosilicate cover glass"
+      },
+      "volume_mm3": 11052.6,
+      "tris": 12
+    },
+    {
+      "node_path": "display.panel",
+      "blender_object": "display.panel__glass",
+      "material_key": "glass",
+      "em_from_vocabulary": {
+        "eps_r": 5.5,
+        "sigma_S_per_m": 0.0,
+        "what": "aluminosilicate cover glass"
+      },
+      "volume_mm3": 13947.1,
+      "tris": 12
+    },
+    {
+      "node_path": "display.shield",
+      "blender_object": "display.shield__steel",
+      "material_key": "steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "stainless shield cans"
+      },
+      "volume_mm3": 2963.1,
+      "tris": 12
+    },
+    {
+      "node_path": "pcb.logic_board",
+      "blender_object": "pcb.logic_board__fr4",
+      "material_key": "fr4",
+      "em_from_vocabulary": {
+        "eps_r": 4.4,
+        "sigma_S_per_m": 0.004,
+        "what": "FR-4 laminate"
+      },
+      "volume_mm3": 985.6,
+      "tris": 12
+    },
+    {
+      "node_path": "pcb.ground_pour",
+      "blender_object": "pcb.ground_pour__copper",
+      "material_key": "copper",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 58000000.0,
+        "what": "copper ground pour"
+      },
+      "volume_mm3": 2510.9,
+      "tris": 12
+    },
+    {
+      "node_path": "battery.cell",
+      "blender_object": "battery.cell__lithium",
+      "material_key": "lithium",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 100000.0,
+        "what": "Li-ion pouch (lossy metal proxy)"
+      },
+      "volume_mm3": 15884.4,
+      "tris": 12
+    },
+    {
+      "node_path": "camera.module",
+      "blender_object": "camera.module__steel",
+      "material_key": "steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "stainless shield cans"
+      },
+      "volume_mm3": 2553.6,
+      "tris": 12
+    },
+    {
+      "node_path": "haptics.taptic_engine",
+      "blender_object": "haptics.taptic_engine__steel",
+      "material_key": "steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "stainless shield cans"
+      },
+      "volume_mm3": 998.4,
+      "tris": 12
+    },
+    {
+      "node_path": "audio.speaker",
+      "blender_object": "audio.speaker__steel",
+      "material_key": "steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "stainless shield cans"
+      },
+      "volume_mm3": 1164.8,
+      "tris": 12
+    },
+    {
+      "node_path": "io.usb_c",
+      "blender_object": "io.usb_c__steel",
+      "material_key": "steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "stainless shield cans"
+      },
+      "volume_mm3": 369.6,
+      "tris": 12
+    },
+    {
+      "node_path": "carrier.plastic",
+      "blender_object": "carrier.plastic__abs",
+      "material_key": "abs",
+      "em_from_vocabulary": {
+        "eps_r": 2.8,
+        "sigma_S_per_m": 0.001,
+        "what": "ABS plastic carrier"
+      },
+      "volume_mm3": 890.4,
+      "tris": 12
+    }
+  ],
+  "material_gaps": [
+    {
+      "part": "battery.cell",
+      "key_used": "lithium",
+      "gap": "pouch cell modelled as a homogeneous lossy conductor (1e5 S/m); real cells are layered foil/electrolyte.",
+      "action": "FLAGGED, homogeneous."
+    },
+    {
+      "part": "display.shield",
+      "key_used": "steel",
+      "gap": "mu_r not in vocabulary; stainless 304 is ~1, fine.",
+      "action": "none"
+    }
+  ]
+}

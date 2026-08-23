@@ -1,16 +1,28 @@
 # Agent / tooling state (shared team config stays tracked)
 .claude/*
 !.claude/settings.json
+!.claude/launch.json
 .entire/*
 !.entire/.gitignore
 !.entire/settings.json
 
-# Environments & secrets
+# Environments & secrets.
+# Devin service-user keys are prefixed cog_ and org ids org-; they belong in
+# backend/.env (see backend/.env.example), never in a tracked file. If one is
+# ever committed, rotating it at app.devin.ai is the only real fix — removing
+# the commit is not enough once it has been pushed.
 .env
 .env.*
 !.env.example
+.envrc
 *.pem
 *.key
+*.p12
+*.pfx
+secrets.*
+*secret*.json
+*credentials*.json
+service-account*.json
 
 # Python
 __pycache__/
@@ -25,10 +37,17 @@ env/
 dist/
 build/
 
-# Node
+# Vendored binaries (downloaded, not source-controlled — see rf/progress_simulation.md)
+rf/vendor/
+
+# Node. Scoped to frontend/: a bare `out/` also excludes rf/blend_loader/out,
+# and git cannot re-include a file whose parent directory is excluded — the
+# `!rf/blend_loader/out/device.json` below would be dead.
 node_modules/
-.next/
-out/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+*.tsbuildinfo
 coverage/
 npm-debug.log*
 yarn-error.log*
@@ -46,3 +65,43 @@ Thumbs.db
 # Logs & scratch
 *.log
 tmp/
+
+# run artifacts: media + json yes (reviewers see results without running),
+# raw field dumps no (tens of MB each)
+runs/**/Et.h5
+# blend_loader outputs: the STLs are 29 MB of regenerable mesh, but
+# device.json is 115 KB and everything downstream needs it — without it the
+# placement screening silently degrades and the agent is handed anchors that
+# intersect real components. Track the manifest, ignore the meshes.
+rf/blend_loader/out/*
+!rf/blend_loader/out/device.json
+# the MacBook's manifest, built from its .glb by rf/blend_loader/from_glb.py.
+# Same reasoning as the phone's: 400 KB of geometry facts that everything
+# downstream needs, next to meshes that are regenerable. The edge cache beside
+# it is derived and stays ignored.
+!rf/blend_loader/out/macbook_pro_14/
+rf/blend_loader/out/macbook_pro_14/*
+!rf/blend_loader/out/macbook_pro_14/device.json
+
+# orbit frames are build intermediates: the gif/mp4 carry the same content
+# and rendering them again is one command (see rf/README.md)
+runs/**/orbit_frames/
+
+# recorded agent tapes: real Devin runs, replayable for free (app/agent/replay.py)
+!backend/var/tapes/
+!backend/var/tapes/*.json
+
+# agent tooling installs are per-developer, not project code. The `impeccable`
+# design skill writes itself into every agent directory it knows about, so one
+# install put 597 files / 291k lines into the tree via `git add -A` (a1c11e0) —
+# nothing in backend/, frontend/ or rf/ references any of it. The three mirror
+# directories are duplicates of .agents/skills by construction, so they stay
+# out wholesale; .agents/skills itself is tracked because blend-extract lives
+# there and the agent runs it to read a .blend.
+.github/skills/
+.gemini/skills/
+.cursor/skills/
+.agents/skills/impeccable/
+.github/agents/impeccable-*
+.cursor/agents/impeccable-*
+.github/hooks/impeccable.json

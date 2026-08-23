@@ -1,0 +1,353 @@
+{
+  "object": "Apple iPhone 15 Pro (2023, 6.1 in)",
+  "model_identifier": "A2848",
+  "region_variant": "United States / Puerto Rico - eSIM only, NO SIM tray, mmWave variant (the mmWave module is omitted under the antenna exclusion)",
+  "fcc_id": "BCG-E8435A (Apple Inc., certified 12 Sep 2023)",
+  "blend_file": "apple_iphone_15_pro.blend",
+  "blender_version": "5.2.0 LTS",
+  "units_in_blend": "millimetres (1 Blender unit = 1 mm)",
+  "pose": "+Z up, +X right seen from the front, +Y towards the top of the phone; exported resting at z = 0",
+  "build_frame": {
+    "z0_mm": 0.0,
+    "z0_is": "back-glass outer plane",
+    "z_front_mm": 8.25,
+    "camera_plateau_min_z_mm": -2.16,
+    "export_z_offset_mm": 2.71
+  },
+  "counts": {
+    "leaf_objects": 191,
+    "materials": 13,
+    "polygons_in_blend": 234814,
+    "triangles_manifest": 495714
+  },
+  "how_material_identity_is_carried": [
+    "object NAME encodes it: <node_path>__<material_key>",
+    "object custom property 'material_key'",
+    "slot-0 material MAT_<key>"
+  ],
+  "consistency_check": {
+    "objects_with_mismatched_key_or_material": 0,
+    "parts_per_key": {
+      "abs": 33,
+      "aluminium": 2,
+      "cfrp": 2,
+      "copper": 18,
+      "foam": 2,
+      "fr4": 1,
+      "lens": 15,
+      "lipo": 1,
+      "nylon": 5,
+      "pet": 18,
+      "rubber": 11,
+      "stainless": 59,
+      "steel": 24
+    }
+  },
+  "textures": {
+    "kind": "NONE - flat material-ID shading only",
+    "detail": "every material is a single Principled BSDF with a flat saturated base colour, one colour per material key. There are no image textures, no procedural node trees and no UV maps anywhere in the file; the colours exist to make material assignment readable, not to look photoreal.",
+    "uv_maps": "none on any of the 191 meshes"
+  },
+  "materials": {
+    "abs": {
+      "blender_material": "MAT_abs",
+      "em_from_vocabulary": {
+        "eps_r": 2.9,
+        "sigma_S_per_m": 0.005,
+        "what": "ABS / hard plastic"
+      },
+      "parts": 33,
+      "volume_mm3": 1163.41,
+      "mass_g": 1.571,
+      "density_g_cm3": 1.35
+    },
+    "aluminium": {
+      "blender_material": "MAT_aluminium",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 35000000.0,
+        "what": "aluminium"
+      },
+      "parts": 2,
+      "volume_mm3": 6660.27,
+      "mass_g": 17.983,
+      "density_g_cm3": 2.7
+    },
+    "cfrp": {
+      "blender_material": "MAT_cfrp",
+      "em_from_vocabulary": {
+        "eps_r": 4.5,
+        "sigma_S_per_m": 10000.0,
+        "what": "carbon-fibre composite"
+      },
+      "parts": 2,
+      "volume_mm3": 515.65,
+      "mass_g": 0.825,
+      "density_g_cm3": 1.6
+    },
+    "copper": {
+      "blender_material": "MAT_copper",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 58000000.0,
+        "what": "copper"
+      },
+      "parts": 18,
+      "volume_mm3": 1511.93,
+      "mass_g": 13.547,
+      "density_g_cm3": 8.96
+    },
+    "foam": {
+      "blender_material": "MAT_foam",
+      "em_from_vocabulary": {
+        "eps_r": 1.1,
+        "sigma_S_per_m": 0.0001,
+        "what": "PU foam"
+      },
+      "parts": 2,
+      "volume_mm3": 945.09,
+      "mass_g": 0.095,
+      "density_g_cm3": 0.1
+    },
+    "fr4": {
+      "blender_material": "MAT_fr4",
+      "em_from_vocabulary": {
+        "eps_r": 4.4,
+        "sigma_S_per_m": 0.02,
+        "what": "PCB substrate"
+      },
+      "parts": 1,
+      "volume_mm3": 967.73,
+      "mass_g": 1.839,
+      "density_g_cm3": 1.9
+    },
+    "lens": {
+      "blender_material": "MAT_lens",
+      "em_from_vocabulary": {
+        "eps_r": 5.5,
+        "sigma_S_per_m": 0.003,
+        "what": "optical glass"
+      },
+      "parts": 15,
+      "volume_mm3": 15359.07,
+      "mass_g": 39.934,
+      "density_g_cm3": 2.6
+    },
+    "lipo": {
+      "blender_material": "MAT_lipo",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 100000.0,
+        "what": "Li-ion cell"
+      },
+      "parts": 1,
+      "volume_mm3": 13085.28,
+      "mass_g": 33.367,
+      "density_g_cm3": 2.55
+    },
+    "nylon": {
+      "blender_material": "MAT_nylon",
+      "em_from_vocabulary": {
+        "eps_r": 2.9,
+        "sigma_S_per_m": 0.002,
+        "what": "nylon / polycarbonate"
+      },
+      "parts": 5,
+      "volume_mm3": 82.25,
+      "mass_g": 0.095,
+      "density_g_cm3": 1.15
+    },
+    "pet": {
+      "blender_material": "MAT_pet",
+      "em_from_vocabulary": {
+        "eps_r": 3.0,
+        "sigma_S_per_m": 0.006,
+        "what": "PET film"
+      },
+      "parts": 18,
+      "volume_mm3": 8475.48,
+      "mass_g": 11.696,
+      "density_g_cm3": 1.38
+    },
+    "rubber": {
+      "blender_material": "MAT_rubber",
+      "em_from_vocabulary": {
+        "eps_r": 3.0,
+        "sigma_S_per_m": 0.005,
+        "what": "rubber"
+      },
+      "parts": 11,
+      "volume_mm3": 226.19,
+      "mass_g": 0.271,
+      "density_g_cm3": 1.2
+    },
+    "stainless": {
+      "blender_material": "MAT_stainless",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1100000.0,
+        "what": "stainless"
+      },
+      "parts": 59,
+      "volume_mm3": 4022.82,
+      "mass_g": 17.821,
+      "density_g_cm3": 4.43
+    },
+    "steel": {
+      "blender_material": "MAT_steel",
+      "em_from_vocabulary": {
+        "eps_r": 1.0,
+        "sigma_S_per_m": 1450000.0,
+        "what": "carbon steel"
+      },
+      "parts": 24,
+      "volume_mm3": 425.7,
+      "mass_g": 3.342,
+      "density_g_cm3": 7.85
+    }
+  },
+  "material_gaps": [
+    {
+      "part": "exterior.frame.band_seg_* (titanium band)",
+      "key_used": "stainless",
+      "real_material": "Ti-6Al-4V, ASTM Grade 5",
+      "real_sigma_S_per_m": 580000.0,
+      "real_eps_r": 1.0,
+      "real_mu_r": 1.0,
+      "key_sigma_S_per_m": 1100000.0,
+      "severity": "SEVERE - the defining conductor of the object",
+      "note": "There is no titanium key.  Ti-6Al-4V is sigma ~5.8e5 S/m, roughly 60x LESS conductive than `aluminium` (3.5e7) and about half of `stainless` (1.1e6).  `stainless` is the closest of the available keys, still 1.9x too conductive.  Skin depth at 1 GHz: titanium 20.9 um, stainless 15.2 um, aluminium 2.7 um - so using `aluminium` here would be wrong by a factor of 8 in skin depth and would change the surface resistance of the dominant radiating structure by ~8x.  THIS IS THE SINGLE MOST CONSEQUENTIAL GAP IN THE ASSET."
+    },
+    {
+      "part": "exterior.glass.front_ceramic_shield",
+      "key_used": "lens",
+      "real_material": "Apple Ceramic Shield (glass-ceramic with a nanocrystalline phase)",
+      "real_eps_r": "~7.0-7.5 (glass-ceramic, not published)",
+      "key_eps_r": 5.5,
+      "real_sigma_S_per_m": "~1e-12",
+      "severity": "HIGH - the wave enters through it",
+      "note": "`lens` (eps_r 5.5) is optical glass.  Ceramic Shield is a lithium-aluminosilicate glass-ceramic whose nanocrystalline phase raises the permittivity; published values do not exist. The 0.70 mm sheet in front of the display is the largest dielectric the wave crosses on the front face."
+    },
+    {
+      "part": "exterior.glass.back / exterior.camera.plateau_glass",
+      "key_used": "lens",
+      "real_material": "textured (etched) alumino-silicate back glass",
+      "real_eps_r": "~6.5-7.0",
+      "key_eps_r": 5.5,
+      "severity": "HIGH - the second largest dielectric surface",
+      "note": "Same class of gap as the front; the etched surface is a sub-micron feature and is not modelled."
+    },
+    {
+      "part": "display.oled_panel / touch_layer / polariser",
+      "key_used": "pet",
+      "real_material": "LTPO OLED stack: polyimide substrate, organic layers, thin-film encapsulation, metal cathode",
+      "real_eps_r": "3.2-3.5 with a PARTIALLY CONDUCTING cathode (sigma ~1e6 S/m over ~100 nm)",
+      "severity": "HIGH - a partially conducting sheet modelled as a dielectric",
+      "note": "No key expresses 'dielectric stack with a thin metal cathode'. Modelled as `pet` with a separate `copper` backplate; the cathode itself is NOT represented."
+    },
+    {
+      "part": "power.magsafe.magnet_* / alignment_magnet",
+      "key_used": "steel",
+      "real_material": "sintered NdFeB, N52",
+      "real_sigma_S_per_m": 670000.0,
+      "real_mu_r": 1.05,
+      "key_sigma_S_per_m": 1450000.0,
+      "severity": "MEDIUM",
+      "note": "`steel` is 2.2x too conductive and carries no mu_r at all.  18 magnets plus the alignment magnet."
+    },
+    {
+      "part": "logic_board.shield_can_* contents (silicon dies)",
+      "key_used": "not modelled as silicon",
+      "real_material": "monocrystalline silicon",
+      "real_eps_r": 11.7,
+      "real_sigma_S_per_m": "10-1e3 (doping dependent)",
+      "severity": "MEDIUM",
+      "note": "Nothing in the vocabulary comes close to eps_r 11.7.  The dies are inside closed shield cans, so their contribution is screened; the cans themselves are `stainless`."
+    },
+    {
+      "part": "package moulding compound (A17 Pro, PoP DRAM, NAND)",
+      "key_used": "fr4",
+      "real_material": "silica-filled epoxy moulding compound",
+      "real_eps_r": "3.5-4.5",
+      "key_eps_r": 4.4,
+      "severity": "LOW - `fr4` is a good match",
+      "note": "Stated explicitly rather than silently substituted."
+    },
+    {
+      "part": "battery.cell",
+      "key_used": "lipo",
+      "real_material": "layered Li-ion pouch cell (Cu / graphite / separator / LiCoO2 / Al)",
+      "severity": "MEDIUM",
+      "note": "`lipo` is one bulk value (eps_r 1.0, sigma 1e5) for a strongly anisotropic layered stack of metal foils.  The real cell is close to a stack of conductors."
+    },
+    {
+      "part": "power.thermal.graphite_*",
+      "key_used": "cfrp",
+      "real_material": "pyrolytic graphite sheet",
+      "real_sigma_S_per_m": "in-plane ~1e6, through-plane ~1e3",
+      "key_sigma_S_per_m": 10000.0,
+      "severity": "MEDIUM",
+      "note": "Strongly anisotropic; `cfrp` is isotropic 1e4 S/m."
+    },
+    {
+      "part": "exterior.frame.split_*",
+      "key_used": "nylon",
+      "real_material": "moulded LCP / PC-ABS composite with glass fill",
+      "real_eps_r": "3.0-3.6",
+      "key_eps_r": 2.9,
+      "severity": "LOW",
+      "note": "Close enough; stated."
+    }
+  ],
+  "omitted_parts": {
+    "antennas_excluded_per_brief": [
+      "antenna flexes (main lower antenna flex, upper antenna flex)",
+      "mmWave module (A2848 is a US mmWave variant; the module, its radome and its flex are all omitted)",
+      "RF coaxial cables and their MHF/U.FL connectors (6 in this device)",
+      "UWB (U1/second-generation) antenna element",
+      "NFC antenna loop",
+      "GPS/Wi-Fi/Bluetooth combination antenna elements",
+      "diversity antenna elements at the top and bottom",
+      "antenna tuner / aperture-tuning switch modules",
+      "antenna contact springs and their gold pads"
+    ],
+    "kept_deliberately": [
+      "MagSafe magnet array (18 magnets + alignment magnet) - a magnet is not a radiator",
+      "inductive charging coil (12 turns) - a coil is not a radiator",
+      "the plastic split lines in the titanium band - these are gaps in a metal band, part of the frame's own moulding, and they are what breaks the frame into five electrically separate segments"
+    ],
+    "sub_millimetre_features": [
+      {
+        "feature": "screw threads",
+        "argument": "M1.2 thread pitch is 0.25 mm against lambda = 23-300 mm (0.001-0.011 lambda).  Modelled as smooth shanks."
+      },
+      {
+        "feature": "connector contact fingers (0.35 mm pitch)",
+        "argument": "Below 0.015 lambda; the connector shell, which is the conductor boundary that matters, IS modelled."
+      },
+      {
+        "feature": "PCB traces and silkscreen",
+        "argument": "Trace width ~0.06 mm.  The two continuous ground planes, which carry essentially all the board's scattering, ARE modelled at 1 oz (0.035 mm)."
+      },
+      {
+        "feature": "back-glass surface texture (etched matte finish)",
+        "argument": "Sub-micron RMS roughness, 1e-8 lambda."
+      },
+      {
+        "feature": "display sub-pixels",
+        "argument": "~20 um pitch; the OLED stack is modelled as continuous sheets."
+      },
+      {
+        "feature": "bottom grille mesh behind the perforations",
+        "argument": "~0.05 mm wire.  The PERFORATIONS themselves are modelled - they are apertures in a conductor."
+      }
+    ],
+    "not_modelled_other": [
+      "SIM tray - the build is A2848 (US), which is eSIM-only and has no SIM tray; the supplied exterior model likewise has no SIM aperture",
+      "individual silicon dies inside the shield cans",
+      "battery BMS PCB components (the flex and connector are modelled)",
+      "camera VCM/OIS actuator coils and magnets (the barrel, lens stack, sensor and flex are modelled)",
+      "adhesive on screw threads"
+    ]
+  }
+}
