@@ -244,6 +244,15 @@ function ChevronDown() {
   );
 }
 
+function ArrowUp() {
+  return (
+    <svg viewBox="0 0 16 16" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M8 12.5v-9" />
+      <path d="M4.5 7 8 3.5 11.5 7" />
+    </svg>
+  );
+}
+
 function Check() {
   return (
     <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -518,15 +527,18 @@ export function AgentPanel() {
                   onClick={run}
                   disabled={!canRun}
                   title="Run the placement study (Cmd + Enter)"
-                  className="ml-auto flex items-center gap-2 rounded-md bg-accent px-3.5 py-1.5 text-[12.5px] font-semibold text-ink-950 transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-muted"
+                  className="ml-auto flex items-center gap-1.5 rounded-full bg-fg py-1 pl-3 pr-2 text-[12px] font-medium text-ink-950 transition hover:bg-white active:bg-fg disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-faint"
                 >
                   {running ? (
                     <>
-                      <Spinner />
                       Running
+                      <Spinner />
                     </>
                   ) : (
-                    "Run study"
+                    <>
+                      Run
+                      <ArrowUp />
+                    </>
                   )}
                 </button>
               </div>

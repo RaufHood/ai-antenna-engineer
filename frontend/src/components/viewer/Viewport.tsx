@@ -37,7 +37,7 @@ function HudButton({
       // Layer toggles are not the primary action — the accent belongs to
       // "Run study". Three saturated chips in the corner were the loudest
       // thing on screen and the least important.
-      className={`rounded-md border px-2.5 py-1 text-[11px] transition ${
+      className={`rounded-md border px-2.5 py-1 text-[12px] transition ${
         active
           ? "border-ink-600 bg-ink-800 text-fg"
           : "border-transparent bg-ink-900/70 text-fg-muted hover:bg-ink-850 hover:text-fg"

@@ -124,12 +124,18 @@ body {
   border-radius: 3px;
 }
 
-input,
-textarea,
-select,
-button {
-  font: inherit;
-  color: inherit;
+/* In @layer base so utilities can override it. Unlayered, this rule beat
+   every text-* class on every button — Tailwind's utilities live in
+   @layer utilities, and unlayered styles win over layered ones regardless
+   of order — so button colours silently inherited for weeks. */
+@layer base {
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
 }
 
 textarea,
