@@ -61,8 +61,20 @@ async def create_device(blend: UploadFile = File(...),
     return devices.snapshot(device)
 
 
+@router.get("/builtin-devices")
+async def builtin_devices() -> list[dict]:
+    """The devices that ship with the app, for the client's picker.
+
+    Only the ones whose manifest is actually present: a fresh clone that has
+    not built the MacBook manifest simply does not offer it, rather than
+    offering it and failing on click.
+    """
+    from app.geometry.manifest import available
+    return [{k: v for k, v in d.items() if k != "manifest"} for d in available()]
+
+
 @router.get("/default-device")
-async def default_device(bands: str = "wifi24") -> dict:
+async def default_device(bands: str = "wifi24", device: str | None = None) -> dict:
     """The device a run gets when none was uploaded — spec and anchors.
 
     The UI used to draw a hard-coded slab here while the solver read the real
@@ -77,12 +89,17 @@ async def default_device(bands: str = "wifi24") -> dict:
     # itself at creation. Returning only the requested ids collapsed the menu
     # to whatever happened to be enabled, so every other band vanished from the
     # panel and could never be switched back on.
-    spec = default_spec(ids).model_copy(
+    from app.geometry.manifest import builtin
+    entry = builtin(device)
+    if device and entry is None:
+        raise HTTPException(404, f"unknown built-in device {device!r}")
+    spec = default_spec(ids, device).model_copy(
         update={"requirements": bands_mod.requirements_for()})
     anchors, source = anchors_for(spec, ids)
     return {"spec": spec.model_dump(),
             "anchors": [a.model_dump() for a in anchors],
-            "anchor_source": source}
+            "anchor_source": source,
+            "builtin": {k: v for k, v in (entry or {}).items() if k != "manifest"} or None}
 
 
 @router.get("/devices")
@@ -117,7 +134,10 @@ class CreateRun(BaseModel):
     prompt: str = ""
     bands: list[str] = ["wifi24"]
     agent: str = "devin"          # devin (live) | replay (recorded run) | mock
-    device_id: str | None = None  # from POST /devices; None -> default_spec()
+    device_id: str | None = None  # from POST /devices; None -> a built-in
+    # Which built-in to solve when no uploaded device was given. None keeps
+    # the first one, which is the phone.
+    builtin: str | None = None
     # agent: Devin reads the .blend itself (skill), backend result is the
     # cross-check/fallback. backend: spec is final before the session starts.
     extract: str | None = None    # default from EXTRACT_MODE env, else "agent"
@@ -145,7 +165,10 @@ async def create_run(body: CreateRun) -> dict:
     else:
         if bad := bands.unknown(body.bands):
             raise HTTPException(400, f"unknown bands {bad}; have {sorted(bands.CATALOG)}")
-        spec = default_spec(body.bands).model_copy(
+        from app.geometry.manifest import builtin as builtin_entry
+        if body.builtin and builtin_entry(body.builtin) is None:
+            raise HTTPException(404, f"unknown built-in device {body.builtin!r}")
+        spec = default_spec(body.bands, body.builtin).model_copy(
             update={"requirements": bands.requirements_for(body.bands)})
         # Where the agent is allowed to put an antenna. Derived by sweeping
         # this device's real internals, not from a lattice on its bounding box

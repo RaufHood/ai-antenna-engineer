@@ -27,13 +27,21 @@ export async function GET(req: Request) {
     // real iPhone manifest when it is present. Returning the built-in slab
     // here made the panel claim the solver read nine parts while it read 176.
     const bands = url.searchParams.get("bands") ?? "wifi24";
-    const res = await fetch(
-      `${BACKEND_URL}/default-device?bands=${encodeURIComponent(bands)}`,
-      { cache: "no-store" },
-    ).catch(() => null);
+    const builtin = url.searchParams.get("builtin");
+    const q = new URLSearchParams({ bands });
+    if (builtin) q.set("device", builtin);
+    const res = await fetch(`${BACKEND_URL}/default-device?${q}`, {
+      cache: "no-store",
+    }).catch(() => null);
     if (res?.ok) {
-      const body = (await res.json()) as { spec: unknown; anchors: unknown };
-      return NextResponse.json({ spec: normalizeSpec(body.spec as never), anchors: body.anchors });
+      const body = (await res.json()) as {
+        spec: unknown; anchors: unknown; builtin?: unknown;
+      };
+      return NextResponse.json({
+        spec: normalizeSpec(body.spec as never),
+        anchors: body.anchors,
+        builtin: body.builtin ?? null,
+      });
     }
     // Backend down: the built-in spec is the honest fallback, and the viewer
     // says which one it is holding.

@@ -67,6 +67,9 @@ function CameraRig() {
 export default function Scene() {
   const explode = useApp((s) => s.explode);
   const shaded = useApp((s) => s.showShaded);
+  const size = useApp((s) => s.spec.board.size_mm);
+  // 146.6 mm is the phone this viewport's camera framing was tuned around.
+  const deviceFit = 146.6 / Math.max(size[0], size[1], size[2], 1);
   const selectComponent = useApp((s) => s.selectComponent);
   const selectCandidate = useApp((s) => s.selectCandidate);
 
@@ -123,7 +126,12 @@ export default function Scene() {
             Applied here and not inside the device: the antenna pins and
             keep-outs live in the same frame and have to travel with it, or the
             placement stops sitting where it was placed. */}
-        <group scale={1 / (1 + 0.55 * explode)}>
+        {/* Two device sizes now: a 147 mm phone and a 313 mm laptop. SCALE is
+            the fixed mm-to-scene factor every candidate pin is placed with, so
+            it cannot change per device — instead the whole group, pins and
+            keep-outs included, is normalised by the device's longest side.
+            Everything stays aligned and both objects arrive framed. */}
+        <group scale={deviceFit / (1 + 0.55 * explode)}>
           <PhoneModel />
           <Keepouts />
           <Antennas />

@@ -4,9 +4,29 @@ import type { Bbox, Vec3 } from "./types";
 /** 1 mm in scene units. Keeps the handset ~3 units tall. */
 export const SCALE = 0.02;
 
+/**
+ * The device the viewer is currently centring on, in millimetres.
+ *
+ * `toScene` has to subtract half the device to put its centre at the origin,
+ * and it is called from render paths that have no access to the store. It used
+ * the phone's constants, which was invisible while the phone was the only
+ * device and put every MacBook candidate pin a hundred millimetres outside the
+ * laptop the moment a second one arrived.
+ *
+ * One module-level value, written once whenever the spec changes, is the
+ * smallest honest fix: the alternative is threading a size through every
+ * geometry helper and every component that calls one.
+ */
+let deviceSize: Vec3 = [W, H, T];
+
+export function setSceneDevice(size: Vec3): void {
+  deviceSize = size;
+}
+
 /** Device millimetres -> centred scene coordinates. */
 export function toScene([x, y, z]: Vec3): Vec3 {
-  return [(x - W / 2) * SCALE, (y - H / 2) * SCALE, (z - T / 2) * SCALE];
+  const [w, h, t] = deviceSize;
+  return [(x - w / 2) * SCALE, (y - h / 2) * SCALE, (z - t / 2) * SCALE];
 }
 
 export function sizeOf([min, max]: Bbox): Vec3 {

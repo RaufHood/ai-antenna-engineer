@@ -26,6 +26,48 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[3]
 DEFAULT_MANIFEST = REPO / "rf" / "blend_loader" / "out" / "device.json"
 
+# The devices that ship with the app. Each is a manifest the solver reads plus
+# the glTF the viewer draws, and the two describe the same object — that
+# agreement is the whole point of loading from a manifest rather than a canned
+# spec. `id` is what the API and the client pass around.
+BUILTIN: list[dict] = [
+    {
+        "id": "apple_iphone_15_pro",
+        "name": "Apple iPhone 15 Pro",
+        "short": "iPhone 15 Pro",
+        "manifest": REPO / "rf" / "blend_loader" / "out" / "device.json",
+        "model_url": "/models/iphone15pro.glb",
+        "blurb": "191 parts. Titanium frame, one battery, shield cans.",
+    },
+    {
+        "id": "macbook_pro_14",
+        "name": "Apple MacBook Pro 14 (2024, M4 Pro)",
+        "short": "MacBook Pro 14",
+        "manifest": REPO / "rf" / "blend_loader" / "out" / "macbook_pro_14" / "device.json",
+        "model_url": "/models/macbook_pro_14.glb",
+        # The glTF is Y-up; the manifest was turned to Z-up when it was built,
+        # so the viewer has to turn the model the same way to agree with it.
+        "viewer_yup": True,
+        "blurb": "449 parts. Aluminium unibody, six speakers, three-cell battery.",
+    },
+]
+
+
+def builtin(device_id: str | None) -> dict | None:
+    """One entry of the built-in catalogue, or None."""
+    if not device_id:
+        return None
+    return next((d for d in BUILTIN if d["id"] == device_id), None)
+
+
+def available() -> list[dict]:
+    """The built-ins whose manifest is actually on this machine."""
+    return [
+        {k: (str(v) if isinstance(v, Path) else v) for k, v in d.items()}
+        for d in BUILTIN
+        if Path(d["manifest"]).exists()
+    ]
+
 
 def geometry_from_manifest(path: str | Path | None = None) -> dict | None:
     """blend_loader device.json -> the geometry dict classify() expects.
@@ -83,13 +125,15 @@ def geometry_from_manifest(path: str | Path | None = None) -> dict | None:
     }
 
 
-def default_device_spec(band_ids: list[str] | None = None):
-    """The real iPhone as a DeviceSpec, or None if the manifest is absent.
+def default_device_spec(band_ids: list[str] | None = None,
+                        device_id: str | None = None):
+    """A built-in device as a DeviceSpec, or None if its manifest is absent.
 
-    Used as the default device so the solver and the viewer describe the same
-    phone. Falls back to the canned spec at the call site.
+    Used so the solver and the viewer describe the same object. Falls back to
+    the canned spec at the call site.
     """
-    geometry = geometry_from_manifest()
+    entry = builtin(device_id)
+    geometry = geometry_from_manifest(entry["manifest"] if entry else None)
     if geometry is None:
         return None
     from app.geometry.classify import classify

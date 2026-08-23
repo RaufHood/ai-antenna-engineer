@@ -142,6 +142,9 @@ function Part({ c }: { c: DeviceComponent }) {
 export function PhoneModel() {
   const spec = useApp((s) => s.spec);
   const modelUrl = useApp((s) => s.modelUrl);
+  const builtins = useApp((s) => s.builtins);
+  const builtinId = useApp((s) => s.builtinId);
+  const device = builtins.find((d) => d.id === builtinId) ?? builtins[0];
 
   // A user-supplied export still wins — that is what the upload flow is for.
   if (modelUrl) {
@@ -152,7 +155,9 @@ export function PhoneModel() {
     );
   }
 
-  // Default: the real iPhone 15 Pro (191 parts, exported from
+  // Default: whichever built-in is loaded — the phone or the laptop, drawn
+  // from the same glTF the manifest was built from, so what is on screen and
+  // what the solver read are one object. (191 parts, exported from
   // data/apple_iphone_15_pro/), drawn as x-ray line art so the internals and
   // the antenna inside them stay legible — same visual language as the
   // offline renders in rf/runs/demo/media. The procedural RoundedBox handset
@@ -168,7 +173,11 @@ export function PhoneModel() {
         </group>
       }
     >
-      <DeviceXray />
+      <DeviceXray
+        key={device?.id ?? "default"}
+        url={device?.model_url ?? "/models/iphone15pro.glb"}
+        yup={!!device?.viewer_yup}
+      />
     </Suspense>
   );
 }

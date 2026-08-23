@@ -155,7 +155,17 @@ function ease(t: number): number {
   return Math.sign(t) * Math.pow(Math.abs(t), 0.55);
 }
 
-export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }) {
+export function DeviceXray({
+  url = "/models/iphone15pro.glb",
+  yup = false,
+}: {
+  url?: string;
+  /** The export is glTF-standard Y-up. The manifest was turned to Z-up when it
+   *  was built, so the model has to be turned the same way or the viewer and
+   *  the solver disagree about which axis is thickness — and every candidate
+   *  pin lands on the wrong face. */
+  yup?: boolean;
+}) {
   const { scene } = useGLTF(url);
   const explode = useApp((s) => s.explode);
   const showShaded = useApp((s) => s.showShaded);
@@ -168,6 +178,11 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
     const shaded: THREE.Mesh[] = [];
     const wires: THREE.LineSegments[] = [];
     const source = scene.clone(true);
+    if (yup) {
+      // Same turn from_glb.py applies: (x, y, z) -> (x, -z, y).
+      source.rotation.x = -Math.PI / 2;
+      source.updateMatrixWorld(true);
+    }
 
     source.traverse((child) => {
       const mesh = child as THREE.Mesh;
@@ -265,7 +280,7 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
     // Centre on the un-exploded stack: recomputing it as parts move would drag
     // the whole device across the viewport while the user drags the slider.
     return { group: out, fit: { s: SCALE, center: mid.clone() }, spread, shaded, wires };
-  }, [scene]);
+  }, [scene, yup]);
 
   // Applied outside the memo so dragging the slider costs 191 vector writes,
   // not 191 EdgesGeometry rebuilds.

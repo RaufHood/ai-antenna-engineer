@@ -75,6 +75,13 @@ runs/**/Et.h5
 # intersect real components. Track the manifest, ignore the meshes.
 rf/blend_loader/out/*
 !rf/blend_loader/out/device.json
+# the MacBook's manifest, built from its .glb by rf/blend_loader/from_glb.py.
+# Same reasoning as the phone's: 400 KB of geometry facts that everything
+# downstream needs, next to meshes that are regenerable. The edge cache beside
+# it is derived and stays ignored.
+!rf/blend_loader/out/macbook_pro_14/
+rf/blend_loader/out/macbook_pro_14/*
+!rf/blend_loader/out/macbook_pro_14/device.json
 
 # orbit frames are build intermediates: the gif/mp4 carry the same content
 # and rendering them again is one command (see rf/README.md)

@@ -70,6 +70,18 @@ export interface MediaArtifact {
   url: string;
 }
 
+/** A device that ships with the app: what the solver reads and the viewer draws. */
+export interface BuiltinDevice {
+  id: string;
+  name: string;
+  short: string;
+  model_url: string;
+  blurb?: string;
+  /** The glTF is Y-up and the manifest was turned to Z-up when it was built,
+   *  so the viewer has to turn the model the same way to agree with it. */
+  viewer_yup?: boolean;
+}
+
 export type AgentKind = "devin" | "replay" | "mock";
 
 /** Which agent drives the loop by default. "devin" needs backend/.env credentials. */
@@ -194,8 +206,11 @@ export async function createBackendRun(
   agent: AgentKind = AGENT,
   deviceId: string | null = null,
   media = false,
+  builtin: string | null = null,
 ): Promise<string> {
-  const body = JSON.stringify({ prompt, bands, agent, device_id: deviceId, media });
+  const body = JSON.stringify({
+    prompt, bands, agent, device_id: deviceId, media, builtin,
+  });
   const out = await call<{ run_id: string }>("/runs", { method: "POST", body });
   return out.run_id;
 }

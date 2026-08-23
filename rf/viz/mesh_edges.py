@@ -144,17 +144,53 @@ def crease_edges(
             pass  # unreadable or stale cache is not an error, just a rebuild
 
     repo = manifest.resolve().parents[3]
+
+    # Two asset shapes reach this point. The phone was built by load_blend and
+    # ships one STL per part beside the manifest; the MacBook was built from
+    # its .glb, where the geometry stays in the one file. Read whichever the
+    # manifest points at — the caller only wants edges.
+    gltf = None
+    src = doc.get("source_glb")
+    if src:
+        gp = Path(src)
+        if not gp.is_absolute():
+            gp = repo / src
+        if gp.exists():
+            from rf.blend_loader.from_glb import (part_triangles, read_glb,
+                                                  node_world_matrices, YUP_TO_ZUP)
+            gdoc, gblob = read_glb(gp)
+            gltf = (gdoc, gblob, node_world_matrices(gdoc),
+                    doc.get("up_axis_fixed", "").startswith("y-up"))
+
     out: dict[str, np.ndarray] = {}
     total = 0
     for part in parts:
-        rel = part.get("stl_path")
         name = part.get("blender_object") or part.get("node_path") or ""
-        if not rel or not name:
+        if not name:
             continue
-        stl = Path(rel)
-        if not stl.is_absolute():
-            stl = repo / rel
-        mesh = _read_binary_stl(stl)
+        mesh = None
+        if gltf is not None and part.get("glb_node") is not None:
+            gdoc, gblob, worlds, yup = gltf
+            i = int(part["glb_node"])
+            tris = part_triangles(gdoc, gblob, gdoc["nodes"][i]["mesh"], worlds[i])
+            if len(tris):
+                if yup:
+                    tris = tris @ YUP_TO_ZUP.T
+                # glTF carries no face normals; derive them for the crease test.
+                e1 = tris[:, 1] - tris[:, 0]
+                e2 = tris[:, 2] - tris[:, 0]
+                n = np.cross(e1, e2)
+                ln = np.linalg.norm(n, axis=1, keepdims=True)
+                mesh = (tris.astype(np.float32),
+                        (n / np.where(ln == 0, 1, ln)).astype(np.float32))
+        if mesh is None:
+            rel = part.get("stl_path")
+            if not rel:
+                continue
+            stl = Path(rel)
+            if not stl.is_absolute():
+                stl = repo / rel
+            mesh = _read_binary_stl(stl)
         if mesh is None:
             continue
         segs = _edges_of(mesh[0], mesh[1], angle_deg)

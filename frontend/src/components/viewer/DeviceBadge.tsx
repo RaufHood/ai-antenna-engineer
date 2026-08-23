@@ -5,7 +5,8 @@ import { useApp } from "@/lib/store";
 
 /**
  * The device, named where it is drawn. Sits in the corner of the viewport:
- * what is loaded, how big it is, and one quiet link to replace it. Dropping
+ * what is loaded, how big it is, which of the shipped devices it is, and one
+ * quiet link to replace it with your own. Dropping
  * a file anywhere on the viewport does the same — `useDeviceDrop` wires the
  * handlers onto the viewport root so the whole canvas is the target.
  *
@@ -107,6 +108,10 @@ export function DeviceBadge({
   const modelUrl = useApp((s) => s.modelUrl);
   const modelName = useApp((s) => s.modelName);
   const uploading = useApp((s) => s.uploading);
+  const builtins = useApp((s) => s.builtins);
+  const builtinId = useApp((s) => s.builtinId);
+  const selectBuiltin = useApp((s) => s.selectBuiltin);
+  const running = useApp((s) => s.running);
 
   const [w, h, t] = spec.board.size_mm;
   const parts = spec.components.length;
@@ -138,6 +143,38 @@ export function DeviceBadge({
       <p className="mt-0.5 font-mono text-[11px] text-fg-muted">
         {w} × {h} × {t} mm · {parts} parts
       </p>
+      {/* Two objects ship with the app and they are genuinely different RF
+          problems — a 147 mm phone with one battery against a 313 mm laptop
+          with three and a metal lid — so switching is one click, next to the
+          name of the thing being switched. Quiet text, like Replace: this is
+          navigation, not the primary action. Hidden when an uploaded device is
+          loaded, which is the engineer's own and outranks both, and when only
+          one ships. */}
+      {!extracted && !modelUrl && builtins.length > 1 && (
+        <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-[11px]">
+          {builtins.map((d, i) => {
+            const on = d.id === builtinId;
+            return (
+              <span key={d.id} className="flex items-baseline gap-1.5">
+                {i > 0 && <span className="text-fg-faint">·</span>}
+                {on ? (
+                  <span className="text-fg">{d.short}</span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={running || uploading}
+                    title={d.blurb ?? d.name}
+                    onClick={() => void selectBuiltin(d.id)}
+                    className="text-fg-muted transition hover:text-fg disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {d.short}
+                  </button>
+                )}
+              </span>
+            );
+          })}
+        </p>
+      )}
       {displayOnly && (
         <p className="mt-1 flex items-center gap-2 text-[11px]">
           <span className="rounded px-1.5 py-px text-warn ring-1 ring-warn/30">display only</span>

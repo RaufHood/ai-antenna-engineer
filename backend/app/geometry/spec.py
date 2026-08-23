@@ -23,7 +23,8 @@ _NOT_OBSTACLES = {"ground", "display", "back_cover", "board", "frame"}
 _MIN_OBSTACLE_MM = 4.0   # screws, springs, pins: too small to detune anything
 
 
-def default_spec(band_ids: list[str] | None = None) -> DeviceSpec:
+def default_spec(band_ids: list[str] | None = None,
+                 device_id: str | None = None) -> DeviceSpec:
     """The device a run gets when the engineer has not loaded their own.
 
     Prefers the real iPhone 15 Pro manifest committed at
@@ -34,7 +35,7 @@ def default_spec(band_ids: list[str] | None = None) -> DeviceSpec:
     every anchor belong to something nobody was looking at.
     """
     from app.geometry.manifest import default_device_spec
-    classified = default_device_spec(band_ids)
+    classified = default_device_spec(band_ids, device_id)
     if classified is None:
         return phone_v1()
     return getattr(classified, "spec", classified)

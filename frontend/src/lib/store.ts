@@ -16,7 +16,8 @@ export type ViewMode = "system" | "focus";
 // these values. Two copies had already drifted apart ("replay" existed in one
 // and not the other), which the compiler only caught at the call site.
 export type { AgentKind } from "./backend";
-import type { AgentKind, MediaArtifact } from "./backend";
+import type { AgentKind, BuiltinDevice, MediaArtifact } from "./backend";
+import { setSceneDevice } from "./geometry";
 export type Layer = "showKeepouts" | "showPins" | "showLabels" | "showShaded";
 
 interface AppState {
@@ -60,6 +61,9 @@ interface AppState {
   media: MediaArtifact[];
   /** Backend stage — 'media' means the evidence is still rendering. */
   stage: string;
+  /** The devices that ship with the app, and which one is loaded. */
+  builtins: BuiltinDevice[];
+  builtinId: string | null;
   /** Height the user dragged the results dock to, in px. Null means the
    *  layout picks — a table and a gallery want different room. */
   dockHeight: number | null;
@@ -94,7 +98,8 @@ interface AppState {
   setDockTab: (t: "results" | "report" | "evidence") => void;
   setDockHeight: (px: number | null) => void;
   /** Adopt the device the backend will actually solve. Runs once on mount. */
-  loadDefaultDevice: () => Promise<void>;
+  loadDefaultDevice: (builtinId?: string) => Promise<void>;
+  selectBuiltin: (id: string) => Promise<void>;
   startRun: () => Promise<void>;
   /** Mid-run note to the agent. */
   sendNote: (text: string) => Promise<void>;
@@ -144,13 +149,15 @@ export const useApp = create<AppState>((set, get) => ({
   showShaded: false,
 
   prompt:
-    "Where should the antennas be placed in this phone? Pick the type, target band and expected performance for each, and respect the keep-out limits.",
+    "Where should the antennas be placed in this device? Pick the type, target band and expected performance for each, and respect the keep-out limits.",
   agent: "devin",
   // On by default: the maps and the field clip are the evidence an RF
   // engineer would actually hand to a mechanical one, and they cost a few
   // seconds after the study has already finished and reported.
   dockTab: "results" as const,
   dockHeight: null as number | null,
+  builtins: [] as BuiltinDevice[],
+  builtinId: null as string | null,
   ...EMPTY_RUN,
 
   setModel: (url, name) => set({ modelUrl: url, modelName: name }),
@@ -165,6 +172,7 @@ export const useApp = create<AppState>((set, get) => ({
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? `upload failed (${res.status})`);
       const spec: DeviceSpec = body.spec;
+      setSceneDevice(spec.board.size_mm);
       set({
         deviceId: body.deviceId,
         spec,
@@ -228,23 +236,47 @@ export const useApp = create<AppState>((set, get) => ({
   setDockHeight: (px) => set({ dockHeight: px }),
   setAgent: (a) => set({ agent: a }),
 
-  loadDefaultDevice: async () => {
-    // Until this lands the panel shows the built-in spec, which is a different
-    // phone from the one the solver reads. Adopt the real one before the first
+  selectBuiltin: async (id) => {
+    // Switching device throws the current study away on purpose: candidates,
+    // anchors and evidence all belong to the object they were computed on, and
+    // showing a phone's placements inside a laptop would be worse than showing
+    // nothing.
+    if (get().running || get().builtinId === id) return;
+    set({ ...EMPTY_RUN, report: null });
+    await get().loadDefaultDevice(id);
+  },
+
+  loadDefaultDevice: async (builtinId) => {
+    // Until this lands the panel shows the canned spec, which is a different
+    // object from the one the solver reads. Adopt the real one before the first
     // run so nothing on screen describes geometry nobody is solving.
     if (get().deviceId) return;                 // an uploaded device wins
     try {
+      // The catalogue is cheap and only fetched once.
+      if (!get().builtins.length) {
+        const list = await fetch("/api/builtin-devices", { cache: "no-store" })
+          .then((r) => (r.ok ? r.json() : []))
+          .catch(() => []);
+        set({ builtins: list as BuiltinDevice[] });
+      }
+      const want = builtinId ?? get().builtinId;
       const bands = get().enabledBands.join(",");
-      const res = await fetch(`/api/device?bands=${encodeURIComponent(bands)}`, {
-        cache: "no-store",
-      });
+      const q = new URLSearchParams({ bands });
+      if (want) q.set("builtin", want);
+      const res = await fetch(`/api/device?${q}`, { cache: "no-store" });
       if (!res.ok) return;
       const body = await res.json();
       if (body.fallback || !body.spec) return;  // backend down; keep the built-in
       const spec: DeviceSpec = body.spec;
+      const entry = body.builtin as BuiltinDevice | null;
+      setSceneDevice(spec.board.size_mm);
       set({
         spec,
         anchors: body.anchors ?? get().anchors,
+        // The viewer must draw the object the solver just described, so the
+        // model travels with the spec rather than being chosen separately.
+        modelUrl: null,
+        builtinId: entry?.id ?? get().builtinId ?? get().builtins[0]?.id ?? null,
         enabledBands: get().enabledBands.filter((id) =>
           spec.requirements.bands.some((b) => b.id === id),
         ),
@@ -271,7 +303,11 @@ export const useApp = create<AppState>((set, get) => ({
         method: "POST",
         headers: { "content-type": "application/json" },
         // Evidence is always rendered: it lands after run_finished and never gates the result.
-        body: JSON.stringify({ prompt, bands: enabledBands, agent, deviceId, media: true }),
+        // `builtin` says which shipped device to solve when none was uploaded.
+        body: JSON.stringify({
+          prompt, bands: enabledBands, agent, deviceId,
+          builtin: get().builtinId, media: true,
+        }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "run failed");
       const { runId } = await res.json();

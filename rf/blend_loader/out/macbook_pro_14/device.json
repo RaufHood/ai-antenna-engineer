@@ -1,0 +1,10337 @@
+{
+ "device_id": "macbook_pro_14",
+ "name": "Apple MacBook Pro 14 (2024, M4 Pro)",
+ "units": "mm",
+ "source_glb": "/Users/damiavicensramis/Desktop/Exec-docs/figuras 3d/macbook/macbook_pro_14_2024.glb",
+ "up_axis_fixed": "y-up -> z-up",
+ "material_gaps": [],
+ "parts": [
+  {
+   "blender_object": "acoustics.speaker_left.enclosure__abs",
+   "node_path": "acoustics.speaker_left.enclosure",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -153.0,
+     -100.0,
+     2.1
+    ],
+    [
+     -140.5,
+     4.0,
+     9.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 216,
+   "stl_path": null,
+   "glb_node": 0
+  },
+  {
+   "blender_object": "acoustics.speaker_left.flex__pet",
+   "node_path": "acoustics.speaker_left.flex",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -149.0,
+     -29.0,
+     9.1
+    ],
+    [
+     -140.0,
+     1.0,
+     9.25
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 1
+  },
+  {
+   "blender_object": "acoustics.speaker_left.tweeter__nylon",
+   "node_path": "acoustics.speaker_left.tweeter",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -149.5,
+     -6.75,
+     6.9
+    ],
+    [
+     -144.0,
+     -1.25,
+     8.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 2
+  },
+  {
+   "blender_object": "acoustics.speaker_left.tweeter_magnet__steel",
+   "node_path": "acoustics.speaker_left.tweeter_magnet",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -148.84,
+     -6.09,
+     3.3
+    ],
+    [
+     -144.66,
+     -1.91,
+     4.7
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 3
+  },
+  {
+   "blender_object": "acoustics.speaker_left.voice_coil_0__copper",
+   "node_path": "acoustics.speaker_left.voice_coil_0",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -149.215,
+     -76.465,
+     3.5
+    ],
+    [
+     -144.285,
+     -71.535,
+     5.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 4
+  },
+  {
+   "blender_object": "acoustics.speaker_left.voice_coil_1__copper",
+   "node_path": "acoustics.speaker_left.voice_coil_1",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -149.215,
+     -38.465,
+     3.5
+    ],
+    [
+     -144.285,
+     -33.535,
+     5.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 5
+  },
+  {
+   "blender_object": "acoustics.speaker_left.woofer_0__nylon",
+   "node_path": "acoustics.speaker_left.woofer_0",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -151.0,
+     -78.25,
+     6.5
+    ],
+    [
+     -142.5,
+     -69.75,
+     8.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 6
+  },
+  {
+   "blender_object": "acoustics.speaker_left.woofer_1__nylon",
+   "node_path": "acoustics.speaker_left.woofer_1",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -151.0,
+     -40.25,
+     6.5
+    ],
+    [
+     -142.5,
+     -31.75,
+     8.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 7
+  },
+  {
+   "blender_object": "acoustics.speaker_left.woofer_magnet_0__steel",
+   "node_path": "acoustics.speaker_left.woofer_magnet_0",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -149.81,
+     -77.06,
+     3.3
+    ],
+    [
+     -143.69,
+     -70.94,
+     5.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 8
+  },
+  {
+   "blender_object": "acoustics.speaker_left.woofer_magnet_1__steel",
+   "node_path": "acoustics.speaker_left.woofer_magnet_1",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -149.81,
+     -39.06,
+     3.3
+    ],
+    [
+     -143.69,
+     -32.94,
+     5.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 9
+  },
+  {
+   "blender_object": "acoustics.speaker_right.enclosure__abs",
+   "node_path": "acoustics.speaker_right.enclosure",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     140.5,
+     -100.0,
+     2.1
+    ],
+    [
+     153.0,
+     4.0,
+     9.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 216,
+   "stl_path": null,
+   "glb_node": 10
+  },
+  {
+   "blender_object": "acoustics.speaker_right.flex__pet",
+   "node_path": "acoustics.speaker_right.flex",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     140.0,
+     -29.0,
+     9.1
+    ],
+    [
+     149.0,
+     1.0,
+     9.25
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 11
+  },
+  {
+   "blender_object": "acoustics.speaker_right.tweeter__nylon",
+   "node_path": "acoustics.speaker_right.tweeter",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     144.0,
+     -6.75,
+     6.9
+    ],
+    [
+     149.5,
+     -1.25,
+     8.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 12
+  },
+  {
+   "blender_object": "acoustics.speaker_right.tweeter_magnet__steel",
+   "node_path": "acoustics.speaker_right.tweeter_magnet",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     144.66,
+     -6.09,
+     3.3
+    ],
+    [
+     148.84,
+     -1.91,
+     4.7
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 13
+  },
+  {
+   "blender_object": "acoustics.speaker_right.voice_coil_0__copper",
+   "node_path": "acoustics.speaker_right.voice_coil_0",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     144.285,
+     -76.465,
+     3.5
+    ],
+    [
+     149.215,
+     -71.535,
+     5.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 14
+  },
+  {
+   "blender_object": "acoustics.speaker_right.voice_coil_1__copper",
+   "node_path": "acoustics.speaker_right.voice_coil_1",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     144.285,
+     -38.465,
+     3.5
+    ],
+    [
+     149.215,
+     -33.535,
+     5.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 15
+  },
+  {
+   "blender_object": "acoustics.speaker_right.woofer_0__nylon",
+   "node_path": "acoustics.speaker_right.woofer_0",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     142.5,
+     -78.25,
+     6.5
+    ],
+    [
+     151.0,
+     -69.75,
+     8.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 16
+  },
+  {
+   "blender_object": "acoustics.speaker_right.woofer_1__nylon",
+   "node_path": "acoustics.speaker_right.woofer_1",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     142.5,
+     -40.25,
+     6.5
+    ],
+    [
+     151.0,
+     -31.75,
+     8.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 17
+  },
+  {
+   "blender_object": "acoustics.speaker_right.woofer_magnet_0__steel",
+   "node_path": "acoustics.speaker_right.woofer_magnet_0",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     143.69,
+     -77.06,
+     3.3
+    ],
+    [
+     149.81,
+     -70.94,
+     5.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 18
+  },
+  {
+   "blender_object": "acoustics.speaker_right.woofer_magnet_1__steel",
+   "node_path": "acoustics.speaker_right.woofer_magnet_1",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     143.69,
+     -39.06,
+     3.3
+    ],
+    [
+     149.81,
+     -32.94,
+     5.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 19
+  },
+  {
+   "blender_object": "battery.bms_board__fr4",
+   "node_path": "battery.bms_board",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -98.0,
+     -50.0,
+     8.45
+    ],
+    [
+     98.0,
+     -38.0,
+     9.15
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 20
+  },
+  {
+   "blender_object": "battery.bms_ground__copper",
+   "node_path": "battery.bms_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -98.0,
+     -50.0,
+     8.415
+    ],
+    [
+     98.0,
+     -38.0,
+     8.45
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 21
+  },
+  {
+   "blender_object": "battery.cell_0__lipo",
+   "node_path": "battery.cell_0",
+   "material_key": "lipo",
+   "bbox_mm": [
+    [
+     88.0,
+     -100.0,
+     2.3
+    ],
+    [
+     131.0,
+     -26.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 100000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 22
+  },
+  {
+   "blender_object": "battery.cell_1__lipo",
+   "node_path": "battery.cell_1",
+   "material_key": "lipo",
+   "bbox_mm": [
+    [
+     44.0,
+     -100.0,
+     2.3
+    ],
+    [
+     86.0,
+     -26.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 100000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 23
+  },
+  {
+   "blender_object": "battery.cell_2__lipo",
+   "node_path": "battery.cell_2",
+   "material_key": "lipo",
+   "bbox_mm": [
+    [
+     22.0,
+     -100.0,
+     2.3
+    ],
+    [
+     42.0,
+     -26.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 100000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 24
+  },
+  {
+   "blender_object": "battery.cell_3__lipo",
+   "node_path": "battery.cell_3",
+   "material_key": "lipo",
+   "bbox_mm": [
+    [
+     -131.0,
+     -100.0,
+     2.3
+    ],
+    [
+     -88.0,
+     -26.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 100000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 25
+  },
+  {
+   "blender_object": "battery.cell_4__lipo",
+   "node_path": "battery.cell_4",
+   "material_key": "lipo",
+   "bbox_mm": [
+    [
+     -86.0,
+     -100.0,
+     2.3
+    ],
+    [
+     -44.0,
+     -26.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 100000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 26
+  },
+  {
+   "blender_object": "battery.cell_5__lipo",
+   "node_path": "battery.cell_5",
+   "material_key": "lipo",
+   "bbox_mm": [
+    [
+     -42.0,
+     -100.0,
+     2.3
+    ],
+    [
+     -22.0,
+     -26.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 100000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 27
+  },
+  {
+   "blender_object": "battery.flex__pet",
+   "node_path": "battery.flex",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     70.0,
+     -44.0,
+     5.065
+    ],
+    [
+     84.0,
+     -22.0,
+     9.3
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 28,
+   "stl_path": null,
+   "glb_node": 28
+  },
+  {
+   "blender_object": "battery.jacket_0__pet",
+   "node_path": "battery.jacket_0",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     87.75,
+     -100.25,
+     2.3
+    ],
+    [
+     131.25,
+     -25.75,
+     8.42
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 192,
+   "stl_path": null,
+   "glb_node": 29
+  },
+  {
+   "blender_object": "battery.jacket_1__pet",
+   "node_path": "battery.jacket_1",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     43.75,
+     -100.25,
+     2.3
+    ],
+    [
+     86.25,
+     -25.75,
+     8.42
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 192,
+   "stl_path": null,
+   "glb_node": 30
+  },
+  {
+   "blender_object": "battery.jacket_2__pet",
+   "node_path": "battery.jacket_2",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     21.75,
+     -100.25,
+     2.3
+    ],
+    [
+     42.25,
+     -25.75,
+     8.42
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 192,
+   "stl_path": null,
+   "glb_node": 31
+  },
+  {
+   "blender_object": "battery.jacket_3__pet",
+   "node_path": "battery.jacket_3",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -131.25,
+     -100.25,
+     2.3
+    ],
+    [
+     -87.75,
+     -25.75,
+     8.42
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 192,
+   "stl_path": null,
+   "glb_node": 32
+  },
+  {
+   "blender_object": "battery.jacket_4__pet",
+   "node_path": "battery.jacket_4",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -86.25,
+     -100.25,
+     2.3
+    ],
+    [
+     -43.75,
+     -25.75,
+     8.42
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 192,
+   "stl_path": null,
+   "glb_node": 33
+  },
+  {
+   "blender_object": "battery.jacket_5__pet",
+   "node_path": "battery.jacket_5",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -42.25,
+     -100.25,
+     2.3
+    ],
+    [
+     -21.75,
+     -25.75,
+     8.42
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 192,
+   "stl_path": null,
+   "glb_node": 34
+  },
+  {
+   "blender_object": "battery.tab_0__copper",
+   "node_path": "battery.tab_0",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -23.0,
+     -50.0,
+     8.3
+    ],
+    [
+     -13.0,
+     -42.0,
+     8.45
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 35
+  },
+  {
+   "blender_object": "battery.tab_1__copper",
+   "node_path": "battery.tab_1",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     13.0,
+     -50.0,
+     8.3
+    ],
+    [
+     23.0,
+     -42.0,
+     8.45
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 36
+  },
+  {
+   "blender_object": "battery.tray__abs",
+   "node_path": "battery.tray",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -133.0,
+     -101.5,
+     1.9
+    ],
+    [
+     133.0,
+     -24.5,
+     8.7
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 220,
+   "stl_path": null,
+   "glb_node": 37
+  },
+  {
+   "blender_object": "case.bottom_case__aluminium",
+   "node_path": "case.bottom_case",
+   "material_key": "aluminium",
+   "bbox_mm": [
+    [
+     -156.3,
+     -110.6,
+     0.9
+    ],
+    [
+     156.3,
+     110.6,
+     3.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 35000000.0,
+   "mu_r": 1.0,
+   "tris": 1988,
+   "stl_path": null,
+   "glb_node": 38
+  },
+  {
+   "blender_object": "case.foot_lb__rubber",
+   "node_path": "case.foot_lb",
+   "material_key": "rubber",
+   "bbox_mm": [
+    [
+     -136.5,
+     79.5,
+     0.0
+    ],
+    [
+     -119.5,
+     96.5,
+     1.35
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 39
+  },
+  {
+   "blender_object": "case.foot_lf__rubber",
+   "node_path": "case.foot_lf",
+   "material_key": "rubber",
+   "bbox_mm": [
+    [
+     -136.5,
+     -96.5,
+     0.0
+    ],
+    [
+     -119.5,
+     -79.5,
+     1.35
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 40
+  },
+  {
+   "blender_object": "case.foot_rb__rubber",
+   "node_path": "case.foot_rb",
+   "material_key": "rubber",
+   "bbox_mm": [
+    [
+     119.5,
+     79.5,
+     0.0
+    ],
+    [
+     136.5,
+     96.5,
+     1.35
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 41
+  },
+  {
+   "blender_object": "case.foot_rf__rubber",
+   "node_path": "case.foot_rf",
+   "material_key": "rubber",
+   "bbox_mm": [
+    [
+     119.5,
+     -96.5,
+     0.0
+    ],
+    [
+     136.5,
+     -79.5,
+     1.35
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 42
+  },
+  {
+   "blender_object": "case.top_case__aluminium",
+   "node_path": "case.top_case",
+   "material_key": "aluminium",
+   "bbox_mm": [
+    [
+     -156.3,
+     -110.6,
+     3.3
+    ],
+    [
+     156.3,
+     110.6,
+     12.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 35000000.0,
+   "mu_r": 1.0,
+   "tris": 49620,
+   "stl_path": null,
+   "glb_node": 43
+  },
+  {
+   "blender_object": "display.ambient_light_sensor_0__g10",
+   "node_path": "display.ambient_light_sensor_0",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -12.2,
+     99.8,
+     12.9
+    ],
+    [
+     -9.8,
+     102.2,
+     13.5
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 44
+  },
+  {
+   "blender_object": "display.ambient_light_sensor_1__g10",
+   "node_path": "display.ambient_light_sensor_1",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     9.8,
+     99.8,
+     12.9
+    ],
+    [
+     12.2,
+     102.2,
+     13.5
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 45
+  },
+  {
+   "blender_object": "display.backlight_array__g10",
+   "node_path": "display.backlight_array",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -149.8,
+     -104.1,
+     14.13
+    ],
+    [
+     149.8,
+     104.1,
+     15.1
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 332,
+   "stl_path": null,
+   "glb_node": 46
+  },
+  {
+   "blender_object": "display.backlight_mcpcb__aluminium",
+   "node_path": "display.backlight_mcpcb",
+   "material_key": "aluminium",
+   "bbox_mm": [
+    [
+     -149.8,
+     -104.1,
+     15.1
+    ],
+    [
+     149.8,
+     104.1,
+     15.6
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 35000000.0,
+   "mu_r": 1.0,
+   "tris": 332,
+   "stl_path": null,
+   "glb_node": 47
+  },
+  {
+   "blender_object": "display.bezel__abs",
+   "node_path": "display.bezel",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -154.6,
+     -108.9,
+     12.9
+    ],
+    [
+     154.6,
+     108.9,
+     13.45
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 544,
+   "stl_path": null,
+   "glb_node": 48
+  },
+  {
+   "blender_object": "display.camera.barrel__abs",
+   "node_path": "display.camera.barrel",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -2.6,
+     98.4,
+     13.0
+    ],
+    [
+     2.6,
+     103.6,
+     15.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 49
+  },
+  {
+   "blender_object": "display.camera.flex__pet",
+   "node_path": "display.camera.flex",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -4.5,
+     89.5,
+     15.45
+    ],
+    [
+     4.5,
+     104.5,
+     15.6
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 50
+  },
+  {
+   "blender_object": "display.camera.lens__lens",
+   "node_path": "display.camera.lens",
+   "material_key": "lens",
+   "bbox_mm": [
+    [
+     -1.9,
+     99.1,
+     12.65
+    ],
+    [
+     1.9,
+     102.9,
+     13.1
+    ]
+   ],
+   "eps_r": 5.5,
+   "sigma_S_per_m": 0.003,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 51
+  },
+  {
+   "blender_object": "display.camera.sensor__g10",
+   "node_path": "display.camera.sensor",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -2.1,
+     98.9,
+     14.95
+    ],
+    [
+     2.1,
+     103.1,
+     15.45
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 52
+  },
+  {
+   "blender_object": "display.cover_glass__lens",
+   "node_path": "display.cover_glass",
+   "material_key": "lens",
+   "bbox_mm": [
+    [
+     -154.7,
+     -109.0,
+     12.35
+    ],
+    [
+     154.7,
+     109.0,
+     12.9
+    ]
+   ],
+   "eps_r": 5.5,
+   "sigma_S_per_m": 0.003,
+   "mu_r": 1.0,
+   "tris": 268,
+   "stl_path": null,
+   "glb_node": 53
+  },
+  {
+   "blender_object": "display.flex_shield__copper",
+   "node_path": "display.flex_shield",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -18.0,
+     92.0,
+     11.25
+    ],
+    [
+     18.0,
+     99.0,
+     11.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 54
+  },
+  {
+   "blender_object": "display.flex_tail__pet",
+   "node_path": "display.flex_tail",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -18.0,
+     92.0,
+     5.065
+    ],
+    [
+     18.0,
+     99.15,
+     11.25
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 28,
+   "stl_path": null,
+   "glb_node": 55
+  },
+  {
+   "blender_object": "display.hinge_blade_0__stainless",
+   "node_path": "display.hinge_blade_0",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -110.0,
+     104.4412,
+     10.2
+    ],
+    [
+     -94.0,
+     110.0,
+     12.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 80,
+   "stl_path": null,
+   "glb_node": 56
+  },
+  {
+   "blender_object": "display.hinge_blade_1__stainless",
+   "node_path": "display.hinge_blade_1",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     94.0,
+     104.4412,
+     10.2
+    ],
+    [
+     110.0,
+     110.0,
+     12.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 80,
+   "stl_path": null,
+   "glb_node": 57
+  },
+  {
+   "blender_object": "display.lcd_panel__lens",
+   "node_path": "display.lcd_panel",
+   "material_key": "lens",
+   "bbox_mm": [
+    [
+     -149.8,
+     -104.1,
+     13.03
+    ],
+    [
+     149.8,
+     104.1,
+     14.13
+    ]
+   ],
+   "eps_r": 5.5,
+   "sigma_S_per_m": 0.003,
+   "mu_r": 1.0,
+   "tris": 332,
+   "stl_path": null,
+   "glb_node": 58
+  },
+  {
+   "blender_object": "display.lid_back__aluminium",
+   "node_path": "display.lid_back",
+   "material_key": "aluminium",
+   "bbox_mm": [
+    [
+     -156.3,
+     -110.6,
+     12.1
+    ],
+    [
+     156.3,
+     110.6,
+     16.4
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 35000000.0,
+   "mu_r": 1.0,
+   "tris": 540,
+   "stl_path": null,
+   "glb_node": 59
+  },
+  {
+   "blender_object": "display.lid_magnet_0__steel",
+   "node_path": "display.lid_magnet_0",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -70.0,
+     -108.95,
+     14.1
+    ],
+    [
+     -54.0,
+     -104.45,
+     15.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 60
+  },
+  {
+   "blender_object": "display.lid_magnet_1__steel",
+   "node_path": "display.lid_magnet_1",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     54.0,
+     -108.95,
+     14.1
+    ],
+    [
+     70.0,
+     -104.45,
+     15.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 61
+  },
+  {
+   "blender_object": "display.polariser__pet",
+   "node_path": "display.polariser",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -149.8,
+     -104.1,
+     12.9
+    ],
+    [
+     149.8,
+     104.1,
+     13.03
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 268,
+   "stl_path": null,
+   "glb_node": 62
+  },
+  {
+   "blender_object": "fasteners.board_screw_00__stainless",
+   "node_path": "fasteners.board_screw_00",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -147.3,
+     86.7,
+     3.5
+    ],
+    [
+     -144.7,
+     89.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 63
+  },
+  {
+   "blender_object": "fasteners.board_screw_01__stainless",
+   "node_path": "fasteners.board_screw_01",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     144.7,
+     86.7,
+     3.5
+    ],
+    [
+     147.3,
+     89.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 64
+  },
+  {
+   "blender_object": "fasteners.board_screw_02__stainless",
+   "node_path": "fasteners.board_screw_02",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -147.3,
+     6.7,
+     3.5
+    ],
+    [
+     -144.7,
+     9.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 65
+  },
+  {
+   "blender_object": "fasteners.board_screw_03__stainless",
+   "node_path": "fasteners.board_screw_03",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     144.7,
+     6.7,
+     3.5
+    ],
+    [
+     147.3,
+     9.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 66
+  },
+  {
+   "blender_object": "fasteners.board_screw_04__stainless",
+   "node_path": "fasteners.board_screw_04",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -93.3,
+     94.7,
+     3.5
+    ],
+    [
+     -90.7,
+     97.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 67
+  },
+  {
+   "blender_object": "fasteners.board_screw_05__stainless",
+   "node_path": "fasteners.board_screw_05",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     90.7,
+     94.7,
+     3.5
+    ],
+    [
+     93.3,
+     97.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 68
+  },
+  {
+   "blender_object": "fasteners.board_screw_06__stainless",
+   "node_path": "fasteners.board_screw_06",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -1.3,
+     94.7,
+     3.5
+    ],
+    [
+     1.3,
+     97.3,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 69
+  },
+  {
+   "blender_object": "fasteners.board_screw_07__stainless",
+   "node_path": "fasteners.board_screw_07",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -41.3,
+     -19.3,
+     3.5
+    ],
+    [
+     -38.7,
+     -16.7,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 70
+  },
+  {
+   "blender_object": "fasteners.board_screw_08__stainless",
+   "node_path": "fasteners.board_screw_08",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     38.7,
+     -19.3,
+     3.5
+    ],
+    [
+     41.3,
+     -16.7,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 71
+  },
+  {
+   "blender_object": "fasteners.board_screw_09__stainless",
+   "node_path": "fasteners.board_screw_09",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -119.3,
+     -17.3,
+     3.5
+    ],
+    [
+     -116.7,
+     -14.7,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 72
+  },
+  {
+   "blender_object": "fasteners.board_screw_10__stainless",
+   "node_path": "fasteners.board_screw_10",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     116.7,
+     -17.3,
+     3.5
+    ],
+    [
+     119.3,
+     -14.7,
+     6.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 2304,
+   "stl_path": null,
+   "glb_node": 73
+  },
+  {
+   "blender_object": "fasteners.pentalobe_00__stainless",
+   "node_path": "fasteners.pentalobe_00",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -139.7,
+     -105.7,
+     1.05
+    ],
+    [
+     -136.3,
+     -102.3,
+     4.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 74
+  },
+  {
+   "blender_object": "fasteners.pentalobe_01__stainless",
+   "node_path": "fasteners.pentalobe_01",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -1.7,
+     -106.2,
+     1.05
+    ],
+    [
+     1.7,
+     -102.8,
+     4.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 75
+  },
+  {
+   "blender_object": "fasteners.pentalobe_02__stainless",
+   "node_path": "fasteners.pentalobe_02",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     136.3,
+     -105.7,
+     1.05
+    ],
+    [
+     139.7,
+     -102.3,
+     4.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 76
+  },
+  {
+   "blender_object": "fasteners.pentalobe_03__stainless",
+   "node_path": "fasteners.pentalobe_03",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -147.7,
+     60.3,
+     1.05
+    ],
+    [
+     -144.3,
+     63.7,
+     4.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 77
+  },
+  {
+   "blender_object": "fasteners.pentalobe_04__stainless",
+   "node_path": "fasteners.pentalobe_04",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     144.3,
+     60.3,
+     1.05
+    ],
+    [
+     147.7,
+     63.7,
+     4.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 78
+  },
+  {
+   "blender_object": "fasteners.pentalobe_05__stainless",
+   "node_path": "fasteners.pentalobe_05",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -1.7,
+     101.3,
+     1.05
+    ],
+    [
+     1.7,
+     104.7,
+     4.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 79
+  },
+  {
+   "blender_object": "hardware.bc_gasket__rubber",
+   "node_path": "hardware.bc_gasket",
+   "material_key": "rubber",
+   "bbox_mm": [
+    [
+     -154.5,
+     -108.8,
+     3.3
+    ],
+    [
+     154.5,
+     108.8,
+     3.6
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 416,
+   "stl_path": null,
+   "glb_node": 80
+  },
+  {
+   "blender_object": "hardware.cowling_antenna_coax__stainless",
+   "node_path": "hardware.cowling_antenna_coax",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -84.0,
+     -11.25,
+     5.25
+    ],
+    [
+     -72.0,
+     -4.75,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 81
+  },
+  {
+   "blender_object": "hardware.cowling_audio__stainless",
+   "node_path": "hardware.cowling_audio",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -102.0,
+     -11.25,
+     5.25
+    ],
+    [
+     -90.0,
+     -4.75,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 82
+  },
+  {
+   "blender_object": "hardware.cowling_display_a__stainless",
+   "node_path": "hardware.cowling_display_a",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -29.0,
+     88.0,
+     5.25
+    ],
+    [
+     -7.0,
+     96.0,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 83
+  },
+  {
+   "blender_object": "hardware.cowling_display_b__stainless",
+   "node_path": "hardware.cowling_display_b",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     7.0,
+     88.0,
+     5.25
+    ],
+    [
+     29.0,
+     96.0,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 84
+  },
+  {
+   "blender_object": "hardware.cowling_left_usbc__stainless",
+   "node_path": "hardware.cowling_left_usbc",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -126.0,
+     -12.0,
+     5.25
+    ],
+    [
+     -102.0,
+     -4.0,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 85
+  },
+  {
+   "blender_object": "hardware.cowling_lid_angle__stainless",
+   "node_path": "hardware.cowling_lid_angle",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -65.5,
+     -11.0,
+     5.25
+    ],
+    [
+     -54.5,
+     -5.0,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 86
+  },
+  {
+   "blender_object": "hardware.cowling_magsafe__stainless",
+   "node_path": "hardware.cowling_magsafe",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -138.5,
+     -11.5,
+     5.25
+    ],
+    [
+     -125.5,
+     -4.5,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 87
+  },
+  {
+   "blender_object": "hardware.cowling_right_usbc__stainless",
+   "node_path": "hardware.cowling_right_usbc",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     106.0,
+     -12.0,
+     5.25
+    ],
+    [
+     122.0,
+     -4.0,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 88
+  },
+  {
+   "blender_object": "hardware.cowling_touchid__stainless",
+   "node_path": "hardware.cowling_touchid",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     97.5,
+     4.5,
+     5.25
+    ],
+    [
+     110.5,
+     11.5,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 89
+  },
+  {
+   "blender_object": "hardware.cowling_trackpad__stainless",
+   "node_path": "hardware.cowling_trackpad",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -15.5,
+     -23.75,
+     5.25
+    ],
+    [
+     3.5,
+     -16.25,
+     6.35
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 156,
+   "stl_path": null,
+   "glb_node": 90
+  },
+  {
+   "blender_object": "hardware.speaker_bracket_0__stainless",
+   "node_path": "hardware.speaker_bracket_0",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -140.0,
+     -33.0,
+     7.3
+    ],
+    [
+     -132.0,
+     -7.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 91
+  },
+  {
+   "blender_object": "hardware.speaker_bracket_1__stainless",
+   "node_path": "hardware.speaker_bracket_1",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     132.0,
+     -33.0,
+     7.3
+    ],
+    [
+     140.0,
+     -7.0,
+     8.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 92
+  },
+  {
+   "blender_object": "hinge.barrel_0__stainless",
+   "node_path": "hinge.barrel_0",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -136.0,
+     104.2,
+     7.5
+    ],
+    [
+     -28.0,
+     107.8,
+     11.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 93
+  },
+  {
+   "blender_object": "hinge.barrel_1__stainless",
+   "node_path": "hinge.barrel_1",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     28.0,
+     104.2,
+     7.5
+    ],
+    [
+     136.0,
+     107.8,
+     11.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 94
+  },
+  {
+   "blender_object": "hinge.bracket_0__stainless",
+   "node_path": "hinge.bracket_0",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -135.0,
+     97.2,
+     5.3
+    ],
+    [
+     -124.0,
+     109.0,
+     6.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 95
+  },
+  {
+   "blender_object": "hinge.bracket_1__stainless",
+   "node_path": "hinge.bracket_1",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     124.0,
+     97.2,
+     5.3
+    ],
+    [
+     135.0,
+     109.0,
+     6.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 96
+  },
+  {
+   "blender_object": "hinge.clutch_0__stainless",
+   "node_path": "hinge.clutch_0",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -134.0,
+     103.2,
+     6.5
+    ],
+    [
+     -112.0,
+     108.8,
+     12.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 97
+  },
+  {
+   "blender_object": "hinge.clutch_1__stainless",
+   "node_path": "hinge.clutch_1",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     112.0,
+     103.2,
+     6.5
+    ],
+    [
+     134.0,
+     108.8,
+     12.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 98
+  },
+  {
+   "blender_object": "hinge.cover_0__abs",
+   "node_path": "hinge.cover_0",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -146.5,
+     102.0,
+     6.1
+    ],
+    [
+     -136.5,
+     108.0,
+     10.7
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 99
+  },
+  {
+   "blender_object": "hinge.cover_1__abs",
+   "node_path": "hinge.cover_1",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     136.5,
+     102.0,
+     6.1
+    ],
+    [
+     146.5,
+     108.0,
+     10.7
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 100
+  },
+  {
+   "blender_object": "hinge.lid_angle_sensor__fr4",
+   "node_path": "hinge.lid_angle_sensor",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -153.5,
+     53.0,
+     7.4
+    ],
+    [
+     -138.5,
+     67.0,
+     9.6
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 101
+  },
+  {
+   "blender_object": "hinge.lid_angle_sensor_magnet__steel",
+   "node_path": "hinge.lid_angle_sensor_magnet",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -148.5,
+     47.5,
+     7.7
+    ],
+    [
+     -143.5,
+     52.5,
+     9.3
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 102
+  },
+  {
+   "blender_object": "io.audio_board__fr4",
+   "node_path": "io.audio_board",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -152.5,
+     26.0,
+     2.9
+    ],
+    [
+     -137.5,
+     40.0,
+     3.8
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 103
+  },
+  {
+   "blender_object": "io.audio_board_ground__copper",
+   "node_path": "io.audio_board_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -152.5,
+     26.0,
+     2.865
+    ],
+    [
+     -137.5,
+     40.0,
+     2.9
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 104
+  },
+  {
+   "blender_object": "io.flex_left__pet",
+   "node_path": "io.flex_left",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -147.0,
+     -22.0,
+     5.065
+    ],
+    [
+     -113.0,
+     -2.0,
+     5.215
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 105
+  },
+  {
+   "blender_object": "io.flex_right__pet",
+   "node_path": "io.flex_right",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     113.0,
+     -22.0,
+     5.065
+    ],
+    [
+     147.0,
+     -2.0,
+     5.215
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 106
+  },
+  {
+   "blender_object": "io.hdmi_board__fr4",
+   "node_path": "io.hdmi_board",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     137.5,
+     35.0,
+     2.2
+    ],
+    [
+     152.5,
+     55.0,
+     3.1
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 107
+  },
+  {
+   "blender_object": "io.hdmi_board_ground__copper",
+   "node_path": "io.hdmi_board_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     137.5,
+     35.0,
+     2.165
+    ],
+    [
+     152.5,
+     55.0,
+     2.2
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 108
+  },
+  {
+   "blender_object": "io.jack_barrel__stainless",
+   "node_path": "io.jack_barrel",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -154.5,
+     30.7,
+     3.8
+    ],
+    [
+     -144.3,
+     35.3,
+     8.4
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 124,
+   "stl_path": null,
+   "glb_node": 109
+  },
+  {
+   "blender_object": "io.magsafe_board__fr4",
+   "node_path": "io.magsafe_board",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -152.5,
+     78.0,
+     3.1
+    ],
+    [
+     -137.5,
+     98.0,
+     4.0
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 110
+  },
+  {
+   "blender_object": "io.magsafe_board_ground__copper",
+   "node_path": "io.magsafe_board_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -152.5,
+     78.0,
+     3.065
+    ],
+    [
+     -137.5,
+     98.0,
+     3.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 111
+  },
+  {
+   "blender_object": "io.magsafe_magnet_0__steel",
+   "node_path": "io.magsafe_magnet_0",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -153.3,
+     76.5,
+     5.0
+    ],
+    [
+     -150.3,
+     81.5,
+     7.2
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 112
+  },
+  {
+   "blender_object": "io.magsafe_magnet_1__steel",
+   "node_path": "io.magsafe_magnet_1",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -153.3,
+     94.5,
+     5.0
+    ],
+    [
+     -150.3,
+     99.5,
+     7.2
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 113
+  },
+  {
+   "blender_object": "io.recept_hdmi__stainless",
+   "node_path": "io.recept_hdmi",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     143.7,
+     36.8,
+     3.1
+    ],
+    [
+     154.7,
+     53.2,
+     9.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 128,
+   "stl_path": null,
+   "glb_node": 114
+  },
+  {
+   "blender_object": "io.recept_hdmi_backplate__stainless",
+   "node_path": "io.recept_hdmi_backplate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     143.35,
+     36.8,
+     3.1
+    ],
+    [
+     143.7,
+     53.2,
+     9.1
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 115
+  },
+  {
+   "blender_object": "io.recept_hdmi_contacts__copper",
+   "node_path": "io.recept_hdmi_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     144.9,
+     38.6,
+     6.41
+    ],
+    [
+     153.5,
+     51.4,
+     6.61
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 116
+  },
+  {
+   "blender_object": "io.recept_hdmi_tongue__nylon",
+   "node_path": "io.recept_hdmi_tongue",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     144.5,
+     38.3,
+     5.79
+    ],
+    [
+     153.9,
+     51.7,
+     6.41
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 117
+  },
+  {
+   "blender_object": "io.recept_magsafe__stainless",
+   "node_path": "io.recept_magsafe",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -154.7,
+     80.5,
+     4.0
+    ],
+    [
+     -149.7,
+     95.5,
+     8.2
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 128,
+   "stl_path": null,
+   "glb_node": 118
+  },
+  {
+   "blender_object": "io.recept_magsafe_backplate__stainless",
+   "node_path": "io.recept_magsafe_backplate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -149.7,
+     80.5,
+     4.0
+    ],
+    [
+     -149.35,
+     95.5,
+     8.2
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 119
+  },
+  {
+   "blender_object": "io.recept_sdxc__stainless",
+   "node_path": "io.recept_sdxc",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     130.7,
+     6.7,
+     3.95
+    ],
+    [
+     154.7,
+     33.3,
+     8.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 128,
+   "stl_path": null,
+   "glb_node": 120
+  },
+  {
+   "blender_object": "io.recept_sdxc_backplate__stainless",
+   "node_path": "io.recept_sdxc_backplate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     130.35,
+     6.7,
+     3.95
+    ],
+    [
+     130.7,
+     33.3,
+     8.25
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 121
+  },
+  {
+   "blender_object": "io.recept_usbc_l1__stainless",
+   "node_path": "io.recept_usbc_l1",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -154.7,
+     46.93,
+     4.22
+    ],
+    [
+     -147.3,
+     57.07,
+     7.98
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 128,
+   "stl_path": null,
+   "glb_node": 122
+  },
+  {
+   "blender_object": "io.recept_usbc_l1_backplate__stainless",
+   "node_path": "io.recept_usbc_l1_backplate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -147.3,
+     46.93,
+     4.22
+    ],
+    [
+     -146.95,
+     57.07,
+     7.98
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 123
+  },
+  {
+   "blender_object": "io.recept_usbc_l1_contacts__copper",
+   "node_path": "io.recept_usbc_l1_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -153.5,
+     48.73,
+     6.41
+    ],
+    [
+     -148.5,
+     55.27,
+     6.61
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 124
+  },
+  {
+   "blender_object": "io.recept_usbc_l1_tongue__nylon",
+   "node_path": "io.recept_usbc_l1_tongue",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -153.9,
+     48.43,
+     5.79
+    ],
+    [
+     -148.1,
+     55.57,
+     6.41
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 125
+  },
+  {
+   "blender_object": "io.recept_usbc_l2__stainless",
+   "node_path": "io.recept_usbc_l2",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -154.7,
+     64.93,
+     4.22
+    ],
+    [
+     -147.3,
+     75.07,
+     7.98
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 128,
+   "stl_path": null,
+   "glb_node": 126
+  },
+  {
+   "blender_object": "io.recept_usbc_l2_backplate__stainless",
+   "node_path": "io.recept_usbc_l2_backplate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -147.3,
+     64.93,
+     4.22
+    ],
+    [
+     -146.95,
+     75.07,
+     7.98
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 127
+  },
+  {
+   "blender_object": "io.recept_usbc_l2_contacts__copper",
+   "node_path": "io.recept_usbc_l2_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -153.5,
+     66.73,
+     6.41
+    ],
+    [
+     -148.5,
+     73.27,
+     6.61
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 128
+  },
+  {
+   "blender_object": "io.recept_usbc_l2_tongue__nylon",
+   "node_path": "io.recept_usbc_l2_tongue",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -153.9,
+     66.43,
+     5.79
+    ],
+    [
+     -148.1,
+     73.57,
+     6.41
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 129
+  },
+  {
+   "blender_object": "io.recept_usbc_r__stainless",
+   "node_path": "io.recept_usbc_r",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     147.3,
+     59.93,
+     4.22
+    ],
+    [
+     154.7,
+     70.07,
+     7.98
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 128,
+   "stl_path": null,
+   "glb_node": 130
+  },
+  {
+   "blender_object": "io.recept_usbc_r_backplate__stainless",
+   "node_path": "io.recept_usbc_r_backplate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     146.95,
+     59.93,
+     4.22
+    ],
+    [
+     147.3,
+     70.07,
+     7.98
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 131
+  },
+  {
+   "blender_object": "io.recept_usbc_r_contacts__copper",
+   "node_path": "io.recept_usbc_r_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     148.5,
+     61.73,
+     6.41
+    ],
+    [
+     153.5,
+     68.27,
+     6.61
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 132
+  },
+  {
+   "blender_object": "io.recept_usbc_r_tongue__nylon",
+   "node_path": "io.recept_usbc_r_tongue",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     148.1,
+     61.43,
+     5.79
+    ],
+    [
+     153.9,
+     68.57,
+     6.41
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 133
+  },
+  {
+   "blender_object": "io.sdxc_cage_board__fr4",
+   "node_path": "io.sdxc_cage_board",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     137.5,
+     6.0,
+     3.05
+    ],
+    [
+     152.5,
+     34.0,
+     3.95
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 134
+  },
+  {
+   "blender_object": "io.sdxc_cage_board_ground__copper",
+   "node_path": "io.sdxc_cage_board_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     137.5,
+     6.0,
+     3.015
+    ],
+    [
+     152.5,
+     34.0,
+     3.05
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 135
+  },
+  {
+   "blender_object": "io.usbc_board_l1__fr4",
+   "node_path": "io.usbc_board_l1",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -152.5,
+     43.5,
+     3.32
+    ],
+    [
+     -137.5,
+     60.5,
+     4.22
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 136
+  },
+  {
+   "blender_object": "io.usbc_board_l1_ground__copper",
+   "node_path": "io.usbc_board_l1_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -152.5,
+     43.5,
+     3.285
+    ],
+    [
+     -137.5,
+     60.5,
+     3.32
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 137
+  },
+  {
+   "blender_object": "io.usbc_board_l2__fr4",
+   "node_path": "io.usbc_board_l2",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -152.5,
+     61.5,
+     3.32
+    ],
+    [
+     -137.5,
+     78.5,
+     4.22
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 138
+  },
+  {
+   "blender_object": "io.usbc_board_l2_ground__copper",
+   "node_path": "io.usbc_board_l2_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -152.5,
+     61.5,
+     3.285
+    ],
+    [
+     -137.5,
+     78.5,
+     3.32
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 139
+  },
+  {
+   "blender_object": "io.usbc_board_r__fr4",
+   "node_path": "io.usbc_board_r",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     137.5,
+     56.5,
+     3.32
+    ],
+    [
+     152.5,
+     73.5,
+     4.22
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 140
+  },
+  {
+   "blender_object": "io.usbc_board_r_ground__copper",
+   "node_path": "io.usbc_board_r_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     137.5,
+     56.5,
+     3.285
+    ],
+    [
+     152.5,
+     73.5,
+     3.32
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 76,
+   "stl_path": null,
+   "glb_node": 141
+  },
+  {
+   "blender_object": "logic_board.audio_codec__fr4",
+   "node_path": "logic_board.audio_codec",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     19.0,
+     -15.0,
+     3.535
+    ],
+    [
+     25.0,
+     -9.0,
+     4.435
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 142
+  },
+  {
+   "blender_object": "logic_board.connector_audio__nylon",
+   "node_path": "logic_board.connector_audio",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -100.0,
+     -9.5,
+     3.535
+    ],
+    [
+     -92.0,
+     -6.5,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 143
+  },
+  {
+   "blender_object": "logic_board.connector_audio_contacts__copper",
+   "node_path": "logic_board.connector_audio_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -99.2,
+     -8.7,
+     5.035
+    ],
+    [
+     -92.8,
+     -7.3,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 144
+  },
+  {
+   "blender_object": "logic_board.connector_battery__nylon",
+   "node_path": "logic_board.connector_battery",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     66.0,
+     -22.0,
+     3.535
+    ],
+    [
+     88.0,
+     -18.0,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 145
+  },
+  {
+   "blender_object": "logic_board.connector_battery_contacts__copper",
+   "node_path": "logic_board.connector_battery_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     66.8,
+     -21.2,
+     5.035
+    ],
+    [
+     87.2,
+     -18.8,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 146
+  },
+  {
+   "blender_object": "logic_board.connector_display__nylon",
+   "node_path": "logic_board.connector_display",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -17.0,
+     89.9,
+     3.535
+    ],
+    [
+     17.0,
+     94.1,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 147
+  },
+  {
+   "blender_object": "logic_board.connector_display_contacts__copper",
+   "node_path": "logic_board.connector_display_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -16.2,
+     90.7,
+     5.035
+    ],
+    [
+     16.2,
+     93.3,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 148
+  },
+  {
+   "blender_object": "logic_board.connector_fan_l__nylon",
+   "node_path": "logic_board.connector_fan_l",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -73.5,
+     60.7,
+     3.535
+    ],
+    [
+     -66.5,
+     63.3,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 149
+  },
+  {
+   "blender_object": "logic_board.connector_fan_l_contacts__copper",
+   "node_path": "logic_board.connector_fan_l_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -72.7,
+     61.5,
+     5.035
+    ],
+    [
+     -67.3,
+     62.5,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 150
+  },
+  {
+   "blender_object": "logic_board.connector_fan_r__nylon",
+   "node_path": "logic_board.connector_fan_r",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     66.5,
+     60.7,
+     3.535
+    ],
+    [
+     73.5,
+     63.3,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 151
+  },
+  {
+   "blender_object": "logic_board.connector_fan_r_contacts__copper",
+   "node_path": "logic_board.connector_fan_r_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     67.3,
+     61.5,
+     5.035
+    ],
+    [
+     72.7,
+     62.5,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 152
+  },
+  {
+   "blender_object": "logic_board.connector_las__nylon",
+   "node_path": "logic_board.connector_las",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -81.5,
+     -9.3,
+     3.535
+    ],
+    [
+     -74.5,
+     -6.7,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 153
+  },
+  {
+   "blender_object": "logic_board.connector_las_contacts__copper",
+   "node_path": "logic_board.connector_las_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -80.7,
+     -8.5,
+     5.035
+    ],
+    [
+     -75.3,
+     -7.5,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 154
+  },
+  {
+   "blender_object": "logic_board.connector_magsafe__nylon",
+   "node_path": "logic_board.connector_magsafe",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.5,
+     -9.6,
+     3.535
+    ],
+    [
+     -127.5,
+     -6.4,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 155
+  },
+  {
+   "blender_object": "logic_board.connector_magsafe_contacts__copper",
+   "node_path": "logic_board.connector_magsafe_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -135.7,
+     -8.8,
+     5.035
+    ],
+    [
+     -128.3,
+     -7.2,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 156
+  },
+  {
+   "blender_object": "logic_board.connector_speaker_l__nylon",
+   "node_path": "logic_board.connector_speaker_l",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -132.0,
+     -15.5,
+     3.535
+    ],
+    [
+     -124.0,
+     -12.5,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 157
+  },
+  {
+   "blender_object": "logic_board.connector_speaker_l_contacts__copper",
+   "node_path": "logic_board.connector_speaker_l_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -131.2,
+     -14.7,
+     5.035
+    ],
+    [
+     -124.8,
+     -13.3,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 158
+  },
+  {
+   "blender_object": "logic_board.connector_speaker_r__nylon",
+   "node_path": "logic_board.connector_speaker_r",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     124.0,
+     -15.5,
+     3.535
+    ],
+    [
+     132.0,
+     -12.5,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 159
+  },
+  {
+   "blender_object": "logic_board.connector_speaker_r_contacts__copper",
+   "node_path": "logic_board.connector_speaker_r_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     124.8,
+     -14.7,
+     5.035
+    ],
+    [
+     131.2,
+     -13.3,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 160
+  },
+  {
+   "blender_object": "logic_board.connector_touchid__nylon",
+   "node_path": "logic_board.connector_touchid",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     99.5,
+     -1.5,
+     3.535
+    ],
+    [
+     108.5,
+     1.5,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 161
+  },
+  {
+   "blender_object": "logic_board.connector_touchid_contacts__copper",
+   "node_path": "logic_board.connector_touchid_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     100.3,
+     -0.7,
+     5.035
+    ],
+    [
+     107.7,
+     0.7,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 162
+  },
+  {
+   "blender_object": "logic_board.connector_trackpad__nylon",
+   "node_path": "logic_board.connector_trackpad",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -13.0,
+     -21.7,
+     3.535
+    ],
+    [
+     1.0,
+     -18.3,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 163
+  },
+  {
+   "blender_object": "logic_board.connector_trackpad_contacts__copper",
+   "node_path": "logic_board.connector_trackpad_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -12.2,
+     -20.9,
+     5.035
+    ],
+    [
+     0.2,
+     -19.1,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 164
+  },
+  {
+   "blender_object": "logic_board.connector_usbc_l__nylon",
+   "node_path": "logic_board.connector_usbc_l",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -119.5,
+     -9.6,
+     3.535
+    ],
+    [
+     -108.5,
+     -6.4,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 165
+  },
+  {
+   "blender_object": "logic_board.connector_usbc_l_contacts__copper",
+   "node_path": "logic_board.connector_usbc_l_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -118.7,
+     -8.8,
+     5.035
+    ],
+    [
+     -109.3,
+     -7.2,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 166
+  },
+  {
+   "blender_object": "logic_board.connector_usbc_r__nylon",
+   "node_path": "logic_board.connector_usbc_r",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     108.5,
+     -9.6,
+     3.535
+    ],
+    [
+     119.5,
+     -6.4,
+     5.035
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 167
+  },
+  {
+   "blender_object": "logic_board.connector_usbc_r_contacts__copper",
+   "node_path": "logic_board.connector_usbc_r_contacts",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     109.3,
+     -8.8,
+     5.035
+    ],
+    [
+     118.7,
+     -7.2,
+     5.185
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 168
+  },
+  {
+   "blender_object": "logic_board.discrete_00__g10",
+   "node_path": "logic_board.discrete_00",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -136.8,
+     0.2,
+     3.535
+    ],
+    [
+     -133.6,
+     1.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 169
+  },
+  {
+   "blender_object": "logic_board.discrete_01__g10",
+   "node_path": "logic_board.discrete_01",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -136.0,
+     13.6,
+     3.535
+    ],
+    [
+     -134.4,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 170
+  },
+  {
+   "blender_object": "logic_board.discrete_02__g10",
+   "node_path": "logic_board.discrete_02",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -136.0,
+     65.6,
+     3.535
+    ],
+    [
+     -134.4,
+     66.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 171
+  },
+  {
+   "blender_object": "logic_board.discrete_03__g10",
+   "node_path": "logic_board.discrete_03",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -136.8,
+     78.2,
+     3.535
+    ],
+    [
+     -133.6,
+     79.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 172
+  },
+  {
+   "blender_object": "logic_board.discrete_04__g10",
+   "node_path": "logic_board.discrete_04",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -125.6,
+     0.6,
+     3.535
+    ],
+    [
+     -124.0,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 173
+  },
+  {
+   "blender_object": "logic_board.discrete_05__g10",
+   "node_path": "logic_board.discrete_05",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -125.6,
+     78.6,
+     3.535
+    ],
+    [
+     -124.0,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 174
+  },
+  {
+   "blender_object": "logic_board.discrete_06__g10",
+   "node_path": "logic_board.discrete_06",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -116.0,
+     78.2,
+     3.535
+    ],
+    [
+     -112.8,
+     79.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 175
+  },
+  {
+   "blender_object": "logic_board.discrete_07__g10",
+   "node_path": "logic_board.discrete_07",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -84.0,
+     78.6,
+     3.535
+    ],
+    [
+     -82.4,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 176
+  },
+  {
+   "blender_object": "logic_board.discrete_08__g10",
+   "node_path": "logic_board.discrete_08",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -73.6,
+     78.6,
+     3.535
+    ],
+    [
+     -72.0,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 177
+  },
+  {
+   "blender_object": "logic_board.discrete_09__g10",
+   "node_path": "logic_board.discrete_09",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -64.0,
+     13.2,
+     3.535
+    ],
+    [
+     -60.8,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 178
+  },
+  {
+   "blender_object": "logic_board.discrete_10__g10",
+   "node_path": "logic_board.discrete_10",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -63.2,
+     65.6,
+     3.535
+    ],
+    [
+     -61.6,
+     66.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 179
+  },
+  {
+   "blender_object": "logic_board.discrete_11__g10",
+   "node_path": "logic_board.discrete_11",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -63.2,
+     78.6,
+     3.535
+    ],
+    [
+     -61.6,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 180
+  },
+  {
+   "blender_object": "logic_board.discrete_12__g10",
+   "node_path": "logic_board.discrete_12",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -53.6,
+     13.2,
+     3.535
+    ],
+    [
+     -50.4,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 181
+  },
+  {
+   "blender_object": "logic_board.discrete_13__g10",
+   "node_path": "logic_board.discrete_13",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -52.8,
+     26.6,
+     3.535
+    ],
+    [
+     -51.2,
+     27.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 182
+  },
+  {
+   "blender_object": "logic_board.discrete_14__g10",
+   "node_path": "logic_board.discrete_14",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -52.8,
+     39.6,
+     3.535
+    ],
+    [
+     -51.2,
+     40.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 183
+  },
+  {
+   "blender_object": "logic_board.discrete_15__g10",
+   "node_path": "logic_board.discrete_15",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -53.6,
+     52.2,
+     3.535
+    ],
+    [
+     -50.4,
+     53.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 184
+  },
+  {
+   "blender_object": "logic_board.discrete_16__g10",
+   "node_path": "logic_board.discrete_16",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -52.8,
+     65.6,
+     3.535
+    ],
+    [
+     -51.2,
+     66.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 185
+  },
+  {
+   "blender_object": "logic_board.discrete_17__g10",
+   "node_path": "logic_board.discrete_17",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -52.8,
+     78.6,
+     3.535
+    ],
+    [
+     -51.2,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 186
+  },
+  {
+   "blender_object": "logic_board.discrete_18__g10",
+   "node_path": "logic_board.discrete_18",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -43.2,
+     0.2,
+     3.535
+    ],
+    [
+     -40.0,
+     1.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 187
+  },
+  {
+   "blender_object": "logic_board.discrete_19__g10",
+   "node_path": "logic_board.discrete_19",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -42.4,
+     13.6,
+     3.535
+    ],
+    [
+     -40.8,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 188
+  },
+  {
+   "blender_object": "logic_board.discrete_20__g10",
+   "node_path": "logic_board.discrete_20",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -42.4,
+     26.6,
+     3.535
+    ],
+    [
+     -40.8,
+     27.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 189
+  },
+  {
+   "blender_object": "logic_board.discrete_21__g10",
+   "node_path": "logic_board.discrete_21",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -43.2,
+     39.2,
+     3.535
+    ],
+    [
+     -40.0,
+     40.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 190
+  },
+  {
+   "blender_object": "logic_board.discrete_22__g10",
+   "node_path": "logic_board.discrete_22",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -42.4,
+     52.6,
+     3.535
+    ],
+    [
+     -40.8,
+     53.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 191
+  },
+  {
+   "blender_object": "logic_board.discrete_23__g10",
+   "node_path": "logic_board.discrete_23",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -32.0,
+     0.6,
+     3.535
+    ],
+    [
+     -30.4,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 192
+  },
+  {
+   "blender_object": "logic_board.discrete_24__g10",
+   "node_path": "logic_board.discrete_24",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -32.8,
+     13.2,
+     3.535
+    ],
+    [
+     -29.6,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 193
+  },
+  {
+   "blender_object": "logic_board.discrete_25__g10",
+   "node_path": "logic_board.discrete_25",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -32.0,
+     26.6,
+     3.535
+    ],
+    [
+     -30.4,
+     27.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 194
+  },
+  {
+   "blender_object": "logic_board.discrete_26__g10",
+   "node_path": "logic_board.discrete_26",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -32.0,
+     39.6,
+     3.535
+    ],
+    [
+     -30.4,
+     40.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 195
+  },
+  {
+   "blender_object": "logic_board.discrete_27__g10",
+   "node_path": "logic_board.discrete_27",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -32.8,
+     52.2,
+     3.535
+    ],
+    [
+     -29.6,
+     53.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 196
+  },
+  {
+   "blender_object": "logic_board.discrete_28__g10",
+   "node_path": "logic_board.discrete_28",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -21.6,
+     0.6,
+     3.535
+    ],
+    [
+     -20.0,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 197
+  },
+  {
+   "blender_object": "logic_board.discrete_29__g10",
+   "node_path": "logic_board.discrete_29",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -21.6,
+     13.6,
+     3.535
+    ],
+    [
+     -20.0,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 198
+  },
+  {
+   "blender_object": "logic_board.discrete_30__g10",
+   "node_path": "logic_board.discrete_30",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -12.0,
+     0.2,
+     3.535
+    ],
+    [
+     -8.8,
+     1.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 199
+  },
+  {
+   "blender_object": "logic_board.discrete_31__g10",
+   "node_path": "logic_board.discrete_31",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -11.2,
+     13.6,
+     3.535
+    ],
+    [
+     -9.6,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 200
+  },
+  {
+   "blender_object": "logic_board.discrete_32__g10",
+   "node_path": "logic_board.discrete_32",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -0.8,
+     0.6,
+     3.535
+    ],
+    [
+     0.8,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 201
+  },
+  {
+   "blender_object": "logic_board.discrete_33__g10",
+   "node_path": "logic_board.discrete_33",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -1.6,
+     13.2,
+     3.535
+    ],
+    [
+     1.6,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 202
+  },
+  {
+   "blender_object": "logic_board.discrete_34__g10",
+   "node_path": "logic_board.discrete_34",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     9.6,
+     0.6,
+     3.535
+    ],
+    [
+     11.2,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 203
+  },
+  {
+   "blender_object": "logic_board.discrete_35__g10",
+   "node_path": "logic_board.discrete_35",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     9.6,
+     13.6,
+     3.535
+    ],
+    [
+     11.2,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 204
+  },
+  {
+   "blender_object": "logic_board.discrete_36__g10",
+   "node_path": "logic_board.discrete_36",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     19.2,
+     0.2,
+     3.535
+    ],
+    [
+     22.4,
+     1.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 205
+  },
+  {
+   "blender_object": "logic_board.discrete_37__g10",
+   "node_path": "logic_board.discrete_37",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     20.0,
+     13.6,
+     3.535
+    ],
+    [
+     21.6,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 206
+  },
+  {
+   "blender_object": "logic_board.discrete_38__g10",
+   "node_path": "logic_board.discrete_38",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     30.4,
+     0.6,
+     3.535
+    ],
+    [
+     32.0,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 207
+  },
+  {
+   "blender_object": "logic_board.discrete_39__g10",
+   "node_path": "logic_board.discrete_39",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     29.6,
+     13.2,
+     3.535
+    ],
+    [
+     32.8,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 208
+  },
+  {
+   "blender_object": "logic_board.discrete_40__g10",
+   "node_path": "logic_board.discrete_40",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     30.4,
+     26.6,
+     3.535
+    ],
+    [
+     32.0,
+     27.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 209
+  },
+  {
+   "blender_object": "logic_board.discrete_41__g10",
+   "node_path": "logic_board.discrete_41",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     30.4,
+     39.6,
+     3.535
+    ],
+    [
+     32.0,
+     40.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 210
+  },
+  {
+   "blender_object": "logic_board.discrete_42__g10",
+   "node_path": "logic_board.discrete_42",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     29.6,
+     52.2,
+     3.535
+    ],
+    [
+     32.8,
+     53.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 211
+  },
+  {
+   "blender_object": "logic_board.discrete_43__g10",
+   "node_path": "logic_board.discrete_43",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     40.8,
+     0.6,
+     3.535
+    ],
+    [
+     42.4,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 212
+  },
+  {
+   "blender_object": "logic_board.discrete_44__g10",
+   "node_path": "logic_board.discrete_44",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     40.8,
+     13.6,
+     3.535
+    ],
+    [
+     42.4,
+     14.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 213
+  },
+  {
+   "blender_object": "logic_board.discrete_45__g10",
+   "node_path": "logic_board.discrete_45",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     40.0,
+     26.2,
+     3.535
+    ],
+    [
+     43.2,
+     27.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 214
+  },
+  {
+   "blender_object": "logic_board.discrete_46__g10",
+   "node_path": "logic_board.discrete_46",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     40.8,
+     39.6,
+     3.535
+    ],
+    [
+     42.4,
+     40.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 215
+  },
+  {
+   "blender_object": "logic_board.discrete_47__g10",
+   "node_path": "logic_board.discrete_47",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     40.8,
+     52.6,
+     3.535
+    ],
+    [
+     42.4,
+     53.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 216
+  },
+  {
+   "blender_object": "logic_board.discrete_48__g10",
+   "node_path": "logic_board.discrete_48",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     50.4,
+     13.2,
+     3.535
+    ],
+    [
+     53.6,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 217
+  },
+  {
+   "blender_object": "logic_board.discrete_49__g10",
+   "node_path": "logic_board.discrete_49",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     51.2,
+     26.6,
+     3.535
+    ],
+    [
+     52.8,
+     27.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 218
+  },
+  {
+   "blender_object": "logic_board.discrete_50__g10",
+   "node_path": "logic_board.discrete_50",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     51.2,
+     39.6,
+     3.535
+    ],
+    [
+     52.8,
+     40.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 219
+  },
+  {
+   "blender_object": "logic_board.discrete_51__g10",
+   "node_path": "logic_board.discrete_51",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     50.4,
+     52.2,
+     3.535
+    ],
+    [
+     53.6,
+     53.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 220
+  },
+  {
+   "blender_object": "logic_board.discrete_52__g10",
+   "node_path": "logic_board.discrete_52",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     51.2,
+     65.6,
+     3.535
+    ],
+    [
+     52.8,
+     66.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 221
+  },
+  {
+   "blender_object": "logic_board.discrete_53__g10",
+   "node_path": "logic_board.discrete_53",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     51.2,
+     78.6,
+     3.535
+    ],
+    [
+     52.8,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 222
+  },
+  {
+   "blender_object": "logic_board.discrete_54__g10",
+   "node_path": "logic_board.discrete_54",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     60.8,
+     13.2,
+     3.535
+    ],
+    [
+     64.0,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 223
+  },
+  {
+   "blender_object": "logic_board.discrete_55__g10",
+   "node_path": "logic_board.discrete_55",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     61.6,
+     65.6,
+     3.535
+    ],
+    [
+     63.2,
+     66.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 224
+  },
+  {
+   "blender_object": "logic_board.discrete_56__g10",
+   "node_path": "logic_board.discrete_56",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     61.6,
+     78.6,
+     3.535
+    ],
+    [
+     63.2,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 225
+  },
+  {
+   "blender_object": "logic_board.discrete_57__g10",
+   "node_path": "logic_board.discrete_57",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     71.2,
+     78.2,
+     3.535
+    ],
+    [
+     74.4,
+     79.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 226
+  },
+  {
+   "blender_object": "logic_board.discrete_58__g10",
+   "node_path": "logic_board.discrete_58",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     82.4,
+     78.6,
+     3.535
+    ],
+    [
+     84.0,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 227
+  },
+  {
+   "blender_object": "logic_board.discrete_59__g10",
+   "node_path": "logic_board.discrete_59",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     113.6,
+     78.6,
+     3.535
+    ],
+    [
+     115.2,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 228
+  },
+  {
+   "blender_object": "logic_board.discrete_60__g10",
+   "node_path": "logic_board.discrete_60",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     123.2,
+     0.2,
+     3.535
+    ],
+    [
+     126.4,
+     1.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 229
+  },
+  {
+   "blender_object": "logic_board.discrete_61__g10",
+   "node_path": "logic_board.discrete_61",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     124.0,
+     78.6,
+     3.535
+    ],
+    [
+     125.6,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 230
+  },
+  {
+   "blender_object": "logic_board.discrete_62__g10",
+   "node_path": "logic_board.discrete_62",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     134.4,
+     0.6,
+     3.535
+    ],
+    [
+     136.0,
+     1.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 231
+  },
+  {
+   "blender_object": "logic_board.discrete_63__g10",
+   "node_path": "logic_board.discrete_63",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     133.6,
+     13.2,
+     3.535
+    ],
+    [
+     136.8,
+     14.8,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 232
+  },
+  {
+   "blender_object": "logic_board.discrete_64__g10",
+   "node_path": "logic_board.discrete_64",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     134.4,
+     65.6,
+     3.535
+    ],
+    [
+     136.0,
+     66.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 233
+  },
+  {
+   "blender_object": "logic_board.discrete_65__g10",
+   "node_path": "logic_board.discrete_65",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     134.4,
+     78.6,
+     3.535
+    ],
+    [
+     136.0,
+     79.4,
+     4.135
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 234
+  },
+  {
+   "blender_object": "logic_board.ground_plane_bottom__copper",
+   "node_path": "logic_board.ground_plane_bottom",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -137.0,
+     -24.0,
+     2.465
+    ],
+    [
+     137.0,
+     97.0,
+     2.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 552,
+   "stl_path": null,
+   "glb_node": 235
+  },
+  {
+   "blender_object": "logic_board.ground_plane_top__copper",
+   "node_path": "logic_board.ground_plane_top",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -137.0,
+     -24.0,
+     3.5
+    ],
+    [
+     137.0,
+     97.0,
+     3.535
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 552,
+   "stl_path": null,
+   "glb_node": 236
+  },
+  {
+   "blender_object": "logic_board.nand_0__fr4",
+   "node_path": "logic_board.nand_0",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -65.0,
+     16.5,
+     3.54
+    ],
+    [
+     -51.0,
+     27.5,
+     4.59
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 237
+  },
+  {
+   "blender_object": "logic_board.nand_1__fr4",
+   "node_path": "logic_board.nand_1",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     51.0,
+     16.5,
+     3.54
+    ],
+    [
+     65.0,
+     27.5,
+     4.59
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 238
+  },
+  {
+   "blender_object": "logic_board.pmic__fr4",
+   "node_path": "logic_board.pmic",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -25.5,
+     -16.0,
+     3.535
+    ],
+    [
+     -14.5,
+     -8.0,
+     4.535
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 239
+  },
+  {
+   "blender_object": "logic_board.retimer_0__fr4",
+   "node_path": "logic_board.retimer_0",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -122.5,
+     -4.5,
+     3.54
+    ],
+    [
+     -113.5,
+     4.5,
+     4.49
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 240
+  },
+  {
+   "blender_object": "logic_board.retimer_1__fr4",
+   "node_path": "logic_board.retimer_1",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     113.5,
+     -4.5,
+     3.54
+    ],
+    [
+     122.5,
+     4.5,
+     4.49
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 241
+  },
+  {
+   "blender_object": "logic_board.retimer_2__fr4",
+   "node_path": "logic_board.retimer_2",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -43.75,
+     -1.75,
+     3.54
+    ],
+    [
+     -36.25,
+     5.75,
+     4.49
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 242
+  },
+  {
+   "blender_object": "logic_board.retimer_3__fr4",
+   "node_path": "logic_board.retimer_3",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     36.25,
+     -1.75,
+     3.54
+    ],
+    [
+     43.75,
+     5.75,
+     4.49
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 243
+  },
+  {
+   "blender_object": "logic_board.shield_can_io_left__stainless",
+   "node_path": "logic_board.shield_can_io_left",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -111.0,
+     -22.0,
+     3.535
+    ],
+    [
+     -89.0,
+     -6.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 244
+  },
+  {
+   "blender_object": "logic_board.shield_can_io_right__stainless",
+   "node_path": "logic_board.shield_can_io_right",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     89.0,
+     -22.0,
+     3.535
+    ],
+    [
+     111.0,
+     -6.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 245
+  },
+  {
+   "blender_object": "logic_board.shield_can_nand_left__stainless",
+   "node_path": "logic_board.shield_can_nand_left",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -71.0,
+     -7.0,
+     3.535
+    ],
+    [
+     -45.0,
+     7.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 246
+  },
+  {
+   "blender_object": "logic_board.shield_can_nand_right__stainless",
+   "node_path": "logic_board.shield_can_nand_right",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     45.0,
+     -7.0,
+     3.535
+    ],
+    [
+     71.0,
+     7.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 247
+  },
+  {
+   "blender_object": "logic_board.shield_can_power_left__stainless",
+   "node_path": "logic_board.shield_can_power_left",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -86.0,
+     -24.0,
+     3.535
+    ],
+    [
+     -46.0,
+     -8.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 248
+  },
+  {
+   "blender_object": "logic_board.shield_can_power_right__stainless",
+   "node_path": "logic_board.shield_can_power_right",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     46.0,
+     -24.0,
+     3.535
+    ],
+    [
+     86.0,
+     -8.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 249
+  },
+  {
+   "blender_object": "logic_board.shield_can_soc_north__stainless",
+   "node_path": "logic_board.shield_can_soc_north",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -48.0,
+     66.0,
+     3.535
+    ],
+    [
+     48.0,
+     86.0,
+     5.335
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 250
+  },
+  {
+   "blender_object": "logic_board.soc.die__g10",
+   "node_path": "logic_board.soc.die",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -10.5,
+     37.5,
+     4.635
+    ],
+    [
+     10.5,
+     54.5,
+     5.185
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 251
+  },
+  {
+   "blender_object": "logic_board.soc.dram_0__g10",
+   "node_path": "logic_board.soc.dram_0",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -21.0,
+     39.0,
+     4.635
+    ],
+    [
+     -10.0,
+     53.0,
+     5.185
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 252
+  },
+  {
+   "blender_object": "logic_board.soc.dram_1__g10",
+   "node_path": "logic_board.soc.dram_1",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     10.0,
+     39.0,
+     4.635
+    ],
+    [
+     21.0,
+     53.0,
+     5.185
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 253
+  },
+  {
+   "blender_object": "logic_board.soc.package__fr4",
+   "node_path": "logic_board.soc.package",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -21.0,
+     29.0,
+     3.535
+    ],
+    [
+     21.0,
+     63.0,
+     4.635
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 254
+  },
+  {
+   "blender_object": "logic_board.substrate__fr4",
+   "node_path": "logic_board.substrate",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -137.0,
+     -24.0,
+     2.5
+    ],
+    [
+     137.0,
+     97.0,
+     3.5
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 554,
+   "stl_path": null,
+   "glb_node": 255
+  },
+  {
+   "blender_object": "thermal.fan_left.housing__abs",
+   "node_path": "thermal.fan_left.housing",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -131.9372,
+     6.0,
+     3.535
+    ],
+    [
+     -65.4,
+     71.2,
+     8.885
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 1016,
+   "stl_path": null,
+   "glb_node": 256
+  },
+  {
+   "blender_object": "thermal.fan_left.impeller__abs",
+   "node_path": "thermal.fan_left.impeller",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -127.9897,
+     9.3641,
+     4.585
+    ],
+    [
+     -68.0128,
+     69.3004,
+     7.985
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 2712,
+   "stl_path": null,
+   "glb_node": 257
+  },
+  {
+   "blender_object": "thermal.fan_left.motor_pcb__fr4",
+   "node_path": "thermal.fan_left.motor_pcb",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -106.15,
+     31.15,
+     4.135
+    ],
+    [
+     -89.85,
+     47.45,
+     4.185
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 258
+  },
+  {
+   "blender_object": "thermal.fan_left.stator__copper",
+   "node_path": "thermal.fan_left.stator",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -105.75,
+     31.55,
+     4.185
+    ],
+    [
+     -90.25,
+     47.05,
+     4.585
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 259
+  },
+  {
+   "blender_object": "thermal.fan_right.housing__abs",
+   "node_path": "thermal.fan_right.housing",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     65.4,
+     6.0,
+     3.535
+    ],
+    [
+     131.9372,
+     71.2,
+     8.885
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 1016,
+   "stl_path": null,
+   "glb_node": 260
+  },
+  {
+   "blender_object": "thermal.fan_right.impeller__abs",
+   "node_path": "thermal.fan_right.impeller",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     68.0103,
+     9.2996,
+     4.585
+    ],
+    [
+     127.9872,
+     69.2359,
+     7.985
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 2712,
+   "stl_path": null,
+   "glb_node": 261
+  },
+  {
+   "blender_object": "thermal.fan_right.motor_pcb__fr4",
+   "node_path": "thermal.fan_right.motor_pcb",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     89.85,
+     31.15,
+     4.135
+    ],
+    [
+     106.15,
+     47.45,
+     4.185
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 262
+  },
+  {
+   "blender_object": "thermal.fan_right.stator__copper",
+   "node_path": "thermal.fan_right.stator",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     90.25,
+     31.55,
+     4.185
+    ],
+    [
+     105.75,
+     47.05,
+     4.585
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 384,
+   "stl_path": null,
+   "glb_node": 263
+  },
+  {
+   "blender_object": "thermal.fin_stack_left__copper",
+   "node_path": "thermal.fin_stack_left",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -136.4,
+     75.0,
+     3.535
+    ],
+    [
+     -75.6,
+     97.0,
+     8.535
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 264
+  },
+  {
+   "blender_object": "thermal.fin_stack_right__copper",
+   "node_path": "thermal.fin_stack_right",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     75.6,
+     75.0,
+     3.535
+    ],
+    [
+     136.4,
+     97.0,
+     8.535
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 576,
+   "stl_path": null,
+   "glb_node": 265
+  },
+  {
+   "blender_object": "thermal.graphite_battery_0__cfrp",
+   "node_path": "thermal.graphite_battery_0",
+   "material_key": "cfrp",
+   "bbox_mm": [
+    [
+     -129.0,
+     -98.0,
+     8.3
+    ],
+    [
+     -45.0,
+     -26.0,
+     8.36
+    ]
+   ],
+   "eps_r": 4.5,
+   "sigma_S_per_m": 10000.0,
+   "mu_r": 1.0,
+   "tris": 140,
+   "stl_path": null,
+   "glb_node": 266
+  },
+  {
+   "blender_object": "thermal.graphite_battery_1__cfrp",
+   "node_path": "thermal.graphite_battery_1",
+   "material_key": "cfrp",
+   "bbox_mm": [
+    [
+     45.0,
+     -98.0,
+     8.3
+    ],
+    [
+     129.0,
+     -26.0,
+     8.36
+    ]
+   ],
+   "eps_r": 4.5,
+   "sigma_S_per_m": 10000.0,
+   "mu_r": 1.0,
+   "tris": 140,
+   "stl_path": null,
+   "glb_node": 267
+  },
+  {
+   "blender_object": "thermal.graphite_floor__cfrp",
+   "node_path": "thermal.graphite_floor",
+   "material_key": "cfrp",
+   "bbox_mm": [
+    [
+     -125.0,
+     -16.0,
+     1.9
+    ],
+    [
+     125.0,
+     92.0,
+     1.96
+    ]
+   ],
+   "eps_r": 4.5,
+   "sigma_S_per_m": 10000.0,
+   "mu_r": 1.0,
+   "tris": 140,
+   "stl_path": null,
+   "glb_node": 268
+  },
+  {
+   "blender_object": "thermal.heat_pipe_left__copper",
+   "node_path": "thermal.heat_pipe_left",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -78.1213,
+     43.4872,
+     6.585
+    ],
+    [
+     -31.9612,
+     88.1213,
+     8.785
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 28,
+   "stl_path": null,
+   "glb_node": 269
+  },
+  {
+   "blender_object": "thermal.heat_pipe_right__copper",
+   "node_path": "thermal.heat_pipe_right",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     31.9612,
+     43.4872,
+     6.585
+    ],
+    [
+     78.1213,
+     88.1213,
+     8.785
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 28,
+   "stl_path": null,
+   "glb_node": 270
+  },
+  {
+   "blender_object": "thermal.pad_soc__rubber",
+   "node_path": "thermal.pad_soc",
+   "material_key": "rubber",
+   "bbox_mm": [
+    [
+     -20.0,
+     30.0,
+     5.185
+    ],
+    [
+     20.0,
+     62.0,
+     5.385
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 271
+  },
+  {
+   "blender_object": "thermal.spreader__copper",
+   "node_path": "thermal.spreader",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -42.0,
+     20.0,
+     5.385
+    ],
+    [
+     42.0,
+     72.0,
+     6.585
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 272
+  },
+  {
+   "blender_object": "top_case.keyboard.backlight_guide__pet",
+   "node_path": "top_case.keyboard.backlight_guide",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -138.0,
+     -19.0,
+     8.95
+    ],
+    [
+     138.0,
+     93.0,
+     9.25
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 140,
+   "stl_path": null,
+   "glb_node": 273
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_0__abs",
+   "node_path": "top_case.keyboard.cap_0",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     59.7911,
+     56.5,
+     11.5
+    ],
+    [
+     78.3214,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 274
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_1__abs",
+   "node_path": "top_case.keyboard.cap_1",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -117.7821,
+     56.5,
+     11.5
+    ],
+    [
+     -99.2518,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 275
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_2__abs",
+   "node_path": "top_case.keyboard.cap_2",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -98.0518,
+     56.5,
+     11.5
+    ],
+    [
+     -79.5214,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 276
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_3__abs",
+   "node_path": "top_case.keyboard.cap_3",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -78.3214,
+     56.5,
+     11.5
+    ],
+    [
+     -59.7911,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 277
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_4__abs",
+   "node_path": "top_case.keyboard.cap_4",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -58.5911,
+     56.5,
+     11.5
+    ],
+    [
+     -40.0607,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 278
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_5__abs",
+   "node_path": "top_case.keyboard.cap_5",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -38.8607,
+     56.5,
+     11.5
+    ],
+    [
+     -20.3304,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 279
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_6__abs",
+   "node_path": "top_case.keyboard.cap_6",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -19.1304,
+     56.5,
+     11.5
+    ],
+    [
+     -0.6,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 280
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_7__abs",
+   "node_path": "top_case.keyboard.cap_7",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     0.6,
+     56.5,
+     11.5
+    ],
+    [
+     19.1304,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 281
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_8__abs",
+   "node_path": "top_case.keyboard.cap_8",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     20.3304,
+     56.5,
+     11.5
+    ],
+    [
+     38.8607,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 282
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_9__abs",
+   "node_path": "top_case.keyboard.cap_9",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     40.0607,
+     56.5,
+     11.5
+    ],
+    [
+     58.5911,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 283
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_a__abs",
+   "node_path": "top_case.keyboard.cap_a",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -104.175,
+     18.4,
+     11.5
+    ],
+    [
+     -86.325,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 284
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_b__abs",
+   "node_path": "top_case.keyboard.cap_b",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -18.45,
+     -0.65,
+     11.5
+    ],
+    [
+     -0.6,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 285
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_backslash__abs",
+   "node_path": "top_case.keyboard.cap_backslash",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     111.09,
+     37.45,
+     11.5
+    ],
+    [
+     137.5125,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 286
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_c__abs",
+   "node_path": "top_case.keyboard.cap_c",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -56.55,
+     -0.65,
+     11.5
+    ],
+    [
+     -38.7,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 287
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_capslock__abs",
+   "node_path": "top_case.keyboard.cap_capslock",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -137.5125,
+     18.4,
+     11.5
+    ],
+    [
+     -105.375,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 288
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_comma__abs",
+   "node_path": "top_case.keyboard.cap_comma",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     38.7,
+     -0.65,
+     11.5
+    ],
+    [
+     56.55,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 289
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_control__abs",
+   "node_path": "top_case.keyboard.cap_control",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -118.4625,
+     -19.7,
+     11.5
+    ],
+    [
+     -100.6125,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 290
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_d__abs",
+   "node_path": "top_case.keyboard.cap_d",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -66.075,
+     18.4,
+     11.5
+    ],
+    [
+     -48.225,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 291
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_delete__abs",
+   "node_path": "top_case.keyboard.cap_delete",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     118.9821,
+     56.5,
+     11.5
+    ],
+    [
+     137.5125,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 292
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_down__abs",
+   "node_path": "top_case.keyboard.cap_down",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     100.6125,
+     -19.7,
+     11.5
+    ],
+    [
+     118.4625,
+     -11.375,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 293
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_e__abs",
+   "node_path": "top_case.keyboard.cap_e",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -73.06,
+     37.45,
+     11.5
+    ],
+    [
+     -55.845,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 294
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_equal__abs",
+   "node_path": "top_case.keyboard.cap_equal",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     99.2518,
+     56.5,
+     11.5
+    ],
+    [
+     117.7821,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 295
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_esc__abs",
+   "node_path": "top_case.keyboard.cap_esc",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -137.5125,
+     75.55,
+     11.5
+    ],
+    [
+     -118.9821,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 296
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f1__abs",
+   "node_path": "top_case.keyboard.cap_f1",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -117.7821,
+     75.55,
+     11.5
+    ],
+    [
+     -99.2518,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 297
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f2__abs",
+   "node_path": "top_case.keyboard.cap_f2",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -98.0518,
+     75.55,
+     11.5
+    ],
+    [
+     -79.5214,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 298
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f3__abs",
+   "node_path": "top_case.keyboard.cap_f3",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -78.3214,
+     75.55,
+     11.5
+    ],
+    [
+     -59.7911,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 299
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f4__abs",
+   "node_path": "top_case.keyboard.cap_f4",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -58.5911,
+     75.55,
+     11.5
+    ],
+    [
+     -40.0607,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 300
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f5__abs",
+   "node_path": "top_case.keyboard.cap_f5",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -38.8607,
+     75.55,
+     11.5
+    ],
+    [
+     -20.3304,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 301
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f6__abs",
+   "node_path": "top_case.keyboard.cap_f6",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -19.1304,
+     75.55,
+     11.5
+    ],
+    [
+     -0.6,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 302
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f7__abs",
+   "node_path": "top_case.keyboard.cap_f7",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     0.6,
+     75.55,
+     11.5
+    ],
+    [
+     19.1304,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 303
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f8__abs",
+   "node_path": "top_case.keyboard.cap_f8",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     20.3304,
+     75.55,
+     11.5
+    ],
+    [
+     38.8607,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 304
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f9__abs",
+   "node_path": "top_case.keyboard.cap_f9",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     40.0607,
+     75.55,
+     11.5
+    ],
+    [
+     58.5911,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 305
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f10__abs",
+   "node_path": "top_case.keyboard.cap_f10",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     59.7911,
+     75.55,
+     11.5
+    ],
+    [
+     78.3214,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 306
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f11__abs",
+   "node_path": "top_case.keyboard.cap_f11",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     79.5214,
+     75.55,
+     11.5
+    ],
+    [
+     98.0518,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 307
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f12__abs",
+   "node_path": "top_case.keyboard.cap_f12",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     99.2518,
+     75.55,
+     11.5
+    ],
+    [
+     117.7821,
+     93.4,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 308
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_f__abs",
+   "node_path": "top_case.keyboard.cap_f",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -47.025,
+     18.4,
+     11.5
+    ],
+    [
+     -29.175,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 309
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_fn__abs",
+   "node_path": "top_case.keyboard.cap_fn",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -137.5125,
+     -19.7,
+     11.5
+    ],
+    [
+     -119.6625,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 310
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_g__abs",
+   "node_path": "top_case.keyboard.cap_g",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -27.975,
+     18.4,
+     11.5
+    ],
+    [
+     -10.125,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 311
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_grave__abs",
+   "node_path": "top_case.keyboard.cap_grave",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -137.5125,
+     56.5,
+     11.5
+    ],
+    [
+     -118.9821,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 312
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_h__abs",
+   "node_path": "top_case.keyboard.cap_h",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -8.925,
+     18.4,
+     11.5
+    ],
+    [
+     8.925,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 313
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_i__abs",
+   "node_path": "top_case.keyboard.cap_i",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     19.015,
+     37.45,
+     11.5
+    ],
+    [
+     36.23,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 314
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_j__abs",
+   "node_path": "top_case.keyboard.cap_j",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     10.125,
+     18.4,
+     11.5
+    ],
+    [
+     27.975,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 315
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_k__abs",
+   "node_path": "top_case.keyboard.cap_k",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     29.175,
+     18.4,
+     11.5
+    ],
+    [
+     47.025,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 316
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_l__abs",
+   "node_path": "top_case.keyboard.cap_l",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     48.225,
+     18.4,
+     11.5
+    ],
+    [
+     66.075,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 317
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_lbracket__abs",
+   "node_path": "top_case.keyboard.cap_lbracket",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     74.26,
+     37.45,
+     11.5
+    ],
+    [
+     91.475,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 318
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_lcommand__abs",
+   "node_path": "top_case.keyboard.cap_lcommand",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -80.3625,
+     -19.7,
+     11.5
+    ],
+    [
+     -57.75,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 319
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_left__abs",
+   "node_path": "top_case.keyboard.cap_left",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     81.5625,
+     -19.7,
+     11.5
+    ],
+    [
+     99.4125,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 320
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_loption__abs",
+   "node_path": "top_case.keyboard.cap_loption",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -99.4125,
+     -19.7,
+     11.5
+    ],
+    [
+     -81.5625,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 321
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_lshift__abs",
+   "node_path": "top_case.keyboard.cap_lshift",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -137.5125,
+     -0.65,
+     11.5
+    ],
+    [
+     -95.85,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 322
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_m__abs",
+   "node_path": "top_case.keyboard.cap_m",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     19.65,
+     -0.65,
+     11.5
+    ],
+    [
+     37.5,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 323
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_minus__abs",
+   "node_path": "top_case.keyboard.cap_minus",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     79.5214,
+     56.5,
+     11.5
+    ],
+    [
+     98.0518,
+     74.35,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 324
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_n__abs",
+   "node_path": "top_case.keyboard.cap_n",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     0.6,
+     -0.65,
+     11.5
+    ],
+    [
+     18.45,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 325
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_o__abs",
+   "node_path": "top_case.keyboard.cap_o",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     37.43,
+     37.45,
+     11.5
+    ],
+    [
+     54.645,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 326
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_p__abs",
+   "node_path": "top_case.keyboard.cap_p",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     55.845,
+     37.45,
+     11.5
+    ],
+    [
+     73.06,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 327
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_period__abs",
+   "node_path": "top_case.keyboard.cap_period",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     57.75,
+     -0.65,
+     11.5
+    ],
+    [
+     75.6,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 328
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_q__abs",
+   "node_path": "top_case.keyboard.cap_q",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -109.89,
+     37.45,
+     11.5
+    ],
+    [
+     -92.675,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 329
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_quote__abs",
+   "node_path": "top_case.keyboard.cap_quote",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     86.325,
+     18.4,
+     11.5
+    ],
+    [
+     104.175,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 330
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_r__abs",
+   "node_path": "top_case.keyboard.cap_r",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -54.645,
+     37.45,
+     11.5
+    ],
+    [
+     -37.43,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 331
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_rbracket__abs",
+   "node_path": "top_case.keyboard.cap_rbracket",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     92.675,
+     37.45,
+     11.5
+    ],
+    [
+     109.89,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 332
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_rcommand__abs",
+   "node_path": "top_case.keyboard.cap_rcommand",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     38.7,
+     -19.7,
+     11.5
+    ],
+    [
+     61.3125,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 333
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_return__abs",
+   "node_path": "top_case.keyboard.cap_return",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     105.375,
+     18.4,
+     11.5
+    ],
+    [
+     137.5125,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 334
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_right__abs",
+   "node_path": "top_case.keyboard.cap_right",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     119.6625,
+     -19.7,
+     11.5
+    ],
+    [
+     137.5125,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 335
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_roption__abs",
+   "node_path": "top_case.keyboard.cap_roption",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     62.5125,
+     -19.7,
+     11.5
+    ],
+    [
+     80.3625,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 336
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_rshift__abs",
+   "node_path": "top_case.keyboard.cap_rshift",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     95.85,
+     -0.65,
+     11.5
+    ],
+    [
+     137.5125,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 337
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_s__abs",
+   "node_path": "top_case.keyboard.cap_s",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -85.125,
+     18.4,
+     11.5
+    ],
+    [
+     -67.275,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 338
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_semicolon__abs",
+   "node_path": "top_case.keyboard.cap_semicolon",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     67.275,
+     18.4,
+     11.5
+    ],
+    [
+     85.125,
+     36.25,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 339
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_slash__abs",
+   "node_path": "top_case.keyboard.cap_slash",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     76.8,
+     -0.65,
+     11.5
+    ],
+    [
+     94.65,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 340
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_space__abs",
+   "node_path": "top_case.keyboard.cap_space",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -56.55,
+     -19.7,
+     11.5
+    ],
+    [
+     37.5,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 341
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_t__abs",
+   "node_path": "top_case.keyboard.cap_t",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -36.23,
+     37.45,
+     11.5
+    ],
+    [
+     -19.015,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 342
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_tab__abs",
+   "node_path": "top_case.keyboard.cap_tab",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -137.5125,
+     37.45,
+     11.5
+    ],
+    [
+     -111.09,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 343
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_u__abs",
+   "node_path": "top_case.keyboard.cap_u",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     0.6,
+     37.45,
+     11.5
+    ],
+    [
+     17.815,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 344
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_up__abs",
+   "node_path": "top_case.keyboard.cap_up",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     100.6125,
+     -10.175,
+     11.5
+    ],
+    [
+     118.4625,
+     -1.85,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 345
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_v__abs",
+   "node_path": "top_case.keyboard.cap_v",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -37.5,
+     -0.65,
+     11.5
+    ],
+    [
+     -19.65,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 346
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_w__abs",
+   "node_path": "top_case.keyboard.cap_w",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -91.475,
+     37.45,
+     11.5
+    ],
+    [
+     -74.26,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 347
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_x__abs",
+   "node_path": "top_case.keyboard.cap_x",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -75.6,
+     -0.65,
+     11.5
+    ],
+    [
+     -57.75,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 348
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_y__abs",
+   "node_path": "top_case.keyboard.cap_y",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -17.815,
+     37.45,
+     11.5
+    ],
+    [
+     -0.6,
+     55.3,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 349
+  },
+  {
+   "blender_object": "top_case.keyboard.cap_z__abs",
+   "node_path": "top_case.keyboard.cap_z",
+   "material_key": "abs",
+   "bbox_mm": [
+    [
+     -94.65,
+     -0.65,
+     11.5
+    ],
+    [
+     -76.8,
+     17.2,
+     12.1
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.005,
+   "mu_r": 1.0,
+   "tris": 116,
+   "stl_path": null,
+   "glb_node": 350
+  },
+  {
+   "blender_object": "top_case.keyboard.membrane__pet",
+   "node_path": "top_case.keyboard.membrane",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -138.0,
+     -19.0,
+     9.3
+    ],
+    [
+     138.0,
+     93.0,
+     9.5
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 140,
+   "stl_path": null,
+   "glb_node": 351
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_0__nylon",
+   "node_path": "top_case.keyboard.scissor_0",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     60.8911,
+     57.6,
+     9.85
+    ],
+    [
+     77.2214,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 352
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_1__nylon",
+   "node_path": "top_case.keyboard.scissor_1",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -116.6821,
+     57.6,
+     9.85
+    ],
+    [
+     -100.3518,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 353
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_2__nylon",
+   "node_path": "top_case.keyboard.scissor_2",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -96.9518,
+     57.6,
+     9.85
+    ],
+    [
+     -80.6214,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 354
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_3__nylon",
+   "node_path": "top_case.keyboard.scissor_3",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -77.2214,
+     57.6,
+     9.85
+    ],
+    [
+     -60.8911,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 355
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_4__nylon",
+   "node_path": "top_case.keyboard.scissor_4",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -57.4911,
+     57.6,
+     9.85
+    ],
+    [
+     -41.1607,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 356
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_5__nylon",
+   "node_path": "top_case.keyboard.scissor_5",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -37.7607,
+     57.6,
+     9.85
+    ],
+    [
+     -21.4304,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 357
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_6__nylon",
+   "node_path": "top_case.keyboard.scissor_6",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -18.0304,
+     57.6,
+     9.85
+    ],
+    [
+     -1.7,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 358
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_7__nylon",
+   "node_path": "top_case.keyboard.scissor_7",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     1.7,
+     57.6,
+     9.85
+    ],
+    [
+     18.0304,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 359
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_8__nylon",
+   "node_path": "top_case.keyboard.scissor_8",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     21.4304,
+     57.6,
+     9.85
+    ],
+    [
+     37.7607,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 360
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_9__nylon",
+   "node_path": "top_case.keyboard.scissor_9",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     41.1607,
+     57.6,
+     9.85
+    ],
+    [
+     57.4911,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 361
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_a__nylon",
+   "node_path": "top_case.keyboard.scissor_a",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -103.075,
+     19.5,
+     9.85
+    ],
+    [
+     -87.425,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 362
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_b__nylon",
+   "node_path": "top_case.keyboard.scissor_b",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -17.35,
+     0.45,
+     9.85
+    ],
+    [
+     -1.7,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 363
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_backslash__nylon",
+   "node_path": "top_case.keyboard.scissor_backslash",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     112.19,
+     38.55,
+     9.85
+    ],
+    [
+     136.4125,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 364
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_c__nylon",
+   "node_path": "top_case.keyboard.scissor_c",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -55.45,
+     0.45,
+     9.85
+    ],
+    [
+     -39.8,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 365
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_capslock__nylon",
+   "node_path": "top_case.keyboard.scissor_capslock",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.4125,
+     19.5,
+     9.85
+    ],
+    [
+     -106.475,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 366
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_comma__nylon",
+   "node_path": "top_case.keyboard.scissor_comma",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     39.8,
+     0.45,
+     9.85
+    ],
+    [
+     55.45,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 367
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_control__nylon",
+   "node_path": "top_case.keyboard.scissor_control",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -117.3625,
+     -18.6,
+     9.85
+    ],
+    [
+     -101.7125,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 368
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_d__nylon",
+   "node_path": "top_case.keyboard.scissor_d",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -64.975,
+     19.5,
+     9.85
+    ],
+    [
+     -49.325,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 369
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_delete__nylon",
+   "node_path": "top_case.keyboard.scissor_delete",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     120.0821,
+     57.6,
+     9.85
+    ],
+    [
+     136.4125,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 370
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_down__nylon",
+   "node_path": "top_case.keyboard.scissor_down",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     101.7125,
+     -18.6,
+     9.85
+    ],
+    [
+     117.3625,
+     -12.475,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 371
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_e__nylon",
+   "node_path": "top_case.keyboard.scissor_e",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -71.96,
+     38.55,
+     9.85
+    ],
+    [
+     -56.945,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 372
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_equal__nylon",
+   "node_path": "top_case.keyboard.scissor_equal",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     100.3518,
+     57.6,
+     9.85
+    ],
+    [
+     116.6821,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 373
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_esc__nylon",
+   "node_path": "top_case.keyboard.scissor_esc",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.4125,
+     76.65,
+     9.85
+    ],
+    [
+     -120.0821,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 374
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f1__nylon",
+   "node_path": "top_case.keyboard.scissor_f1",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -116.6821,
+     76.65,
+     9.85
+    ],
+    [
+     -100.3518,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 375
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f2__nylon",
+   "node_path": "top_case.keyboard.scissor_f2",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -96.9518,
+     76.65,
+     9.85
+    ],
+    [
+     -80.6214,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 376
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f3__nylon",
+   "node_path": "top_case.keyboard.scissor_f3",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -77.2214,
+     76.65,
+     9.85
+    ],
+    [
+     -60.8911,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 377
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f4__nylon",
+   "node_path": "top_case.keyboard.scissor_f4",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -57.4911,
+     76.65,
+     9.85
+    ],
+    [
+     -41.1607,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 378
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f5__nylon",
+   "node_path": "top_case.keyboard.scissor_f5",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -37.7607,
+     76.65,
+     9.85
+    ],
+    [
+     -21.4304,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 379
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f6__nylon",
+   "node_path": "top_case.keyboard.scissor_f6",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -18.0304,
+     76.65,
+     9.85
+    ],
+    [
+     -1.7,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 380
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f7__nylon",
+   "node_path": "top_case.keyboard.scissor_f7",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     1.7,
+     76.65,
+     9.85
+    ],
+    [
+     18.0304,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 381
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f8__nylon",
+   "node_path": "top_case.keyboard.scissor_f8",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     21.4304,
+     76.65,
+     9.85
+    ],
+    [
+     37.7607,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 382
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f9__nylon",
+   "node_path": "top_case.keyboard.scissor_f9",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     41.1607,
+     76.65,
+     9.85
+    ],
+    [
+     57.4911,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 383
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f10__nylon",
+   "node_path": "top_case.keyboard.scissor_f10",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     60.8911,
+     76.65,
+     9.85
+    ],
+    [
+     77.2214,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 384
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f11__nylon",
+   "node_path": "top_case.keyboard.scissor_f11",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     80.6214,
+     76.65,
+     9.85
+    ],
+    [
+     96.9518,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 385
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f12__nylon",
+   "node_path": "top_case.keyboard.scissor_f12",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     100.3518,
+     76.65,
+     9.85
+    ],
+    [
+     116.6821,
+     92.3,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 386
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_f__nylon",
+   "node_path": "top_case.keyboard.scissor_f",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -45.925,
+     19.5,
+     9.85
+    ],
+    [
+     -30.275,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 387
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_fn__nylon",
+   "node_path": "top_case.keyboard.scissor_fn",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.4125,
+     -18.6,
+     9.85
+    ],
+    [
+     -120.7625,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 388
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_g__nylon",
+   "node_path": "top_case.keyboard.scissor_g",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -26.875,
+     19.5,
+     9.85
+    ],
+    [
+     -11.225,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 389
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_grave__nylon",
+   "node_path": "top_case.keyboard.scissor_grave",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.4125,
+     57.6,
+     9.85
+    ],
+    [
+     -120.0821,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 390
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_h__nylon",
+   "node_path": "top_case.keyboard.scissor_h",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -7.825,
+     19.5,
+     9.85
+    ],
+    [
+     7.825,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 391
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_i__nylon",
+   "node_path": "top_case.keyboard.scissor_i",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     20.115,
+     38.55,
+     9.85
+    ],
+    [
+     35.13,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 392
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_j__nylon",
+   "node_path": "top_case.keyboard.scissor_j",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     11.225,
+     19.5,
+     9.85
+    ],
+    [
+     26.875,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 393
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_k__nylon",
+   "node_path": "top_case.keyboard.scissor_k",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     30.275,
+     19.5,
+     9.85
+    ],
+    [
+     45.925,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 394
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_l__nylon",
+   "node_path": "top_case.keyboard.scissor_l",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     49.325,
+     19.5,
+     9.85
+    ],
+    [
+     64.975,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 395
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_lbracket__nylon",
+   "node_path": "top_case.keyboard.scissor_lbracket",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     75.36,
+     38.55,
+     9.85
+    ],
+    [
+     90.375,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 396
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_lcommand__nylon",
+   "node_path": "top_case.keyboard.scissor_lcommand",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -79.2625,
+     -18.6,
+     9.85
+    ],
+    [
+     -58.85,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 397
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_left__nylon",
+   "node_path": "top_case.keyboard.scissor_left",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     82.6625,
+     -18.6,
+     9.85
+    ],
+    [
+     98.3125,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 398
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_loption__nylon",
+   "node_path": "top_case.keyboard.scissor_loption",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -98.3125,
+     -18.6,
+     9.85
+    ],
+    [
+     -82.6625,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 399
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_lshift__nylon",
+   "node_path": "top_case.keyboard.scissor_lshift",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.4125,
+     0.45,
+     9.85
+    ],
+    [
+     -96.95,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 400
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_m__nylon",
+   "node_path": "top_case.keyboard.scissor_m",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     20.75,
+     0.45,
+     9.85
+    ],
+    [
+     36.4,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 401
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_minus__nylon",
+   "node_path": "top_case.keyboard.scissor_minus",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     80.6214,
+     57.6,
+     9.85
+    ],
+    [
+     96.9518,
+     73.25,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 402
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_n__nylon",
+   "node_path": "top_case.keyboard.scissor_n",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     1.7,
+     0.45,
+     9.85
+    ],
+    [
+     17.35,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 403
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_o__nylon",
+   "node_path": "top_case.keyboard.scissor_o",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     38.53,
+     38.55,
+     9.85
+    ],
+    [
+     53.545,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 404
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_p__nylon",
+   "node_path": "top_case.keyboard.scissor_p",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     56.945,
+     38.55,
+     9.85
+    ],
+    [
+     71.96,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 405
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_period__nylon",
+   "node_path": "top_case.keyboard.scissor_period",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     58.85,
+     0.45,
+     9.85
+    ],
+    [
+     74.5,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 406
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_q__nylon",
+   "node_path": "top_case.keyboard.scissor_q",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -108.79,
+     38.55,
+     9.85
+    ],
+    [
+     -93.775,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 407
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_quote__nylon",
+   "node_path": "top_case.keyboard.scissor_quote",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     87.425,
+     19.5,
+     9.85
+    ],
+    [
+     103.075,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 408
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_r__nylon",
+   "node_path": "top_case.keyboard.scissor_r",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -53.545,
+     38.55,
+     9.85
+    ],
+    [
+     -38.53,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 409
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_rbracket__nylon",
+   "node_path": "top_case.keyboard.scissor_rbracket",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     93.775,
+     38.55,
+     9.85
+    ],
+    [
+     108.79,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 410
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_rcommand__nylon",
+   "node_path": "top_case.keyboard.scissor_rcommand",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     39.8,
+     -18.6,
+     9.85
+    ],
+    [
+     60.2125,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 411
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_return__nylon",
+   "node_path": "top_case.keyboard.scissor_return",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     106.475,
+     19.5,
+     9.85
+    ],
+    [
+     136.4125,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 412
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_right__nylon",
+   "node_path": "top_case.keyboard.scissor_right",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     120.7625,
+     -18.6,
+     9.85
+    ],
+    [
+     136.4125,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 413
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_roption__nylon",
+   "node_path": "top_case.keyboard.scissor_roption",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     63.6125,
+     -18.6,
+     9.85
+    ],
+    [
+     79.2625,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 414
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_rshift__nylon",
+   "node_path": "top_case.keyboard.scissor_rshift",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     96.95,
+     0.45,
+     9.85
+    ],
+    [
+     136.4125,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 415
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_s__nylon",
+   "node_path": "top_case.keyboard.scissor_s",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -84.025,
+     19.5,
+     9.85
+    ],
+    [
+     -68.375,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 416
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_semicolon__nylon",
+   "node_path": "top_case.keyboard.scissor_semicolon",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     68.375,
+     19.5,
+     9.85
+    ],
+    [
+     84.025,
+     35.15,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 417
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_slash__nylon",
+   "node_path": "top_case.keyboard.scissor_slash",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     77.9,
+     0.45,
+     9.85
+    ],
+    [
+     93.55,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 418
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_space__nylon",
+   "node_path": "top_case.keyboard.scissor_space",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -55.45,
+     -18.6,
+     9.85
+    ],
+    [
+     36.4,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 419
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_t__nylon",
+   "node_path": "top_case.keyboard.scissor_t",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -35.13,
+     38.55,
+     9.85
+    ],
+    [
+     -20.115,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 420
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_tab__nylon",
+   "node_path": "top_case.keyboard.scissor_tab",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -136.4125,
+     38.55,
+     9.85
+    ],
+    [
+     -112.19,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 421
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_u__nylon",
+   "node_path": "top_case.keyboard.scissor_u",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     1.7,
+     38.55,
+     9.85
+    ],
+    [
+     16.715,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 422
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_up__nylon",
+   "node_path": "top_case.keyboard.scissor_up",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     101.7125,
+     -9.075,
+     9.85
+    ],
+    [
+     117.3625,
+     -2.95,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 423
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_v__nylon",
+   "node_path": "top_case.keyboard.scissor_v",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -36.4,
+     0.45,
+     9.85
+    ],
+    [
+     -20.75,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 424
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_w__nylon",
+   "node_path": "top_case.keyboard.scissor_w",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -90.375,
+     38.55,
+     9.85
+    ],
+    [
+     -75.36,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 425
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_x__nylon",
+   "node_path": "top_case.keyboard.scissor_x",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -74.5,
+     0.45,
+     9.85
+    ],
+    [
+     -58.85,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 426
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_y__nylon",
+   "node_path": "top_case.keyboard.scissor_y",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -16.715,
+     38.55,
+     9.85
+    ],
+    [
+     -1.7,
+     54.2,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 427
+  },
+  {
+   "blender_object": "top_case.keyboard.scissor_z__nylon",
+   "node_path": "top_case.keyboard.scissor_z",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -93.55,
+     0.45,
+     9.85
+    ],
+    [
+     -77.9,
+     16.1,
+     10.6
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 160,
+   "stl_path": null,
+   "glb_node": 428
+  },
+  {
+   "blender_object": "touchid.board__fr4",
+   "node_path": "touchid.board",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     121.1,
+     76.5,
+     10.4
+    ],
+    [
+     140.1,
+     101.5,
+     11.1
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 429
+  },
+  {
+   "blender_object": "touchid.board_ground__copper",
+   "node_path": "touchid.board_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     121.1,
+     76.5,
+     10.365
+    ],
+    [
+     140.1,
+     101.5,
+     10.4
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 92,
+   "stl_path": null,
+   "glb_node": 430
+  },
+  {
+   "blender_object": "touchid.cover__lens",
+   "node_path": "touchid.cover",
+   "material_key": "lens",
+   "bbox_mm": [
+    [
+     117.3,
+     82.5,
+     11.75
+    ],
+    [
+     130.3,
+     95.5,
+     12.1
+    ]
+   ],
+   "eps_r": 5.5,
+   "sigma_S_per_m": 0.003,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 431
+  },
+  {
+   "blender_object": "touchid.flex__pet",
+   "node_path": "touchid.flex",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     100.0,
+     -4.0,
+     5.0
+    ],
+    [
+     108.0,
+     95.0,
+     10.35
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 28,
+   "stl_path": null,
+   "glb_node": 432
+  },
+  {
+   "blender_object": "touchid.sensor_die__g10",
+   "node_path": "touchid.sensor_die",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     119.8,
+     85.0,
+     11.3
+    ],
+    [
+     127.8,
+     93.0,
+     11.7
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 433
+  },
+  {
+   "blender_object": "trackpad.flex__pet",
+   "node_path": "trackpad.flex",
+   "material_key": "pet",
+   "bbox_mm": [
+    [
+     -13.0,
+     -30.0,
+     5.065
+    ],
+    [
+     1.0,
+     -20.0,
+     9.95
+    ]
+   ],
+   "eps_r": 3.0,
+   "sigma_S_per_m": 0.006,
+   "mu_r": 1.0,
+   "tris": 28,
+   "stl_path": null,
+   "glb_node": 434
+  },
+  {
+   "blender_object": "trackpad.force_sensor_0__g10",
+   "node_path": "trackpad.force_sensor_0",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -59.0,
+     -90.0,
+     9.25
+    ],
+    [
+     -51.0,
+     -86.0,
+     9.95
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 435
+  },
+  {
+   "blender_object": "trackpad.force_sensor_1__g10",
+   "node_path": "trackpad.force_sensor_1",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     51.0,
+     -90.0,
+     9.25
+    ],
+    [
+     59.0,
+     -86.0,
+     9.95
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 436
+  },
+  {
+   "blender_object": "trackpad.force_sensor_2__g10",
+   "node_path": "trackpad.force_sensor_2",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     -59.0,
+     -34.0,
+     9.25
+    ],
+    [
+     -51.0,
+     -30.0,
+     9.95
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 437
+  },
+  {
+   "blender_object": "trackpad.force_sensor_3__g10",
+   "node_path": "trackpad.force_sensor_3",
+   "material_key": "g10",
+   "bbox_mm": [
+    [
+     51.0,
+     -34.0,
+     9.25
+    ],
+    [
+     59.0,
+     -30.0,
+     9.95
+    ]
+   ],
+   "eps_r": 4.8,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 438
+  },
+  {
+   "blender_object": "trackpad.glass__lens",
+   "node_path": "trackpad.glass",
+   "material_key": "lens",
+   "bbox_mm": [
+    [
+     -65.0,
+     -100.0,
+     11.5
+    ],
+    [
+     65.0,
+     -20.0,
+     12.1
+    ]
+   ],
+   "eps_r": 5.5,
+   "sigma_S_per_m": 0.003,
+   "mu_r": 1.0,
+   "tris": 172,
+   "stl_path": null,
+   "glb_node": 439
+  },
+  {
+   "blender_object": "trackpad.plate__stainless",
+   "node_path": "trackpad.plate",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -64.0,
+     -99.0,
+     10.7
+    ],
+    [
+     64.0,
+     -21.0,
+     11.4
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 172,
+   "stl_path": null,
+   "glb_node": 440
+  },
+  {
+   "blender_object": "trackpad.sensor_ground__copper",
+   "node_path": "trackpad.sensor_ground",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -64.0,
+     -99.0,
+     9.965
+    ],
+    [
+     64.0,
+     -21.0,
+     10.0
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 172,
+   "stl_path": null,
+   "glb_node": 441
+  },
+  {
+   "blender_object": "trackpad.sensor_pcb__fr4",
+   "node_path": "trackpad.sensor_pcb",
+   "material_key": "fr4",
+   "bbox_mm": [
+    [
+     -64.0,
+     -99.0,
+     10.0
+    ],
+    [
+     64.0,
+     -21.0,
+     10.6
+    ]
+   ],
+   "eps_r": 4.4,
+   "sigma_S_per_m": 0.02,
+   "mu_r": 1.0,
+   "tris": 172,
+   "stl_path": null,
+   "glb_node": 442
+  },
+  {
+   "blender_object": "trackpad.taptic_coil__copper",
+   "node_path": "trackpad.taptic_coil",
+   "material_key": "copper",
+   "bbox_mm": [
+    [
+     -21.5,
+     -62.0,
+     7.95
+    ],
+    [
+     -13.5,
+     -58.0,
+     8.65
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 58000000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 443
+  },
+  {
+   "blender_object": "trackpad.taptic_housing__stainless",
+   "node_path": "trackpad.taptic_housing",
+   "material_key": "stainless",
+   "bbox_mm": [
+    [
+     -19.0,
+     -66.0,
+     7.1
+    ],
+    [
+     19.0,
+     -54.0,
+     9.5
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1100000.0,
+   "mu_r": 1.0,
+   "tris": 188,
+   "stl_path": null,
+   "glb_node": 444
+  },
+  {
+   "blender_object": "trackpad.taptic_mass__steel",
+   "node_path": "trackpad.taptic_mass",
+   "material_key": "steel",
+   "bbox_mm": [
+    [
+     -13.0,
+     -63.0,
+     7.6
+    ],
+    [
+     13.0,
+     -57.0,
+     9.0
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 1450000.0,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 445
+  },
+  {
+   "blender_object": "vent_module.antenna_window_0__nylon",
+   "node_path": "vent_module.antenna_window_0",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     -117.0,
+     97.5,
+     2.3
+    ],
+    [
+     -83.0,
+     103.0,
+     8.7
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 446
+  },
+  {
+   "blender_object": "vent_module.antenna_window_1__nylon",
+   "node_path": "vent_module.antenna_window_1",
+   "material_key": "nylon",
+   "bbox_mm": [
+    [
+     83.0,
+     97.5,
+     2.3
+    ],
+    [
+     117.0,
+     103.0,
+     8.7
+    ]
+   ],
+   "eps_r": 2.9,
+   "sigma_S_per_m": 0.002,
+   "mu_r": 1.0,
+   "tris": 12,
+   "stl_path": null,
+   "glb_node": 447
+  },
+  {
+   "blender_object": "vent_module.extrusion__aluminium",
+   "node_path": "vent_module.extrusion",
+   "material_key": "aluminium",
+   "bbox_mm": [
+    [
+     -124.5,
+     97.5,
+     2.3
+    ],
+    [
+     124.5,
+     103.0,
+     8.7
+    ]
+   ],
+   "eps_r": 1.0,
+   "sigma_S_per_m": 35000000.0,
+   "mu_r": 1.0,
+   "tris": 636,
+   "stl_path": null,
+   "glb_node": 448
+  }
+ ]
+}

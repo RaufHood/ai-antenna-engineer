@@ -54,9 +54,10 @@ export async function POST(req: Request) {
       : AGENT;
   const deviceId: string | null = typeof body.deviceId === "string" ? body.deviceId : null;
   const media: boolean = body.media === true;
+  const builtin: string | null = typeof body.builtin === "string" ? body.builtin : null;
 
   try {
-    const runId = await createBackendRun(prompt, bands, agent, deviceId, media);
+    const runId = await createBackendRun(prompt, bands, agent, deviceId, media, builtin);
     return NextResponse.json({ runId, agent });
   } catch (err) {
     return fail(err);
