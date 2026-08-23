@@ -194,8 +194,8 @@ async def create_run(body: CreateRun) -> dict:
         # heuristic: these are the real agent's decisions and prose, which is
         # the part worth showing when quota is gone or a demo has to be
         # repeatable.
-        from app.agent.replay import ReplayAgent
-        tape = os.environ.get("REPLAY_TAPE", "var/tapes/wifi24_devin.json")
+        from app.agent.replay import ReplayAgent, tape_for
+        tape = os.environ.get("REPLAY_TAPE") or tape_for(spec, body.bands)
         try:
             agent = ReplayAgent(tape)
         except (FileNotFoundError, ValueError) as e:
