@@ -14,7 +14,7 @@ import time
 
 from app.agent.port import AgentPort, RunContext
 from app.geometry.classify import Override, classify
-from app.geometry.spec import make_anchors
+from app.geometry.spec import clearance_at, make_anchors
 from app.models import (BandRequirement, Candidate, DoneRequest, EventType,
                         IterationReport, SimulateRequest, SpecRequest,
                         SweepRequest, WriteBuilderRequest)
@@ -115,6 +115,8 @@ async def _drive(run: Run, agent: AgentPort) -> None:
         _emit_spec(run)
         await agent.start(ctx)
         await _narrate(run, agent)
+
+    _note_tape_mismatch(run, ctx)
 
     run.stage = "agent_loop"
     run.log.emit("agent_loop", EventType.stage_started, {"stage": "agent_loop"})
@@ -305,12 +307,42 @@ async def _simulate_batch(run: Run, cands: list[Candidate]):
     async def one(c: Candidate):
         run.log.emit("agent_loop", EventType.sim_started,
                      {"candidate_id": c.candidate_id, "band_id": c.band_id})
-        r = await pool.solve_async(run.spec, band_for(run, c), c)
+        band = band_for(run, c)
+        r = await pool.solve_async(run.spec, band, c)
+        # The solve measures S11 and efficiency; the keep-out is geometry and
+        # the solver has no opinion on it. Stamp the geometric verdict here,
+        # before the result is stored or emitted, so the event log, the report
+        # and the UI all state one verdict — rather than an electrical pass
+        # that reads as "all requirements met" while the radiator sits 12.6 mm
+        # from a steel speaker under a 14 mm keep-out.
+        gap, _blocker = clearance_at(run.spec, c.position_mm)
+        r.clearance_mm = round(gap, 1)
+        r.meets_clearance = gap >= band.clearance_mm
         run.results[c.candidate_id] = r
         results[c.candidate_id] = r
         run.log.emit("agent_loop", EventType.sim_result, r.model_dump())
     await asyncio.gather(*(one(c) for c in cands))
     return results
+
+
+def _note_tape_mismatch(run: Run, ctx) -> None:
+    """A replayed transcript reasons about the device it was recorded on.
+
+    The solver re-runs against the device actually loaded, so every number is
+    live — but the agent's words are not, and a recording that talks about a
+    different phone's anchors would read as if it were about this one. Mark the
+    run's provenance so the UI can label the transcript instead of passing it
+    off. Same channel as the mock-fallback banner: provenance belongs in
+    spec_source, not in the agent's mouth.
+    """
+    was = ctx.meta.get("tape_device")
+    if not was:
+        return
+    run.spec_source += "+tape-other-device"
+    run.log.emit("spec", EventType.decision, {
+        "decision": f"Replaying {ctx.meta.get('tape_name', 'a tape')}, recorded "
+                    f"against {was}. Every result below is re-solved against "
+                    f"{run.spec.name}; the agent's commentary is the recording's."})
 
 
 def _score(run: Run, results, history_best: list[float]) -> IterationReport:

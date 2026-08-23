@@ -135,8 +135,20 @@ class SimResult(BaseModel):
     peak_gain_dbi: float = 0.0
     vswr: float = 99.0
     impedance_ohm: tuple[float, float] = (0.0, 0.0)  # (R, X) at band centre
-    meets_requirements: bool = False  # UI field; the agent gets §6.4 layers instead
+    # The solver measures electricals only, so this flag means "S11 and
+    # efficiency are in spec" — it cannot speak for the keep-out, which is
+    # geometry, not a solve. The orchestrator stamps the two fields below
+    # after scoring so the UI can state the whole verdict instead of
+    # reporting an electrical pass as "all requirements met".
+    meets_requirements: bool = False  # electrical only; see meets_all
+    clearance_mm: float | None = None      # to the nearest conductor
+    meets_clearance: bool | None = None    # against the band's keep-out
     notes: str = ""
+
+    @property
+    def meets_all(self) -> bool:
+        """Every requirement, electrical and geometric."""
+        return self.meets_requirements and self.meets_clearance is not False
 
 
 # ---------------------------------------------------------------- agent wire --

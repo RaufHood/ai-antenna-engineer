@@ -49,6 +49,7 @@ export interface RunSnapshot {
   /** True when the orchestrator finished this run on the heuristic agent
    *  because the real one died. Shown, never hidden. */
   agentFellBack: boolean;
+  tapeOtherDevice: boolean;
 }
 
 export const BACKEND_URL =
@@ -98,6 +99,10 @@ type BackendCandidate = Omit<Candidate, "keepout_mm"> & {
 
 type BackendResult = SimResult & {
   impedance_ohm?: [number, number];
+  // Stamped by the orchestrator after scoring, not by the solver: the solve
+  // measures electricals and has no opinion on the keep-out.
+  clearance_mm?: number | null;
+  meets_clearance?: boolean | null;
 };
 
 type BackendFinal = {
@@ -357,7 +362,7 @@ function messagesFrom(
           best && r
             ? `Recommendation: ${best.antenna_type} at ${best.position_mm.map((v) => v.toFixed(1)).join(", ")} mm ` +
               `for ${bandName(best.band_id)}, length ${best.length_mm} mm — S11 ${fmt(r.s11_min_db)} dB, ` +
-              `efficiency ${fmt(r.efficiency * 100, 0)}%${r.meets_requirements ? ", all requirements met" : ", best effort"}. ` +
+              `efficiency ${fmt(r.efficiency * 100, 0)}%${verdictPhrase(r)}. ` +
               `${String(p.rationale ?? "")}${p.truncated ? " (budget exhausted)" : ""}`
             : `Run finished without a simulated design. ${String(p.rationale ?? "")}`,
         );
@@ -394,6 +399,26 @@ function rank(r: SimResult) {
  * per band) follows the agent's own ranking once it has concluded, and the
  * best complete result so far while it is still running.
  */
+/**
+ * What the design actually satisfies, said precisely.
+ *
+ * `meets_requirements` is the solver's flag and it covers S11 and efficiency
+ * only — the solve has no opinion on the keep-out, which is geometry. Reading
+ * it as "all requirements met" produced a report that claimed every
+ * requirement passed while the run itself said "not all margins positive",
+ * because the radiator sat 12.6 mm from a steel speaker under a 14 mm
+ * keep-out. The orchestrator now stamps the geometric verdict onto each
+ * result; this states both.
+ */
+function verdictPhrase(r: BackendResult): string {
+  if (!r.meets_requirements) return ", best effort — electrical spec not met";
+  if (r.meets_clearance === false) {
+    const gap = r.clearance_mm;
+    return `, electrical spec met but ${gap != null ? `${gap} mm ` : ""}clear of the nearest conductor, inside the keep-out`;
+  }
+  return ", every requirement met";
+}
+
 export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot {
   const size = run.spec.board.size_mm;
   const bands: Record<string, BandRequirement> = {};
@@ -451,6 +476,10 @@ export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot
     // thing to hide: a run finished by the heuristic must never be presented
     // as Devin's work. Surface it and let the UI say so.
     agentFellBack: run.spec_source.includes("mock-fallback"),
+    // A replayed transcript reasons about the device it was recorded on. The
+    // solves below are live against the device actually loaded, but the words
+    // are the recording's — say which phone they were about.
+    tapeOtherDevice: run.spec_source.includes("tape-other-device"),
     jobs,
     results,
     candidates,

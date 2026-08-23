@@ -282,6 +282,7 @@ export function AgentPanel() {
   const agent = useApp((s) => s.agent);
   const setAgent = useApp((s) => s.setAgent);
   const agentFellBack = useApp((s) => s.agentFellBack);
+  const tapeOtherDevice = useApp((s) => s.tapeOtherDevice);
   const sendNote = useApp((s) => s.sendNote);
   const enabledBands = useApp((s) => s.enabledBands);
   const bands = useApp((s) => s.spec.requirements.bands);
@@ -374,6 +375,28 @@ export function AgentPanel() {
             )}
           </div>
           <p className="mt-1.5 line-clamp-2 text-[12px] leading-5 text-fg-muted">{prompt}</p>
+        </div>
+      )}
+
+      {tapeOtherDevice && (
+        // A recording is worth replaying — it is a real Devin run at no cost —
+        // but its prose describes the phone it was recorded against. The
+        // solves are re-run live; the commentary is not. Label it.
+        <div className="shrink-0 px-4 pt-3">
+          <div className="flex gap-2.5 rounded-md border border-ink-600 bg-ink-850 px-3 py-2.5">
+            <AlertMark className="mt-px shrink-0 text-fg-faint" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-fg-muted">
+                Recorded transcript — from a run on a different device
+              </p>
+              <p className="mt-1 text-[11px] leading-5 text-fg-faint">
+                Every result below is a live PyNEC solve against the device you have
+                loaded. The commentary is the recording&apos;s, and it reasons about the
+                phone it was captured on, so its anchor names and clearances are that
+                run&apos;s, not this one&apos;s.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

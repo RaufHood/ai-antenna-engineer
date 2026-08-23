@@ -162,6 +162,16 @@ class ReplayAgent:
                 f"this run asks for {list(ctx.band_ids)} — the decisions on it "
                 f"do not describe this run"
             )
+        # The device is not fatal the way the band is — the loop still runs and
+        # the solver still re-solves every candidate live, so the numbers on
+        # screen are this device's. What does not carry over is the agent's
+        # prose: a transcript reasoning about "the 5 legal anchors on the right
+        # edge" of one phone must never be shown as if it were about another.
+        # Record the mismatch so the run can say so instead of implying it.
+        was = self.meta.get("device")
+        if was and was != ctx.spec.name:
+            ctx.meta["tape_device"] = was
+            ctx.meta["tape_name"] = self.path.name
 
     async def brief(self, ctx: RunContext) -> None:
         return None
