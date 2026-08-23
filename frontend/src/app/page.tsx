@@ -23,6 +23,7 @@ export default function Home() {
   const hasResults = useApp((s) => Object.keys(s.results).length > 0);
   const running = useApp((s) => s.running);
   const loadDefaultDevice = useApp((s) => s.loadDefaultDevice);
+  const dockTab = useApp((s) => s.dockTab);
 
   // The device the solver will read, adopted before anything is asked of it.
   useEffect(() => {
@@ -46,7 +47,14 @@ export default function Home() {
             <Viewport />
           </div>
           {(hasResults || running) && (
-            <div className="h-[280px] shrink-0 border-t border-ink-800">
+            // The gallery earns more room than a table does: these are the
+            // pictures the study exists to produce, and a 280 px rail turns
+            // them into stamps.
+            <div
+              className={`shrink-0 border-t border-ink-800 transition-[height] duration-200 ${
+                dockTab === "evidence" ? "h-[440px]" : "h-[280px]"
+              }`}
+            >
               <ResultsDock />
             </div>
           )}

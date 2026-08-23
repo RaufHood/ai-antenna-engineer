@@ -115,6 +115,7 @@ export function EvidenceGallery() {
   const stage = useApp((s) => s.stage);
   const running = useApp((s) => s.running);
   const [open, setOpen] = useState<number | null>(null);
+  const bands = useApp((s) => s.spec.requirements.bands);
 
   const items = preferred(media);
   const step = useCallback(
@@ -145,15 +146,40 @@ export function EvidenceGallery() {
     );
   }
 
+  // A multi-band run is several antenna designs, and every picture belongs to
+  // exactly one of them. Grouping by band is the difference between a gallery
+  // and a pile: you read one antenna's evidence at a time.
+  const groups: { band: string; label: string; items: MediaArtifact[] }[] = [];
+  for (const art of items) {
+    const key = art.band_id || "";
+    let g = groups.find((x) => x.band === key);
+    if (!g) {
+      const band = bands.find((b) => b.id === key);
+      g = { band: key, label: band?.short ?? band?.name ?? "This run", items: [] };
+      groups.push(g);
+    }
+    g.items.push(art);
+  }
+
   return (
-    <div className="h-full overflow-x-auto overflow-y-hidden px-4 py-3">
-      <ul className="flex h-full gap-3">
-        {items.map((art, i) => (
-          <li key={art.name} className="h-full shrink-0">
+    <div className="h-full overflow-y-auto px-4 py-3">
+      {groups.map((g) => (
+        <section key={g.band} className="mb-4 last:mb-0">
+          <h3 className="mb-2 flex items-baseline gap-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-fg-faint">
+            {g.label}
+            <span className="font-mono text-[10px] font-normal normal-case tracking-normal text-fg-faint/70">
+              {g.items.length} artifacts
+            </span>
+          </h3>
+          <ul className="flex gap-3 overflow-x-auto pb-1">
+            {g.items.map((art) => {
+              const i = items.indexOf(art);
+              return (
+          <li key={art.name} className="shrink-0">
             <button
               type="button"
               onClick={() => setOpen(i)}
-              className="group flex h-full w-[168px] flex-col overflow-hidden rounded-md border border-ink-800 bg-ink-900 text-left transition hover:border-ink-600"
+              className="group flex h-[210px] w-[186px] flex-col overflow-hidden rounded-md border border-ink-800 bg-ink-900 text-left transition hover:border-ink-600"
             >
               <span className="relative min-h-0 flex-1 bg-ink-950">
                 <Frame
@@ -167,12 +193,15 @@ export function EvidenceGallery() {
                 )}
               </span>
               <span className="shrink-0 truncate border-t border-ink-800 px-2.5 py-1.5 text-[11px] text-fg-muted transition group-hover:text-fg">
-                {art.title}
+                {art.title.split(" — ")[0]}
               </span>
             </button>
           </li>
-        ))}
-      </ul>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
       {open !== null && items[open] && (
         <Lightbox art={items[open]} onClose={() => setOpen(null)} onStep={step} />
       )}

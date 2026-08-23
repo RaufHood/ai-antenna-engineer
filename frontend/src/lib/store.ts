@@ -58,6 +58,9 @@ interface AppState {
   media: MediaArtifact[];
   /** Backend stage — 'media' means the evidence is still rendering. */
   stage: string;
+  /** Which dock view is open. Lives here, not in the dock, because the
+   *  layout gives the gallery more height than a table needs. */
+  dockTab: "results" | "report" | "evidence";
   error: string | null;
   candidates: Candidate[];
   results: Record<string, SimResult>;
@@ -84,6 +87,7 @@ interface AppState {
   setPrompt: (p: string) => void;
   setAgent: (a: AgentKind) => void;
   setWantMedia: (v: boolean) => void;
+  setDockTab: (t: "results" | "report" | "evidence") => void;
   /** Adopt the device the backend will actually solve. Runs once on mount. */
   loadDefaultDevice: () => Promise<void>;
   startRun: () => Promise<void>;
@@ -140,6 +144,7 @@ export const useApp = create<AppState>((set, get) => ({
   // engineer would actually hand to a mechanical one, and they cost a few
   // seconds after the study has already finished and reported.
   wantMedia: true,
+  dockTab: "results" as const,
   ...EMPTY_RUN,
 
   setModel: (url, name) => set({ modelUrl: url, modelName: name }),
@@ -214,6 +219,7 @@ export const useApp = create<AppState>((set, get) => ({
   selectCandidate: (id) => set({ selectedCandidate: id }),
   setPrompt: (p) => set({ prompt: p }),
   setWantMedia: (v) => set({ wantMedia: v }),
+  setDockTab: (t) => set({ dockTab: t }),
   setAgent: (a) => set({ agent: a }),
 
   loadDefaultDevice: async () => {

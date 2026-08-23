@@ -174,7 +174,8 @@ function ReportView() {
 }
 
 export function ResultsDock() {
-  const [tab, setTab] = useState<"results" | "report" | "evidence">("results");
+  const tab = useApp((s) => s.dockTab);
+  const setTab = useApp((s) => s.setDockTab);
   const candidates = useApp((s) => s.candidates);
   const report = useApp((s) => s.report);
   const running = useApp((s) => s.running);

@@ -159,6 +159,13 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
 
     in_band = (f_lo is not None and f_hi is not None
                and f_lo <= float(f_res) <= f_hi)
+    # The band in play sets the bandwidth target, not GPS: a 2 MHz floor
+    # labelled "GPS C/A" on a Wi-Fi briefing is a requirement nobody asked for.
+    # Cover the band's own span, falling back to that floor when it has none.
+    band_span_mhz = (float(f_hi) - float(f_lo)) * 1000.0 if (f_lo and f_hi) else 0.0
+    bw_target = round(band_span_mhz, 1) if band_span_mhz > 0 else 2.0
+    band_label = (band.get("short") or band.get("id") or "band")
+
     tiles = [
         _tile(r"$S_{11}$ min", s11_min, lambda v: f"${v:.1f}$ dB", 0.0,
               rf"target $\leq {spec_db:g}$ dB",
@@ -169,8 +176,8 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
                if f_lo is not None and f_hi is not None else "target band n/a"),
               None if f_res is None else in_band),
         _tile("Bandwidth", bw_mhz, lambda v: f"${v:.1f}$ MHz", 0.0,
-              r"target $\geq 2$ MHz (GPS C/A)",
-              None if bw_mhz is None else float(bw_mhz) >= 2.0),
+              rf"target $\geq {bw_target:g}$ MHz (covers {cm_text(str(band_label))})",
+              None if bw_mhz is None else float(bw_mhz) >= bw_target),
         _tile("Efficiency", None if eff is None else 100.0 * float(eff),
               lambda v: f"${v:.1f}$%", 0.0,
               rf"target $\geq {100.0 * eff_min:g}$%",
@@ -202,8 +209,14 @@ def render_dashboard(run: dict, out_gif: str, fps: int = 15) -> str:
     fig.text(0.045, 0.935, f"{ant} placement - technical briefing",
              fontsize=17.5, color=FG, ha="left", va="center")
     demo_tag = " | DEMO data" if "DEMO" in (result.get("notes") or "") else ""
+    # Name the solver that produced these numbers. Hard-coding "openEMS FDTD"
+    # credited the wrong engine the moment this panel started reading the run's
+    # own PyNEC result — the one the verdict is based on.
+    engine = (result.get("engine") or result.get("solver")
+              or ("PyNEC MoM" if "wire-grid" in (result.get("notes") or "")
+                  else "openEMS FDTD"))
     fig.text(0.955, 0.935,
-             f"candidate {cm_text(cid)} | {cm_text(band_id)} | openEMS FDTD{demo_tag}",
+             f"candidate {cm_text(cid)} | {cm_text(band_id)} | {cm_text(str(engine))}{demo_tag}",
              fontsize=10.5, color=FG, alpha=0.55, ha="right", va="center")
     fig.add_artist(Line2D([0.045, 0.955], [0.905, 0.905],
                           transform=fig.transFigure, color=GRID, lw=0.8))

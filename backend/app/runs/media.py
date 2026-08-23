@@ -49,6 +49,7 @@ class Artifact:
     title: str         # what an engineer would call it
     caption: str       # what it tells them
     path: Path
+    band_id: str = ""  # which antenna this picture is of
 
 
 def _viz_python() -> Path | None:
@@ -80,29 +81,41 @@ def _device_manifest(spec) -> Path | None:
     return None
 
 
-def _write_run_dir(run, out_dir: Path, manifest: Path | None) -> dict | None:
-    """Lay out the run-artifact directory rf/viz expects: config.json +
-    result.json (+ device.json). Returns the config, or None if the run has
-    no winner to draw."""
-    final = run.final or {}
-    best_id = (final.get("best_candidate") or {}).get("candidate_id")
-    if not best_id:
-        ranked = sorted(run.results.items(),
-                        key=lambda kv: kv[1].s11_min_db or 0.0)
-        if not ranked:
-            return None
-        best_id = ranked[0][0]
-    cand = run.candidates.get(best_id)
-    result = run.results.get(best_id)
-    if cand is None or result is None:
+def _winner_for_band(run, band_id: str):
+    """The candidate this run actually chose for one band.
+
+    Prefers the run's own ranking — that is the agent's decision — and falls
+    back to the deepest match in band, so a run that ended early still draws
+    something rather than nothing.
+    """
+    mine = [(cid, r) for cid, r in run.results.items()
+            if (c := run.candidates.get(cid)) is not None and c.band_id == band_id]
+    if not mine:
+        return None
+    ranking = (run.final or {}).get("ranking") or []
+    for cid in ranking:
+        for mine_cid, _ in mine:
+            if mine_cid == cid:
+                return run.candidates[cid]
+    best = min(mine, key=lambda kv: kv[1].s11_min_db or 0.0)
+    return run.candidates[best[0]]
+
+
+def _write_run_dir(run, cand, band, out_dir: Path, manifest: Path | None) -> dict | None:
+    """Lay out the artifact directory rf/viz expects for ONE antenna:
+    config.json + result.json (+ device.json).
+
+    One directory per band, because every renderer reads the run's single
+    config.json and each band has its own winner. Sharing one directory would
+    mean every picture described whichever antenna was written last.
+    """
+    result = run.results.get(cand.candidate_id)
+    if result is None:
         return None
 
-    from app.geometry.bands import CATALOG
     from app.sim.rf_adapter import build_config
 
-    band = CATALOG.get(cand.band_id) or next(iter(CATALOG.values()))
     config = build_config(run.spec, band, cand)
-
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "config.json").write_text(json.dumps(config, indent=1))
     (out_dir / "result.json").write_text(json.dumps(result.model_dump(), indent=1))
@@ -128,107 +141,116 @@ async def _run(py: Path, args: list[str], timeout: float = DEFAULT_TIMEOUT_S) ->
 
 
 async def render(run, *, with_field: bool = False, on_artifact=None) -> list[Artifact]:
-    """Render this run's gallery. Calls `on_artifact(Artifact)` as each lands
-    so the UI can show them one by one instead of waiting for the slowest."""
+    """Render this run's gallery — one full set per band, for the antenna the
+    agent actually chose for that band.
+
+    A multi-band run is several antenna designs, not one. Each gets its own
+    directory (every renderer reads a single config.json, so they cannot
+    share), and its outputs are copied out under a band-suffixed name into one
+    flat media directory the HTTP route can serve.
+
+    `on_artifact(Artifact)` fires as each file lands, so the cheap pictures
+    appear while the expensive ones are still solving.
+    """
     py = _viz_python()
     if py is None:
         return []
 
-    media_dir = REPO / "backend" / "var" / "media" / run.id
-    manifest = _device_manifest(run.spec)
-    config = _write_run_dir(run, media_dir, manifest)
-    if config is None:
-        return []
+    from app.geometry.bands import CATALOG
 
+    media_dir = REPO / "backend" / "var" / "media" / run.id
+    out_media = media_dir / "media"
+    out_media.mkdir(parents=True, exist_ok=True)
+    manifest = _device_manifest(run.spec)
     made: list[Artifact] = []
 
-    async def emit(name: str, kind: str, title: str, caption: str) -> None:
-        p = media_dir / "media" / name
-        if not p.exists() or p.stat().st_size == 0:
+    async def emit(src_name: str, band_id: str, kind: str, title: str,
+                   caption: str, band_dir: Path) -> None:
+        src = band_dir / "media" / src_name
+        if not src.exists() or src.stat().st_size == 0:
             return
-        art = Artifact(name=name, kind=kind, title=title, caption=caption, path=p)
+        stem, _, ext = src_name.rpartition(".")
+        name = f"{stem}_{band_id}.{ext}"
+        shutil.copy2(src, out_media / name)
+        art = Artifact(name=name, kind=kind, title=title, caption=caption,
+                       path=out_media / name, band_id=band_id)
         made.append(art)
         if on_artifact:
             on_artifact(art)
 
-    # --- tier 1: a placement field PER BAND ----------------------------------
-    # The map is band-dependent, and strongly so. scan() sizes the radiator at
-    # a quarter wave and treats metal inside lambda/20 as detuning, so at
-    # 900 MHz that is an 83 mm arm with a 16 mm exclusion, and at 5 GHz a 14 mm
-    # arm with 3 mm. Those are different legal regions of the same phone — one
-    # map for "the device" would be a map for whichever band happened to win.
-    if manifest:
-        from app.geometry.bands import CATALOG
-        for band_id in (run.band_ids or []):
-            band = CATALOG.get(band_id)
-            if band is None:
-                continue
-            ok, _ = await _render_band_map(py, media_dir, band, band_id)
-            if ok:
-                f_mid = (band.f_low_ghz + band.f_high_ghz) / 2
-                arm = 299.792458 / f_mid / 4  # quarter wave, mm
-                await emit(f"placement_map_{band_id}.png", "image",
-                           f"Placement map — {band.short}",
-                           f"Where a {band.short} antenna may legally sit in this "
-                           f"device. Sized for its own quarter wave ({arm:.0f} mm) and "
-                           f"its own near field, so a different band gives a different "
-                           f"map of the same phone.")
+    async def one_band(band_id: str) -> None:
+        band = CATALOG.get(band_id)
+        if band is None:
+            return
+        cand = _winner_for_band(run, band_id)
+        if cand is None:
+            return
+        band_dir = media_dir / band_id
+        config = _write_run_dir(run, cand, band, band_dir, manifest)
+        if config is None:
+            return
+        short = band.short
 
-    # --- tier 2: the winner, drawn and measured ------------------------------
-    ok, log = await _run(py, ["-m", "rf.viz", str(media_dir), "--only", "s11,placement"])
-    if ok:
-        await emit("s11.png", "image", "Frequency response",
-                   "Reflection against the target band and the spec line the design "
-                   "has to stay under.")
-        await emit("placement_iso.png", "image", "Antenna in the device",
-                   "The chosen antenna inside the actual mesh, with the parts that "
-                   "constrain it coloured by material family.")
+        # --- cheap: the map, the response, the antenna in the mesh -----------
+        # The map is sized from this band's own candidate, so a different band
+        # gives a different legal region of the same phone.
+        only = "s11,placement" + (",map" if manifest else "")
+        ok, _ = await _run(py, ["-m", "rf.viz", str(band_dir), "--only", only])
+        if ok:
+            arm = 299.792458 / ((band.f_low_ghz + band.f_high_ghz) / 2) / 4
+            await emit("placement_map.png", band_id, "image",
+                       f"Placement map — {short}",
+                       f"Where a {short} antenna may legally sit in this device. "
+                       f"Sized for its own quarter wave ({arm:.0f} mm) and its own "
+                       f"near field, so a different band maps the same phone "
+                       f"differently.", band_dir)
+            await emit("s11.png", band_id, "image", f"Frequency response — {short}",
+                       "Reflection against the target band and the spec line the "
+                       "design has to stay under.", band_dir)
+            await emit("placement_iso.png", band_id, "image",
+                       f"Antenna in the device — {short}",
+                       "The chosen antenna inside the actual mesh, with the parts "
+                       "that constrain it coloured by material family.", band_dir)
 
-    # --- tier 3: the field leaving the antenna (expensive, opt-in) -----------
-    if with_field:
-        solved = await _solve_field(media_dir, config)
-        if solved:
-            ok, log = await _run(py, ["-m", "rf.viz", str(media_dir), "--only", "field"],
-                                 timeout=600.0)
-            if ok:
-                await emit("field.gif", "animation", "Radiated field",
-                           "|E| leaving the antenna and crossing the device — the "
-                           "conductors it has to get past are the ones on the map.")
-                await emit("field.mp4", "animation", "Radiated field (video)",
-                           "Same field, smoother playback.")
+        # --- expensive: one FDTD solve, three animations out of it -----------
+        if not with_field:
+            return
+        if not await _solve_field(band_dir, config):
+            return
+        # One rf.viz call, not three: each invocation pays a fresh interpreter
+        # and a matplotlib import, which cost more than two of the renders. The
+        # tool renders whatever it can and reports the rest, so a single failure
+        # still leaves the others.
+        await _run(py, ["-m", "rf.viz", str(band_dir),
+                        "--only", "field,dashboard,orbit"], timeout=900.0)
+        for fname, title, caption in _ANIMATIONS:
+            await emit(fname, band_id, "animation", f"{title} — {short}",
+                       caption, band_dir)
 
+    # Bands are independent designs in their own directories, so they render
+    # concurrently. Two bands took twice as long as one for no reason; the
+    # solves are seconds and the renderers are separate processes.
+    await asyncio.gather(*(one_band(b) for b in (run.band_ids or [])))
     return made
 
 
-async def _render_band_map(py: Path, media_dir: Path, band, band_id: str):
-    """One placement map sized for one band.
-
-    rf/viz/heatmap.py takes the arm length from the run's candidate, so a
-    per-band map needs a per-band config. Written beside the run rather than
-    mutating its config.json, which stays the record of what was actually
-    simulated.
-    """
-    cfg_path = media_dir / f"_band_{band_id}.json"
-    base = json.loads((media_dir / "config.json").read_text())
-    f_mid = (band.f_low_ghz + band.f_high_ghz) / 2
-    base["candidate"] = {**base["candidate"],
-                         "length_mm": 299.792458 / f_mid / 4,
-                         "candidate_id": f"band_{band_id}"}
-    base["band"] = {"id": band_id, "f_low_ghz": band.f_low_ghz,
-                    "f_high_ghz": band.f_high_ghz,
-                    "s11_db_max": band.s11_db_max,
-                    "efficiency_min": band.efficiency_min}
-    cfg_path.write_text(json.dumps(base, indent=1))
-    return await _run(py, [
-        "-c",
-        "import sys,json,shutil;from pathlib import Path;"
-        "sys.path.insert(0,'.');"
-        "from rf.viz.heatmap import render_placement_map;"
-        f"run=Path({str(media_dir)!r});"
-        f"shutil.copy(run/'_band_{band_id}.json', run/'config.json');"
-        f"p=render_placement_map(str(run), str(run/'media'/'placement_map_{band_id}.png'));"
-        "print(p)",
-    ])
+_ANIMATIONS = [
+    ("field.mp4", "Radiated field",
+     "|E| leaving the antenna and crossing the device — the conductors it has "
+     "to get past are the ones on the map."),
+    ("field.gif", "Radiated field (GIF)",
+     "The same frames, for pasting into a deck."),
+    ("dashboard.mp4", "Instrumented run",
+     "The field, the response and the spec line together, so the wave and the "
+     "number it produces move in step."),
+    ("dashboard.gif", "Instrumented run (GIF)",
+     "The same frames, for pasting into a deck."),
+    ("orbit.mp4", "The placement in the round",
+     "The chosen antenna orbited inside the device, which is how a mechanical "
+     "engineer will ask to see it."),
+    ("orbit.gif", "The placement in the round (GIF)",
+     "The same frames, for pasting into a deck."),
+]
 
 
 async def _solve_field(media_dir: Path, config: dict) -> bool:
@@ -251,6 +273,16 @@ async def _solve_field(media_dir: Path, config: dict) -> bool:
     cfg_path = media_dir / "field_config.json"
     cfg_path.write_text(json.dumps(cfg))
 
+    # run_simulation writes its own result.json into out_dir, overwriting the
+    # PyNEC result every renderer reads. The two solvers disagree — a coarse
+    # FDTD mesh on a wire model reports -0.8 dB where PyNEC reports -14.7 —
+    # so the pictures rendered before the solve described a passing design and
+    # the ones after stamped the same antenna FAIL. Keep the run's own result
+    # authoritative and file the FDTD answer under its own name, where it is a
+    # second opinion instead of a contradiction.
+    result_path = media_dir / "result.json"
+    keep = result_path.read_bytes() if result_path.exists() else None
+
     proc = await asyncio.create_subprocess_exec(
         str(py), "-c",
         "import json,sys;from rf.run_simulation import run_simulation;"
@@ -261,8 +293,15 @@ async def _solve_field(media_dir: Path, config: dict) -> bool:
         await asyncio.wait_for(proc.communicate(), timeout=600.0)
     except asyncio.TimeoutError:
         proc.kill()
-        return False
-    return (media_dir / "Et.h5").exists()
+        ok = False
+    else:
+        ok = (media_dir / "Et.h5").exists()
+
+    if keep is not None:
+        if result_path.exists():
+            shutil.copy2(result_path, media_dir / "result_openems.json")
+        result_path.write_bytes(keep)
+    return ok
 
 
 def artifact_path(run_id: str, name: str) -> Path | None:

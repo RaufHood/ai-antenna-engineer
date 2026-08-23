@@ -64,6 +64,8 @@ export interface MediaArtifact {
   kind: "image" | "animation";
   title: string;
   caption: string;
+  /** Which antenna this picture is of — a multi-band run is several designs. */
+  band_id: string;
   /** Proxied through Next: the browser never reaches the backend directly. */
   url: string;
 }
@@ -89,7 +91,7 @@ export type BackendRun = {
   ambiguities: unknown[];
   artifacts: string[];
   /** Rendered evidence, appended as each render lands after the run ends. */
-  media?: Omit<MediaArtifact, "url">[] & { url?: string }[];
+  media?: (Partial<MediaArtifact> & { name: string; kind: "image" | "animation"; title: string; caption: string })[];
   media_requested?: boolean;
   n_events: number;
   spec: BackendSpec;
@@ -502,6 +504,7 @@ export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot
     // so the browser can actually load them.
     media: (run.media ?? []).map((m) => ({
       ...m,
+      band_id: m.band_id ?? "",
       url: `/api/media/${encodeURIComponent(run.run_id)}/${encodeURIComponent(m.name)}`,
     })),
     jobs,

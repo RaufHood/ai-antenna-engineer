@@ -430,7 +430,8 @@ async def _render_media(run: Run) -> None:
 
     def announce(art) -> None:
         item = {"name": art.name, "kind": art.kind, "title": art.title,
-                "caption": art.caption, "url": f"/runs/{run.id}/media/{art.name}"}
+                "caption": art.caption, "band_id": art.band_id,
+                "url": f"/runs/{run.id}/media/{art.name}"}
         run.media_artifacts.append(item)
         run.log.emit("media", EventType.artifact, item)
 
