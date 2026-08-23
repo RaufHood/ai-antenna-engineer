@@ -5,10 +5,10 @@ import { useApp } from "@/lib/store";
 import type { BandRequirement } from "@/lib/types";
 
 /**
- * The brief: the device and the band. Two decisions, two controls, and the
- * numbers each one fixes. Everything that explains rather than decides —
- * solve cost, radiator size, how a .blend differs from a .glb — sits in a
- * tooltip on the control it describes, so the rail reads at a glance.
+ * The band: one decision and the numbers it fixes. The device is named where
+ * it is drawn (viewer/DeviceBadge). Everything that explains rather than
+ * decides — solve cost, radiator size — sits in a tooltip on the control it
+ * describes, so the rail reads at a glance.
  */
 
 /* --------------------------------------------------------------- primitives */
@@ -56,175 +56,6 @@ export const Chevron = ({ open }: { open: boolean }) => (
     path={<path d="M6 3.5 10.5 8 6 12.5" />}
   />
 );
-
-const FileIn = () => (
-  <Icon
-    path={
-      <>
-        <path d="M8 2.5v6.5" />
-        <path d="M5.5 6.5 8 9l2.5-2.5" />
-        <path d="M2.75 10.5v2a1 1 0 0 0 1 1h8.5a1 1 0 0 0 1-1v-2" />
-      </>
-    }
-  />
-);
-
-const Spinner = () => (
-  <Icon
-    className="animate-spin"
-    path={
-      <>
-        <circle cx="8" cy="8" r="5.25" className="opacity-25" />
-        <path d="M8 2.75A5.25 5.25 0 0 1 13.25 8" />
-      </>
-    }
-  />
-);
-
-/* ------------------------------------------------------------------- device */
-
-/** Strips the dimensions the catalogue repeats inside the device name. */
-const bareName = (n: string) => n.replace(/\s*\([^)]*\)\s*$/, "").trim() || n;
-
-function DeviceCard() {
-  const spec = useApp((s) => s.spec);
-  const deviceId = useApp((s) => s.deviceId);
-  const modelUrl = useApp((s) => s.modelUrl);
-  const modelName = useApp((s) => s.modelName);
-  const uploading = useApp((s) => s.uploading);
-  const setModel = useApp((s) => s.setModel);
-  const uploadBlend = useApp((s) => s.uploadBlend);
-
-  const fileRef = useRef<HTMLInputElement>(null);
-  const dragDepth = useRef(0);
-  const [dragging, setDragging] = useState(false);
-  const [problem, setProblem] = useState<string | null>(null);
-
-  const [w, h, t] = spec.board.size_mm;
-  const parts = spec.components.length;
-  // deviceId is set only after a .blend has been extracted on the backend.
-  const extracted = deviceId !== null;
-  // A .glb with no .blend behind it is drawn but never solved. That is the
-  // one case where what you see and what the solver reads disagree, and it
-  // is the only time the card says anything about the viewer.
-  const displayOnly = !!modelUrl && !extracted;
-
-  async function load(file: File) {
-    const name = file.name.toLowerCase();
-    if (name.endsWith(".blend")) {
-      setProblem(null);
-      await uploadBlend(file);
-      const err = useApp.getState().error;
-      if (err) setProblem(`${file.name} was not extracted — ${err}`);
-      return;
-    }
-    if (name.endsWith(".glb") || name.endsWith(".gltf")) {
-      const prev = useApp.getState().modelUrl;
-      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
-      setModel(URL.createObjectURL(file), file.name);
-      setProblem(null);
-      return;
-    }
-    setProblem(`${file.name} is not a .blend or .glb.`);
-  }
-
-  function clearModel() {
-    const prev = useApp.getState().modelUrl;
-    if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
-    setModel(null, null);
-    setProblem(null);
-  }
-
-  return (
-    <section className="px-4 pb-5 pt-5">
-      <SectionTitle>Device</SectionTitle>
-
-      <div
-        onDragEnter={(e) => {
-          e.preventDefault();
-          dragDepth.current += 1;
-          setDragging(true);
-        }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = "copy";
-        }}
-        onDragLeave={() => {
-          dragDepth.current = Math.max(0, dragDepth.current - 1);
-          if (dragDepth.current === 0) setDragging(false);
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          dragDepth.current = 0;
-          setDragging(false);
-          const f = e.dataTransfer.files?.[0];
-          if (f) void load(f);
-        }}
-        aria-busy={uploading}
-        className={`mt-3 rounded-lg border px-3.5 py-3 transition ${
-          dragging
-            ? "border-dashed border-accent bg-accent/5"
-            : uploading
-              ? "border-accent-dim bg-ink-900"
-              : "border-ink-800 bg-ink-900"
-        }`}
-      >
-        <p className="truncate text-[13px] font-medium text-fg">{bareName(spec.name)}</p>
-        <p className="mt-1 font-mono text-[11px] text-fg-muted">
-          {w} × {h} × {t} mm · {parts} parts
-        </p>
-        {extracted && (
-          <p className="mt-1 truncate text-[11px] text-fg-muted">from {modelName}</p>
-        )}
-
-        {displayOnly && (
-          <div className="mt-2.5 flex items-center gap-2 text-[11px]">
-            <span className="rounded px-1.5 py-px text-warn ring-1 ring-warn/30">
-              display only
-            </span>
-            <span className="min-w-0 truncate text-fg-muted" title={modelName ?? undefined}>
-              {modelName} is drawn, not solved
-            </span>
-            <button
-              onClick={clearModel}
-              className="ml-auto shrink-0 text-fg-muted transition hover:text-fg"
-            >
-              Remove
-            </button>
-          </div>
-        )}
-
-        <button
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          title="A .blend is extracted and solved. A .glb is drawn only. Drop a file here or choose one."
-          className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-ink-700 py-1.5 text-[12px] text-fg transition hover:border-ink-600 hover:bg-ink-850 disabled:cursor-wait disabled:text-fg-muted"
-        >
-          {uploading ? <Spinner /> : <FileIn />}
-          {uploading ? "Extracting…" : dragging ? "Drop to load" : "Load build file"}
-        </button>
-      </div>
-
-      {problem && (
-        <p role="alert" className="mt-2 text-[11px] leading-relaxed text-fail">
-          {problem}
-        </p>
-      )}
-
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".blend,.glb,.gltf"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          e.target.value = "";
-          if (f) void load(f);
-        }}
-      />
-    </section>
-  );
-}
 
 /* -------------------------------------------------------------- target band */
 
@@ -318,7 +149,7 @@ function TargetBand() {
   }
 
   return (
-    <section className="border-t border-ink-800 px-4 pb-5 pt-5">
+    <section className="px-4 pb-5 pt-5">
       <SectionTitle>Target band</SectionTitle>
 
       <div role="radiogroup" aria-label="Primary target band" className="mt-3 flex flex-wrap gap-1.5">
@@ -441,10 +272,5 @@ function TargetBand() {
 }
 
 export function SpecPanel() {
-  return (
-    <>
-      <DeviceCard />
-      <TargetBand />
-    </>
-  );
+  return <TargetBand />;
 }

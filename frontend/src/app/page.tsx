@@ -4,6 +4,7 @@ import { AgentPanel } from "@/components/panels/AgentPanel";
 import { ComponentTree } from "@/components/panels/ComponentTree";
 import { ResultsDock } from "@/components/panels/ResultsDock";
 import { SpecPanel } from "@/components/panels/SpecPanel";
+import { ViewPanel } from "@/components/panels/ViewPanel";
 import { TopBar } from "@/components/panels/TopBar";
 import { Viewport } from "@/components/viewer/Viewport";
 import { DockResizer } from "@/components/panels/DockResizer";
@@ -72,9 +73,10 @@ export default function Home() {
           )}
         </main>
 
-        {/* The inspector: which device, which band, which parts. */}
+        {/* The inspector: which band, how the device is drawn, which parts. */}
         <aside className="flex w-[300px] shrink-0 flex-col overflow-y-auto border-l border-ink-800">
           <SpecPanel />
+          <ViewPanel />
           <ComponentTree />
         </aside>
       </div>
