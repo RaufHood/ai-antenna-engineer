@@ -1,0 +1,74 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0PQ5W28YVHREXDPGF8QZZM6",
+  "session_id": "96db9d20-9fdb-4b73-9c6f-0652d031e1bc",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-23T07:08:25.115012Z",
+  "branch": "dev",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/app/globals.css",
+    "frontend/src/app/page.tsx",
+    "frontend/src/components/panels/AgentPanel.tsx",
+    "frontend/src/components/panels/BandMenu.tsx",
+    "frontend/src/components/panels/ComponentTree.tsx",
+    "frontend/src/components/panels/SpecPanel.tsx",
+    "frontend/src/components/panels/TopBar.tsx",
+    "frontend/src/components/panels/ViewPanel.tsx",
+    "frontend/src/components/panels/primitives.tsx",
+    "frontend/src/components/viewer/Viewport.tsx",
+    "frontend/src/lib/store.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "2e3b562e7fc4",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 412,
+    "cache_creation_tokens": 1023951,
+    "cache_read_tokens": 42388669,
+    "output_tokens": 136692,
+    "api_call_count": 206
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-23T07:08:24.970462Z",
+    "agent_lines": 0,
+    "agent_removed": 99,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 386,
+    "total_committed": 59,
+    "total_lines_changed": 485,
+    "agent_percentage": 20.412371134020617,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 354,
+      "user_lines_removed": 386,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "frontend/src/app/globals.css": 10,
+        "frontend/src/app/page.tsx": 20,
+        "frontend/src/components/panels/AgentPanel.tsx": 24,
+        "frontend/src/components/panels/BandMenu.tsx": 86,
+        "frontend/src/components/panels/ComponentTree.tsx": 1,
+        "frontend/src/components/panels/TopBar.tsx": 20,
+        "frontend/src/components/panels/ViewPanel.tsx": 1,
+        "frontend/src/components/panels/primitives.tsx": 184,
+        "frontend/src/lib/store.ts": 8
+      },
+      "user_removed_per_file": {
+        "frontend/src/app/globals.css": 4,
+        "frontend/src/app/page.tsx": 12,
+        "frontend/src/components/panels/AgentPanel.tsx": 91,
+        "frontend/src/components/panels/ComponentTree.tsx": 1,
+        "frontend/src/components/panels/SpecPanel.tsx": 276,
+        "frontend/src/components/panels/ViewPanel.tsx": 1,
+        "frontend/src/lib/store.ts": 1
+      }
+    }
+  ]
+}
