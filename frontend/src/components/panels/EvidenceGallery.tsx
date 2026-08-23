@@ -29,6 +29,14 @@ function preferred(media: MediaArtifact[]): MediaArtifact[] {
   return media.filter((a) => !(a.name.endsWith(".gif") && mp4s.has(a.name.replace(/\.gif$/, ""))));
 }
 
+/** How many artifacts the gallery will actually show. The tab label must
+ *  agree with what is on screen: counting the raw list said 18 while the
+ *  groups showed 12, because each clip ships as an mp4 and a gif of the same
+ *  frames and only the mp4 is displayed. */
+export function shownCount(media: MediaArtifact[]): number {
+  return preferred(media).length;
+}
+
 function Frame({ art, className = "" }: { art: MediaArtifact; className?: string }) {
   if (isVideo(art)) {
     return (

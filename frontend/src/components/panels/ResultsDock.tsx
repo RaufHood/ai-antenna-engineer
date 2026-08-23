@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { rankKey, reasonFor, verdictOf } from "@/lib/evidence";
 import { useApp } from "@/lib/store";
 import type { Anchor, BandRequirement, Candidate, SimResult } from "@/lib/types";
-import { EvidenceGallery } from "./EvidenceGallery";
+import { EvidenceGallery, shownCount } from "./EvidenceGallery";
 import { Markdown } from "./Markdown";
 import { S11Chart } from "./S11Chart";
 import { BandCoverage } from "./SpectrumStrip";
@@ -224,7 +224,7 @@ export function ResultsDock() {
                     ? `Candidates (${candidates.length})`
                     : t === "report"
                       ? "Report"
-                      : `Evidence${media.length ? ` (${media.length})` : ""}`}
+                      : `Evidence${media.length ? ` (${shownCount(media)})` : ""}`}
                 </button>
               ))}
             </div>

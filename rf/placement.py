@@ -39,7 +39,22 @@ METAL_SIGMA = 1.0e4
 # Metal this close to a radiator dominates its impedance. lambda/20 at
 # GPS L1 (190 mm) is ~9.5 mm; we report the raw distance and let the caller
 # compare against the band in play.
-NEARFIELD_MM = 12.0
+NEARFIELD_MM = 12.0      # fallback when the band is unknown
+
+
+def nearfield_for(f_ghz: float | None) -> float:
+    """The near-field radius that matters at this frequency: lambda/20.
+
+    Metal inside a twentieth of a wavelength dominates the radiator's
+    impedance — that is the threshold this codebase reasons with everywhere
+    else. Holding it at a constant 12 mm made the screening frequency-blind:
+    a 900 MHz design and a 5 GHz design were judged against the same 12 mm,
+    so every band produced the same placement map of the same phone. It is
+    17.6 mm at B5 and 2.7 mm at Wi-Fi 5, and those are different maps.
+    """
+    if not f_ghz or f_ghz <= 0:
+        return NEARFIELD_MM
+    return (299.792458 / float(f_ghz)) / 20.0
 
 WALL_INSET_MM = 1.5      # chassis side wall the antenna must stay clear of
 # Through-thickness the same 1.5 mm is not a margin, it is a ban: an 11 mm
@@ -321,24 +336,26 @@ def escape(candidate: dict, device: Device) -> dict:
 
 # -------------------------------------------------------------------- verdict
 
-def screen(candidate: dict, device: Device) -> dict:
+def screen(candidate: dict, device: Device, *,
+           nearfield_mm: float = NEARFIELD_MM) -> dict:
     """All three analyses plus one ranking score. Cost: ~1 ms.
 
     `score` is deliberately simple and monotone so it is defensible in a
     pitch: illegal placements score 0; otherwise it rewards escape fraction
-    and punishes metal in the near field, saturating at NEARFIELD_MM.
+    and punishes metal in the near field, saturating at `nearfield_mm`
+    (lambda/20 for the band in play — see nearfield_for).
     Use it to *order* candidates for the solver, never as a substitute for
     the solve.
     """
     leg = legality(candidate, device)
-    clr = clearance(candidate, device)
+    clr = clearance(candidate, device, radius_mm=nearfield_mm)
     esc = escape(candidate, device)
 
     if not leg["legal"]:
         score = 0.0
     else:
-        gap = min(clr["nearest_metal_mm"], NEARFIELD_MM)
-        score = round(esc["escape_fraction"] * (0.35 + 0.65 * gap / NEARFIELD_MM), 4)
+        gap = min(clr["nearest_metal_mm"], nearfield_mm)
+        score = round(esc["escape_fraction"] * (0.35 + 0.65 * gap / nearfield_mm), 4)
 
     reasons = []
     if leg["outside_chassis"]:
@@ -369,7 +386,8 @@ def screen(candidate: dict, device: Device) -> dict:
 
 
 def scan(device: Device, *, band_length_mm: float = 27.5, z_mm: float | None = None,
-         step_mm: float = 4.0, keepout: list | None = None) -> list[dict]:
+         step_mm: float = 4.0, keepout: list | None = None,
+         nearfield_mm: float = NEARFIELD_MM) -> list[dict]:
     """Sweep a grid of feed positions over the device — the agent's map.
 
     Returns one screen() summary per grid point (without the verbose
@@ -388,7 +406,7 @@ def scan(device: Device, *, band_length_mm: float = 27.5, z_mm: float | None = N
                     "length_mm": band_length_mm, "orientation": "edge"}
             if keepout:
                 cand["keepout_mm"] = keepout
-            v = screen(cand, device)
+            v = screen(cand, device, nearfield_mm=nearfield_mm)
             out.append({k: v[k] for k in
                         ("candidate_id", "score", "legal", "escape_fraction",
                          "nearest_metal_mm", "metal_fraction", "reasons")}

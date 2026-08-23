@@ -40,22 +40,35 @@ def render_placement_map(run, out_png: str | None = None, *,
     from matplotlib.colors import LinearSegmentedColormap
     import matplotlib.pyplot as plt
 
-    from ..placement import Device, scan
+    from ..placement import Device, nearfield_for, scan
 
     apply_theme()
     run_dir = Path(run["run_dir"] if isinstance(run, dict) else run)
     out = Path(out_png or run_dir / "media" / "placement_map.png")
     out.parent.mkdir(parents=True, exist_ok=True)
 
-    dev = Device.from_manifest(manifest)
+    # Prefer the device this run was actually solved against. media.py copies
+    # the manifest in beside config.json, so an uploaded .blend maps its own
+    # phone instead of silently falling back to the built-in iPhone.
+    own = run_dir / "device.json"
+    dev = Device.from_manifest(str(own) if own.exists() else manifest)
     cfg_path = run_dir / "config.json"
     cand = json.loads(cfg_path.read_text())["candidate"] if cfg_path.exists() else {}
     # Sweep at the candidate's own height, not scan()'s mid-stack default: a
     # map drawn at a different z from the antenna it accompanies is a map of a
     # different antenna. The feed z is where the radiator sits.
     z = cand.get("feed_point_mm") or cand.get("position_mm")
+    # The near field is the band's, not a constant: metal inside lambda/20
+    # dominates the impedance, and that is 17.6 mm at B5 against 2.7 mm at
+    # Wi-Fi 5. Held at 12 mm for everything, every band drew the same map of
+    # the same phone — the two panels came out byte-identical.
+    cfg = json.loads(cfg_path.read_text()) if cfg_path.exists() else {}
+    band = cfg.get("band") or {}
+    f_lo, f_hi = band.get("f_low_ghz"), band.get("f_high_ghz")
+    f_mid = (float(f_lo) + float(f_hi)) / 2 if f_lo and f_hi else None
     rows = scan(dev, band_length_mm=float(cand.get("length_mm", 27.5)),
-                step_mm=step_mm, z_mm=float(z[2]) if z else None)
+                step_mm=step_mm, z_mm=float(z[2]) if z else None,
+                nearfield_mm=nearfield_for(f_mid))
 
     xs = sorted({r["position_mm"][0] for r in rows})
     ys = sorted({r["position_mm"][1] for r in rows})

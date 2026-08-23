@@ -240,12 +240,17 @@ def anchors_from_scan(spec: DeviceSpec, band: BandRequirement, *,
     # cover and every point screens as illegal.
     from rf.placement import ARM_H_MM
     z = round(max(0.5, antenna_z(spec) - ARM_H_MM), 2)
-    key = (str(manifest), manifest.stat().st_mtime_ns, band.id, step_mm, z,
+    # Judge metal against this band's own near field (lambda/20), not a fixed
+    # 12 mm — otherwise the anchors, like the map, come out the same for every
+    # frequency in the same phone.
+    from rf.placement import nearfield_for
+    near = round(nearfield_for((band.f_low_ghz + band.f_high_ghz) / 2), 2)
+    key = (str(manifest), manifest.stat().st_mtime_ns, band.id, step_mm, z, near,
            round(_quarter_wave_mm(band), 2))
     rows = _SCAN_CACHE.get(key)
     if rows is None:
         rows = scan(device, band_length_mm=_quarter_wave_mm(band), step_mm=step_mm,
-                    z_mm=z)
+                    z_mm=z, nearfield_mm=near)
         _SCAN_CACHE[key] = rows
     legal = [r for r in rows if r["legal"]]
     if not legal:
