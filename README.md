@@ -87,6 +87,38 @@ must report `5 legal, 15 ruled out` with named blockers such as
 `exterior.frame.band_seg_2`. "Screening unavailable" means the manifest is
 missing — say so rather than working around it.
 
+## What the loop has actually achieved
+
+Live-verified runs, not projections (full log: `backend/DESIGN.md` §11):
+
+| Run | Device | Outcome |
+|---|---|---|
+| M1 (canned spec) | Reference phone | 3 iterations, 32 sims, Devin `done` through the simulation gate → IFA @ right edge, S11 −21.5 dB, VSWR 1.24, full band < −10 dB |
+| M2 (synthetic fixture) | Generated 15-part phone | Devin flagged 4 real layout issues unprompted (oversized ground pour, unslotted rails...); 3 iterations / 46 sims → monopole, S11 −24.3 dB, VSWR 1.21 |
+| M2 (real asset) | **Apple iPhone 15 Pro, 191 parts** | Devin extracted geometry in its own VM, applied 12 material/role corrections, 3 iterations / 32 sims, rejected the IFA family on evidence → **28 mm corner monopole**: S11 −17.6 dB @ 2.46 GHz, VSWR 1.30, efficiency 0.98, all requirements incl. the 12 mm keep-out pass |
+
+Pass/fail thresholds: S11 ≤ −6 to −10 dB, VSWR < 2–3, efficiency > 40–50 %,
+band-dependent keep-out clearance — standard handset RF targets (background
+in `deep_research_on_challenge.md`).
+
+## Honest gaps
+
+- **PyNEC (the in-loop oracle) has no bulk dielectrics** — chassis is bare
+  metal/wires. That's what makes ms-per-solve iteration possible; it's a
+  simplification, not the real materials. `rf/`'s openEMS confirmation is
+  where glass/FR4/battery enter.
+- **openEMS's own resonance numbers aren't yet cross-checked against a
+  textbook reference case** (`rf/progress_simulation.md` — open item).
+  Treat absolute numbers as directional engineering signal.
+- **`pynec` has no prebuilt Windows wheel** — `uv sync` compiles it from
+  source and needs the MSVC C++ compiler. If `uv sync` fails with `Microsoft
+  Visual C++ 14.0 or greater is required`, install the "Desktop development
+  with C++" workload for Visual Studio Build Tools, then retry.
+- **openEMS confirmation is Windows-only** (prebuilt wheels only target
+  `win_amd64`).
+- Simulation is not measurement — hand/head detuning, SAR compliance, and
+  manufacturing tolerance still need lab testing on a real unit.
+
 ## Layout
 
 | path | what |
