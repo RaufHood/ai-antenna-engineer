@@ -104,6 +104,11 @@ svg {
 
 /* 7. Print one fixed-size slide per page */
 @media print {
+    @page {
+        size: 1920px 1080px;
+        margin: 0;
+    }
+
     html,
     body {
         width: 1920px;
