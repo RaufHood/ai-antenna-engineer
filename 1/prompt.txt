@@ -1,0 +1,23 @@
+please run testing of the UI and the actuall real workflow end to end to be sure everythign actually works as it shoudl and also makes snes not just looks nice.
+
+---
+
+common
+
+---
+
+waht are you still doing there?
+
+---
+
+<!-- attach -->
+> One thing I did NOT fix — needs your call
+> backend/var/tapes/iphone_wifi24_devin.json (the "Saved run" option, added in the team's ca46f17) is corrupt: its final done action carries the rationale
+> 
+> agent channel failed ([Errno 8] nodename nor servname...); best simulated design returned
+> 
+> It was recorded from a live Devin run that died on that network error, and tape_from_run.py baked the orchestrator's failure message in as Devin's own words. So every iPhone "Saved run" ends by attributing a fake error to Devin. The MacBook and Handset A tapes are clean.
+> 
+> I didn't touch it: rewriting that rationale would mean inventing Devin's reasoning, which is exactly what this app must never do.
+
+for the recorrded or maock its fine, better that faulty data, but for the real session of course no mock
