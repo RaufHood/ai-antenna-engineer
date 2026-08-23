@@ -1,0 +1,5 @@
+can you deploy it her: ubuntu-4gb-nbg1-2
+188.245.219.249
+2a01:4f8:1c1a:8638::/64
+
+Add Floating IP
