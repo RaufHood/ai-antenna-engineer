@@ -57,7 +57,6 @@ interface AppState {
   agentFellBack: boolean;
   tapeOtherDevice: boolean;
   /** Render this run's own maps, x-ray and field clip once it concludes. */
-  wantMedia: boolean;
   media: MediaArtifact[];
   /** Backend stage — 'media' means the evidence is still rendering. */
   stage: string;
@@ -92,7 +91,6 @@ interface AppState {
   selectCandidate: (id: string | null) => void;
   setPrompt: (p: string) => void;
   setAgent: (a: AgentKind) => void;
-  setWantMedia: (v: boolean) => void;
   setDockTab: (t: "results" | "report" | "evidence") => void;
   setDockHeight: (px: number | null) => void;
   /** Adopt the device the backend will actually solve. Runs once on mount. */
@@ -147,11 +145,10 @@ export const useApp = create<AppState>((set, get) => ({
 
   prompt:
     "Where should the antennas be placed in this phone? Pick the type, target band and expected performance for each, and respect the keep-out limits.",
-  agent: "mock",
+  agent: "devin",
   // On by default: the maps and the field clip are the evidence an RF
   // engineer would actually hand to a mechanical one, and they cost a few
   // seconds after the study has already finished and reported.
-  wantMedia: true,
   dockTab: "results" as const,
   dockHeight: null as number | null,
   ...EMPTY_RUN,
@@ -227,7 +224,6 @@ export const useApp = create<AppState>((set, get) => ({
   toggle: (key) => set({ [key]: !get()[key] } as Partial<AppState>),
   selectCandidate: (id) => set({ selectedCandidate: id }),
   setPrompt: (p) => set({ prompt: p }),
-  setWantMedia: (v) => set({ wantMedia: v }),
   setDockTab: (t) => set({ dockTab: t }),
   setDockHeight: (px) => set({ dockHeight: px }),
   setAgent: (a) => set({ agent: a }),
@@ -259,7 +255,7 @@ export const useApp = create<AppState>((set, get) => ({
   },
 
   startRun: async () => {
-    const { enabledBands, prompt, agent, deviceId, wantMedia } = get();
+    const { enabledBands, prompt, agent, deviceId } = get();
     if (!enabledBands.length) {
       set({ error: "Select at least one band before running." });
       return;
@@ -274,7 +270,8 @@ export const useApp = create<AppState>((set, get) => ({
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt, bands: enabledBands, agent, deviceId, media: wantMedia }),
+        // Evidence is always rendered: it lands after run_finished and never gates the result.
+        body: JSON.stringify({ prompt, bands: enabledBands, agent, deviceId, media: true }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "run failed");
       const { runId } = await res.json();

@@ -180,8 +180,6 @@ export function ResultsDock() {
   const report = useApp((s) => s.report);
   const running = useApp((s) => s.running);
   const media = useApp((s) => s.media);
-  const stage = useApp((s) => s.stage);
-  const wantMedia = useApp((s) => s.wantMedia);
 
   if (!candidates.length) {
     return (
@@ -191,11 +189,10 @@ export function ResultsDock() {
     );
   }
 
-  // A tab only exists once it has something behind it, so the strip never
-  // offers a dead end.
-  const hasEvidence = media.length > 0 || stage === "media" || wantMedia;
+  // Evidence is always requested, so its tab is always there; the report tab
+  // appears once the agent has written one.
   const tabs = (
-    ["results", ...(report ? ["report"] : []), ...(hasEvidence ? ["evidence"] : [])] as const
+    ["results", ...(report ? ["report"] : []), "evidence"] as const
   ) as readonly ("results" | "report" | "evidence")[];
   const showing = tabs.includes(tab) ? tab : "results";
   return (

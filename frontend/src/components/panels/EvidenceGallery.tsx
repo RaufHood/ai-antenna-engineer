@@ -140,10 +140,7 @@ export function EvidenceGallery() {
           {rendering ? (
             "Rendering evidence…"
           ) : (
-            <>
-              No evidence for this run. Tick <span className="text-fg">Render evidence</span>{" "}
-              before running.
-            </>
+            "No evidence was rendered for this run — the transcript says why."
           )}
         </p>
       </div>

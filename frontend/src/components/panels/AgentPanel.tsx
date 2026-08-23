@@ -6,10 +6,11 @@ import type { AgentMessage } from "@/lib/types";
 
 /**
  * The right rail is the conversation: the spec goes in at the top, the
- * agent's reasoning comes back underneath. Nothing in between explains the
- * app — the controls are labelled, the trade-offs live in tooltips, and the
- * only text that stays on screen is text the engineer wrote or the agent
- * said.
+ * agent's reasoning comes back underneath. No title — a text box with a Run
+ * button under it says what it is — and the agent is picked from a menu
+ * beneath the input, the way a model is picked under a chat box. Evidence is
+ * always rendered: it lands after the result and never gates it, so there is
+ * nothing to decide.
  *
  * The three message kinds the backend emits still read as three things:
  * orchestrator narration is a hairline break, a solve landing is a
@@ -69,9 +70,9 @@ interface AgentChoice {
 }
 
 const AGENT_CHOICES: AgentChoice[] = [
-  { id: "mock", name: "Mock", meta: "Heuristic placement, real solves · seconds, free" },
+  { id: "devin", name: "Devin", meta: "Live reasoning on this device · ~2.5 min, uses quota" },
   { id: "replay", name: "Replay", meta: "A recorded Devin run, played back · instant, free" },
-  { id: "devin", name: "Devin", meta: "Live Devin reasoning on this device · ~2.5 min, uses quota" },
+  { id: "mock", name: "Mock", meta: "Heuristic placement, real solves · seconds, free" },
 ];
 
 const agentName = (id: AgentKind) => AGENT_CHOICES.find((a) => a.id === id)?.name ?? id;
@@ -233,6 +234,110 @@ function TranscriptLine({ line }: { line: Line }) {
   }
 }
 
+/* -------------------------------------------------------------- agent menu */
+
+function ChevronDown() {
+  return (
+    <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 6.5 8 10.5 12 6.5" />
+    </svg>
+  );
+}
+
+function Check() {
+  return (
+    <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 8.5 6.5 12 13 4.5" />
+    </svg>
+  );
+}
+
+/** Who runs the study. A small button naming the current choice; the menu
+ *  carries the trade-off for each, so it is read at the moment of choosing. */
+function AgentMenu({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: AgentKind;
+  onChange: (id: AgentKind) => void;
+  disabled: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = AGENT_CHOICES.find((a) => a.id === value) ?? AGENT_CHOICES[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Agent that runs the study"
+        disabled={disabled}
+        onClick={() => setOpen((o) => !o)}
+        title={current.meta}
+        className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] text-fg-muted transition hover:bg-ink-850 hover:text-fg disabled:cursor-not-allowed disabled:hover:bg-transparent"
+      >
+        {current.name}
+        <ChevronDown />
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          aria-label="Agent"
+          className="absolute left-0 top-full z-20 mt-1.5 w-72 rounded-lg border border-ink-700 bg-ink-900 p-1 shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
+        >
+          {AGENT_CHOICES.map((c) => {
+            const on = c.id === value;
+            return (
+              <li key={c.id} role="option" aria-selected={on}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(c.id);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full flex-col rounded-md px-2.5 py-2 text-left transition ${
+                    on ? "bg-ink-850" : "hover:bg-ink-850"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 text-[12.5px] text-fg">
+                    {c.name}
+                    {on && (
+                      <span className="text-accent">
+                        <Check />
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-0.5 text-[11px] leading-4 text-fg-muted">{c.meta}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------- the panel */
 
 function elapsedLabel(seconds: number) {
@@ -245,8 +350,6 @@ export function AgentPanel() {
   const prompt = useApp((s) => s.prompt);
   const setPrompt = useApp((s) => s.setPrompt);
   const startRun = useApp((s) => s.startRun);
-  const wantMedia = useApp((s) => s.wantMedia);
-  const setWantMedia = useApp((s) => s.setWantMedia);
   const poll = useApp((s) => s.poll);
   const running = useApp((s) => s.running);
   const planning = useApp((s) => s.planning);
@@ -299,7 +402,6 @@ export function AgentPanel() {
   const started = !!runId || messages.length > 0;
   const specOpen = !started || editingSpec;
   const canRun = !running && !!prompt.trim() && enabledBands.length > 0;
-  const choice = AGENT_CHOICES.find((a) => a.id === agent) ?? AGENT_CHOICES[0];
 
   const blocker = !prompt.trim()
     ? "Write the spec first."
@@ -313,29 +415,24 @@ export function AgentPanel() {
     void startRun();
   };
 
+  const status = running ? (planning ? "Planning" : "Simulating") : rendering ? "Rendering" : "Finished";
+
   return (
     <div className="flex h-full flex-col bg-ink-950">
-      <header className="flex h-12 shrink-0 items-center gap-3 border-b border-ink-800 px-5">
-        <h2 className={LABEL}>Agent</h2>
-        {started && (
-          <div className="ml-auto flex items-center gap-2">
-            {running && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />}
+      {/* The spec, once a run owns the rail: the run's status, then what was
+          asked, still legible but no longer the thing you are looking at. */}
+      {started && !editingSpec && (
+        <div className="shrink-0 border-b border-ink-800 px-5 py-3.5">
+          <div className="flex items-center gap-2">
+            {(running || rendering) && (
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+            )}
             <span className="text-[11px] text-fg-muted">
-              {running ? (planning ? "Planning" : "Simulating") : "Finished"}
+              {agentName(agent)} · {status}
             </span>
             {elapsed > 0 && (
               <span className="font-mono text-[11px] text-fg-muted">{elapsedLabel(elapsed)}</span>
             )}
-          </div>
-        )}
-      </header>
-
-      {/* The spec, once a run owns the rail: still legible, no longer the
-          thing you are looking at. */}
-      {started && !editingSpec && (
-        <div className="shrink-0 border-b border-ink-800 px-5 py-3.5">
-          <div className="flex items-baseline gap-3">
-            <span className="text-[11px] text-fg-muted">{agentName(agent)}</span>
             {!running && (
               <button
                 type="button"
@@ -392,100 +489,47 @@ export function AgentPanel() {
       <div ref={feedRef} className="min-h-0 flex-1 overflow-y-auto">
         {specOpen && (
           <div className={`px-5 pb-5 pt-5 ${started ? "border-b border-ink-800" : ""}`}>
-            <label htmlFor="antenna-spec" className={LABEL}>
-              Spec
-            </label>
-            <textarea
-              id="antenna-spec"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run();
-              }}
-              spellCheck={false}
-              placeholder="2.4 GHz Wi-Fi antenna on the bottom edge. 6 mm clear of the battery, VSWR under 2 in band, efficiency above 55%."
-              className="mt-2.5 min-h-[8.5rem] w-full resize-y rounded-lg border border-ink-700 bg-ink-900 px-3.5 py-3 text-[13px] leading-6 text-fg outline-none transition placeholder:text-fg-faint focus:border-accent"
-            />
-
-            <div
-              role="radiogroup"
-              aria-label="Agent that runs the study"
-              className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-md border border-ink-700 bg-ink-700"
-            >
-              {AGENT_CHOICES.map((c) => {
-                const on = agent === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    disabled={running}
-                    onClick={() => setAgent(c.id)}
-                    title={c.meta}
-                    className={`py-1.5 text-[12px] transition disabled:cursor-not-allowed ${
-                      on ? "bg-ink-800 font-medium text-fg" : "bg-ink-950 text-fg-muted hover:text-fg"
-                    }`}
-                  >
-                    {c.name}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="mt-2 text-[11px] leading-5 text-fg-muted">{choice.meta}</p>
-
-            <label
-              className="mt-4 flex cursor-pointer items-center gap-2.5 text-[12px] text-fg"
-              title="After the study: a placement map per band, the winner inside the mesh, its response, and the field leaving it."
-            >
-              <input
-                type="checkbox"
-                checked={wantMedia}
-                disabled={running}
-                onChange={(e) => setWantMedia(e.target.checked)}
-                className="peer sr-only"
+            <div className="rounded-lg border border-ink-700 bg-ink-900 transition focus-within:border-accent">
+              <textarea
+                id="antenna-spec"
+                aria-label="Antenna spec"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run();
+                }}
+                spellCheck={false}
+                placeholder="2.4 GHz Wi-Fi antenna on the bottom edge. 6 mm clear of the battery, VSWR under 2 in band, efficiency above 55%."
+                className="block min-h-[8.5rem] w-full resize-y bg-transparent px-3.5 py-3 text-[13px] leading-6 text-fg outline-none placeholder:text-fg-faint"
               />
-              <span
-                aria-hidden
-                className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent ${
-                  wantMedia ? "border-accent bg-accent" : "border-ink-600"
-                }`}
-              >
-                {wantMedia && (
-                  <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-ink-950" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path d="M1.5 5.2l2.2 2.2L8.5 2.6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+              <div className="flex items-center gap-2 px-2 pb-2">
+                <AgentMenu value={agent} onChange={setAgent} disabled={running} />
+                {started && (
+                  <button
+                    type="button"
+                    onClick={() => setEditingSpec(false)}
+                    className="text-[11px] text-fg-muted transition hover:text-fg"
+                  >
+                    Cancel
+                  </button>
                 )}
-              </span>
-              Render evidence
-            </label>
-
-            <div className="mt-4 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={run}
-                disabled={!canRun}
-                title="Run the placement study (Cmd + Enter)"
-                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-accent px-3 py-2.5 text-[13px] font-semibold text-ink-950 transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-muted"
-              >
-                {running ? (
-                  <>
-                    <Spinner />
-                    Running
-                  </>
-                ) : (
-                  "Run study"
-                )}
-              </button>
-              {started && (
                 <button
                   type="button"
-                  onClick={() => setEditingSpec(false)}
-                  className="shrink-0 text-[11px] text-fg-muted transition hover:text-fg"
+                  onClick={run}
+                  disabled={!canRun}
+                  title="Run the placement study (Cmd + Enter)"
+                  className="ml-auto flex items-center gap-2 rounded-md bg-accent px-3.5 py-1.5 text-[12.5px] font-semibold text-ink-950 transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-muted"
                 >
-                  Cancel
+                  {running ? (
+                    <>
+                      <Spinner />
+                      Running
+                    </>
+                  ) : (
+                    "Run study"
+                  )}
                 </button>
-              )}
+              </div>
             </div>
             {!running && blocker && (
               <p className="mt-2 text-[11px] leading-5 text-warn">{blocker}</p>
