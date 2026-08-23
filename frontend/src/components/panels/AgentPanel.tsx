@@ -94,10 +94,26 @@ type Line =
       note: string;
     };
 
+/**
+ * `c002_ifa_p10__length_mm=31.9 (IFA, Wi-Fi / BT 2.4 GHz)` -> `c002 · IFA · 31.9 mm`.
+ * The id encodes candidate, type, anchor and any swept parameter; the band is
+ * the iteration's context and the anchor is in the table, so neither repeats
+ * here.
+ */
+function prettyHead(raw: string): string {
+  const id = raw.replace(/\s*\(.*\)\s*$/, "");
+  const m = /^(c\d+)_([a-z]+)_([a-z]\d+)(?:__([a-z_]+)=([\d.]+))?$/i.exec(id);
+  if (!m) return raw;
+  const [, cand, type, , param, val] = m;
+  const parts = [cand, type.toUpperCase()];
+  if (param && val) parts.push(`${val} ${param.replace(/^length_mm$/, "mm").replace(/_mm$/, " mm")}`);
+  return parts.join(" · ");
+}
+
 /** `c3 (IFA, Wi-Fi 2.4): S11 -14.2 dB at 2.44 GHz, … -> PASS. notes` */
 function readResult(text: string): Line {
   const i = text.indexOf(": ");
-  const head = i > 0 ? text.slice(0, i) : text;
+  const head = prettyHead(i > 0 ? text.slice(0, i) : text);
   const rest = i > 0 ? text.slice(i + 2) : "";
   if (!rest || /solve failed/i.test(rest)) {
     return { t: "result", head, metrics: [], verdict: "error", note: rest };
@@ -142,13 +158,89 @@ function read(m: AgentMessage): Line {
   return { t: "decision", label: label.charAt(0).toUpperCase() + label.slice(1), body };
 }
 
+type ResultLine = Extract<Line, { t: "result" }>;
+type Block = { t: "line"; key: string; line: Line } | { t: "solves"; key: string; lines: ResultLine[] };
+
+/**
+ * Consecutive solve results fold into one block. A batch of thirteen sweeps
+ * is one thing the agent did, not thirteen, and the numbers live in the
+ * candidate table; here they are a summary that opens on request.
+ */
+function toBlocks(msgs: AgentMessage[]): Block[] {
+  const out: Block[] = [];
+  for (const m of msgs) {
+    const line = read(m);
+    const last = out[out.length - 1];
+    if (line.t === "result") {
+      if (last?.t === "solves") last.lines.push(line);
+      else out.push({ t: "solves", key: m.id, lines: [line] });
+    } else {
+      out.push({ t: "line", key: m.id, line });
+    }
+  }
+  return out;
+}
+
+const s11Of = (r: ResultLine) => {
+  const m = /S11\s+(-?\d+(?:\.\d+)?)\s*dB/.exec(r.metrics[0] ?? "");
+  return m ? parseFloat(m[1]) : null;
+};
+
+function SolveGroup({ lines, live }: { lines: ResultLine[]; live: boolean }) {
+  const [open, setOpen] = useState(false);
+  const pass = lines.filter((l) => l.verdict === "pass").length;
+  const failed = lines.filter((l) => l.verdict === "error").length;
+  const best = lines.map(s11Of).filter((v): v is number => v !== null).sort((a, b) => a - b)[0];
+  return (
+    <div className="think-in">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2 rounded-md border border-ink-800 bg-ink-900 px-3 py-2 text-left text-[11px] transition hover:border-ink-700"
+      >
+        <span
+          className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+            live ? "animate-pulse bg-accent" : pass > 0 ? "bg-pass" : "bg-fail"
+          }`}
+        />
+        <span className="text-fg">
+          {lines.length} solve{lines.length === 1 ? "" : "s"}
+        </span>
+        <span className="text-fg-muted">
+          · {pass} pass
+          {failed > 0 && <span className="text-fail"> · {failed} no solve</span>}
+          {best !== undefined && (
+            <>
+              {" "}
+              · best <span className="font-mono text-fg">{best.toFixed(1)} dB</span>
+            </>
+          )}
+        </span>
+        <span className={`ml-auto text-fg-faint transition-transform ${open ? "rotate-90" : ""}`}>
+          <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 3.5 10.5 8 6 12.5" />
+          </svg>
+        </span>
+      </button>
+      {open && (
+        <div className="mt-2 space-y-2.5 pl-1">
+          {lines.map((l, i) => (
+            <TranscriptLine key={i} line={l} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TranscriptLine({ line }: { line: Line }) {
   switch (line.t) {
     case "step":
       return (
         <div className="think-in pt-1">
           <div className="h-px bg-ink-800" />
-          <p className="pt-2 text-[11px] leading-5 text-fg-faint">{line.text}</p>
+          <p className="pt-2.5 text-[11px] leading-5 text-fg-muted">{line.text}</p>
         </div>
       );
 
@@ -408,6 +500,7 @@ export function AgentPanel() {
   // The spec is echoed into the feed as message u0; it already has a home at
   // the top of the rail.
   const transcript = messages.filter((m) => m.id !== "u0");
+  const blocks = toBlocks(transcript);
   const started = !!runId || messages.length > 0;
   const specOpen = !started || editingSpec;
   const canRun = !running && !!prompt.trim() && enabledBands.length > 0;
@@ -551,9 +644,13 @@ export function AgentPanel() {
 
         {started && (
           <div className="space-y-3.5 px-5 py-5">
-            {transcript.map((m) => (
-              <TranscriptLine key={m.id} line={read(m)} />
-            ))}
+            {blocks.map((b, i) =>
+              b.t === "solves" ? (
+                <SolveGroup key={b.key} lines={b.lines} live={running && i === blocks.length - 1} />
+              ) : (
+                <TranscriptLine key={b.key} line={b.line} />
+              ),
+            )}
             {planning && (
               <div className="think-in flex items-center gap-2 pt-1">
                 <Spinner className="text-accent" />
