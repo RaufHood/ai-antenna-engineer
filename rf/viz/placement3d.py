@@ -76,6 +76,23 @@ def _edge_color(part: dict) -> str:
 
 # ---------------------------------------------------------------- the scene
 
+def _is_shell(part: dict, dev_hi) -> bool:
+    """Is this an enclosure layer rather than a component?
+
+    Same 40% rule rf/placement.py screens collisions with. It matters twice
+    over here: a shell's outline is the device outline already drawn, and its
+    interior tessellation is a coarse fan across the whole phone that reads as
+    green scribble over everything worth seeing. Drawn as its box instead.
+    """
+    if dev_hi is None:
+        return False
+    (x0, y0, _), (x1, y1, _) = part["bbox_mm"]
+    device_area = float(dev_hi[0]) * float(dev_hi[1])
+    if device_area <= 0:
+        return False
+    return abs((x1 - x0) * (y1 - y0)) >= 0.40 * device_area
+
+
 def build_scene(ax, run: dict, *, elev: float = 22, azim: float = -58) -> dict:
     """Draw the placement x-ray onto 3D axes `ax`. Pure: no figure/file IO.
 
@@ -105,21 +122,65 @@ def build_scene(ax, run: dict, *, elev: float = 22, azim: float = -58) -> dict:
         shift = np.zeros(3)
         dev_hi = None
 
+    # The real meshes when they are on this machine, bounding boxes when they
+    # are not. blend_loader writes one STL per part beside the manifest, and
+    # those are 234,814 triangles of actual phone against 191 axis-aligned
+    # slabs — the difference between a drawing of the device and a drawing of a
+    # brick. They are regenerable and gitignored, so a fresh clone falls back
+    # to the boxes and the caption says which it is looking at.
+    mesh_edges = None
+    src = (device or {}).get("source_manifest") or run.get("device_path")
+    for cand in (src, "rf/blend_loader/out/device.json"):
+        if not cand:
+            continue
+        try:
+            from .mesh_edges import crease_edges
+            mesh_edges = crease_edges(cand, budget=10_000)
+        except Exception:
+            mesh_edges = None
+        if mesh_edges:
+            break
+
     seg_by_color: dict[str, list] = {}
     battery_boxes: list[tuple[np.ndarray, np.ndarray]] = []
+    battery_segs: list = []
     for p in drawable:
         lo = np.asarray(p["bbox_mm"][0], dtype=float) + shift
         hi = np.asarray(p["bbox_mm"][1], dtype=float) + shift
+        name = p.get("blender_object") or p.get("node_path") or ""
+        segs = None
+        if mesh_edges is not None and not _is_shell(p, dev_hi):
+            got = mesh_edges.get(name)
+            if got is not None and len(got):
+                segs = (got + shift).tolist()   # manifest frame -> corner frame
         if _is_battery(p):
-            battery_boxes.append((lo, hi))
+            if segs is None:
+                battery_boxes.append((lo, hi))
+            else:
+                battery_segs.extend(segs)
             continue
-        seg_by_color.setdefault(_edge_color(p), []).extend(_edges(lo, hi))
+        seg_by_color.setdefault(_edge_color(p), []).extend(
+            segs if segs is not None else _edges(lo, hi))
 
+    # Real mesh edges pile up: 27k segments at the old box weights read as one
+    # solid mass and hide the interior the figure exists to show. Weight them
+    # the way the live viewer does — conductors lead, dielectrics recede — so
+    # the drawing stays an x-ray instead of becoming a silhouette.
+    dense = mesh_edges is not None
+    alpha_of = {
+        PALETTE["metal"]: 0.30 if dense else 0.55,
+        PALETTE["dielectric"]: 0.16 if dense else 0.55,
+    }
     for color, segs in seg_by_color.items():
         ax.add_collection3d(Line3DCollection(
-            segs, colors=color, linewidths=0.7, alpha=0.55))
+            segs, colors=color,
+            linewidths=0.35 if dense else 0.7,
+            alpha=alpha_of.get(color, 0.30 if dense else 0.55)))
 
-    # Battery: faint solid + heavier edges — the classic antenna killer.
+    # Battery: heavier edges — the classic antenna killer, called out on purpose.
+    if battery_segs:
+        ax.add_collection3d(Line3DCollection(
+            battery_segs, colors=PALETTE["battery"], linewidths=0.7, alpha=0.6))
     for lo, hi in battery_boxes:
         ax.add_collection3d(Poly3DCollection(
             _faces(lo, hi), facecolors=PALETTE["battery"], alpha=0.10,
