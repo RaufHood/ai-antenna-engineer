@@ -12,35 +12,64 @@ pitch-deck/png/                 # one PNG per slide, for submission forms
 
 | # | | |
 |---|---|---|
-| 01 | Cover | the wordmark, nothing else |
-| 02 | The problem | three figures for the manual loop, five for how often it repeats |
-| 03 | How it works | the six stages, and the millisecond solve that makes them possible |
-| 04 | The product | a live capture of one study, start to report |
-| 05 | Inside the loop | the geometry it reads and the positions it rules out |
-| 06 | The result | 27 real candidate responses converging on the accepted design |
-| 07 | What it costs | same study, both ways, with the arithmetic shown |
+| 01 | Cover | the wordmark and the one-line claim |
+| 02 | Why antennas | one sentence, three shipment figures |
+| 03 | Where they come from | the manual loop, priced per stage |
+| 04 | The market | three segments, three drivers |
+| 05 | The market, by analogy | what AI did to the software loop, and the gap it leaves here |
+| 06 | The product | the same four beats as slide 03, in Kevin's numbers |
+| 07 | Demo | the live run — the capture is the backstop |
 | 08 | The team | |
-| 09 | Close | |
+| 09 | Questions | |
 
 Speaker-led: the slides carry figures, the narration stays with the speaker.
+One claim per slide, and numbers instead of sentences — nothing on a slide
+that the speaker is going to say out loud anyway.
 
-## Every figure traces back to this repo
+Slides 03 and 06 are deliberately the same component. The manual loop prices
+its stages in amber (`≈ 1 hour`, `days to weeks`); Kevin's prices the same
+beats in green (`83 ms`, `it decides when to stop`). Read against each other
+they are the whole argument, so keep them structurally identical.
 
-The one exception is the market strip on slide 02 — external industry
-estimates, labelled as such on the slide.
+## Where each figure comes from
 
-| slide | claim | where it comes from |
+Two kinds of number are on these slides, and they are labelled differently in
+each slide's footer:
+
+**Measured on this repo** — cite these if anyone pushes.
+
+| slide | claim | source |
 |---|---|---|
-| 02 | ≈1 h per full-wave run · 15 mm keep-out | [deep_research_on_challenge.md](../deep_research_on_challenge.md) |
-| 03 | 1.9 / 17 / 83 / 404 ms · 2.0 s | measured per solve; the same numbers the UI shows |
-| 04 | 29 solves, finished 0:01 | live capture of the running app |
-| 05 | 191 parts, 106 conductive, 455 of 1034 points, 5 legal of 20 | [rf/placement.py](../rf/placement.py) — `python -m app.sim.priors` |
-| 06 | the candidate sweep | one polyline per `s11_*.csv` in `backend/var/artifacts/run_local/`, plotted point-for-point; the accepted design is `c013` |
-| 06 | 97% efficiency · 172.6 MHz · 3 iterations | that run's `report.md` and `run.json` |
-| 07 | 41 × 91 ms = 3.7 s against 41 × 1 h | measured solve time. The full-wave hour and the $130K–$220K loaded salary are external estimates, and the arithmetic is printed on the slide |
+| 03 | ≈ 1 h per full-wave run of a whole device | [deep_research_on_challenge.md](../deep_research_on_challenge.md) |
+| 06 | 83 ms per Wi-Fi 2.4 GHz solve | measured per solve; the same number the UI shows |
+| 06 | 38 candidates · 1 min 29 s upload to finished design | live Devin run, 23 Aug 2026, captured for `assets/ui-idle.png` |
+| 06 | 191 parts screened, no solver | [rf/placement.py](../rf/placement.py) — `python -m app.sim.priors` |
+| 07 | 176 parts · Wi-Fi / BT 2.4 GHz | the iPhone 15 Pro build file the app loads |
 
-If anyone pushes on the cost claim, the defensible number is the measured
-one: **3.7 s of solver time for a 41-candidate study.**
+**External industry estimates** — not ours, and every slide carrying them says
+so in its footer.
+
+| slide | claim |
+|---|---|
+| 02 | 5.4B Bluetooth · 3.8B Wi-Fi devices a year · 6–12 antennas per phone |
+| 03 | 3–6 weeks per redesign cycle · $130–220K loaded salary · 73% of EE roles unfilled after six months (IEEE) |
+| 04 | $28B → $54B hardware · $23B → $50B 5G · $1.5B → $2.9B design software · +16.9%/yr · 30B+ IoT · 4 → 8 antennas per car |
+| 05 | 47M developers · $7.6B tooling · $3.5B AI coding tools · 84% adoption |
+
+Do not present an external estimate as a measurement. The defensible numbers
+are the measured ones, and they are enough: **38 candidates simulated in
+1 min 29 s, at 83 ms of solver time each.**
+
+## Screenshots
+
+`assets/ui-idle.png` is a real capture of the running app at 3200×1800,
+taken with Playwright against `localhost:3000` at `deviceScaleFactor: 2`.
+Re-shoot it the same way if the UI changes — a screenshot at 1× looks soft
+on a 1920-wide slide.
+
+`assets/ui-result.png`, `assets/placement-map.png` and `assets/orbit.mp4` are
+left in place but no longer used by any slide; the trimmed deck hands the
+finished run to the live demo instead of showing a still of it.
 
 ## Two files that look like results and are not
 
@@ -52,10 +81,6 @@ Both live in `runs/demo/media/` and are deliberately absent from the deck:
   writes "an outgoing damped cylindrical wave from the feed … mimicking
   openEMS's HDF5 layout" — a hand-written wave, not a solve.
 
-`orbit_beauty` **is** real (Blender frames of the actual geometry), which is
-why the deck's `assets/orbit.mp4` is re-cut from it: motion on the page
-without claiming any physics.
-
 ## Editing
 
 Colours are `:root` variables at the top of the `<style>` block; the accent
@@ -64,8 +89,16 @@ is the app's own `--signal #4c9dff`, taken from
 follow, then components, then one commented `<section>` per slide. Slide
 numbers are generated at runtime, so sections can be reordered freely.
 
-The PDF is built by screenshotting each slide, not by printing the page —
-Chrome's paged renderer silently drops slides from a document this tall.
+Every slide is one of two registers: dark for the seven documentation slides,
+flooded `--signal` for the cover and the close. Adding a third look breaks the
+deck — reach for an existing component (`.stats`, `.pipeline` + `.pcost`,
+`.ledger`, `.compare`, `.tick`) before writing a new one.
+
+The PNGs and the PDF are both built from the live page at 1920×1080, and the
+build refuses to export if Barlow and IBM Plex Mono have not loaded — a
+fallback-font render is not this deck. The PDF is assembled from those PNGs
+rather than printed from the page, because Chrome's paged renderer silently
+drops slides from a document this tall.
 
 **This folder is a copy.** The deck is developed at
 [damiavicensramis/kevin-pitch](https://github.com/damiavicensramis/kevin-pitch),
