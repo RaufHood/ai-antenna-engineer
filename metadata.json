@@ -3,7 +3,7 @@
   "checkpoint_id": "01M0PY509R3MMD4GMZW7J61493",
   "strategy": "manual-commit",
   "branch": "pitch-deck-v3",
-  "checkpoints_count": 8,
+  "checkpoints_count": 9,
   "files_touched": [
     "pitch-deck/README.md",
     "pitch-deck/assets/ui-idle.png",
@@ -34,13 +34,20 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 100,
-    "cache_creation_tokens": 35629,
-    "cache_read_tokens": 8487869,
-    "output_tokens": 30816,
-    "api_call_count": 50
+    "input_tokens": 228,
+    "cache_creation_tokens": 147176,
+    "cache_read_tokens": 23239744,
+    "output_tokens": 83261,
+    "api_call_count": 114
   }
 }
