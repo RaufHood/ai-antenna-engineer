@@ -83,3 +83,18 @@ runs/**/orbit_frames/
 # recorded agent tapes: real Devin runs, replayable for free (app/agent/replay.py)
 !backend/var/tapes/
 !backend/var/tapes/*.json
+
+# agent tooling installs are per-developer, not project code. The `impeccable`
+# design skill writes itself into every agent directory it knows about, so one
+# install put 597 files / 291k lines into the tree via `git add -A` (a1c11e0) —
+# nothing in backend/, frontend/ or rf/ references any of it. The three mirror
+# directories are duplicates of .agents/skills by construction, so they stay
+# out wholesale; .agents/skills itself is tracked because blend-extract lives
+# there and the agent runs it to read a .blend.
+.github/skills/
+.gemini/skills/
+.cursor/skills/
+.agents/skills/impeccable/
+.github/agents/impeccable-*
+.cursor/agents/impeccable-*
+.github/hooks/impeccable.json
