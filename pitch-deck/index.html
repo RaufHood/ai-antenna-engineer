@@ -1010,29 +1010,12 @@ svg {
                     <div class="stat-label" style="font-size:25px;">one full-wave run of a whole device</div>
                 </div>
                 <div class="stat">
-                    <span class="stat-value" style="font-size:150px;">15 mm</span>
-                    <div class="stat-label" style="font-size:25px;">keep-out at 2.4 GHz, or it fails RF test</div>
+                    <span class="stat-value" style="font-size:150px;">18.8B</span>
+                    <div class="stat-label" style="font-size:25px;">IoT devices, 2024 to 2030</div>
                 </div>
                 <div class="stat">
                     <span class="stat-value" style="font-size:150px;">dozens</span>
                     <div class="stat-label" style="font-size:25px;">iterations before sign-off</div>
-                </div>
-            </div>
-
-            <div class="rule-full"></div>
-
-            <!-- The market strip: the same loop, multiplied -->
-            <div style="display:flex;align-items:flex-end;gap:52px;margin-top:24px;" data-anim="fade-up" data-delay="4">
-                <div class="label" style="flex:0 0 168px;line-height:1.6;">And it repeats,<br>every device,<br>every band</div>
-                <div style="flex:1;display:grid;grid-template-columns:repeat(2,1fr);gap:34px;">
-                    <div>
-                        <div class="mono" style="font-size:54px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">1.24B</div>
-                        <div class="caption" style="margin-top:9px;">smartphones a year, 6+ antennas each</div>
-                    </div>
-                    <div>
-                        <div class="mono" style="font-size:54px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">18.8→40B</div>
-                        <div class="caption" style="margin-top:9px;">IoT devices, 2024 to 2030</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1059,32 +1042,34 @@ svg {
                 The agent proposes, the solver scores, and it decides when to stop.
             </h2>
 
-            <div class="pipeline" style="margin-top:auto;" data-anim="fade-up" data-delay="2">
-                <div class="pnode">
-                    <div class="pk"><span class="pn">01</span>Input &amp; ingest</div>
-                    <div class="pt">.blend + prompt</div>
-                    <div class="pd">Build file and intent, extracted into per-part geometry.</div>
+            <div style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;">
+                <div class="pipeline" data-anim="fade-up" data-delay="2">
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">01</span>Input &amp; ingest</div>
+                        <div class="pt">.blend + prompt</div>
+                        <div class="pd">Build file and intent, extracted into per-part geometry.</div>
+                    </div>
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">02</span>Screen</div>
+                        <div class="pt">Rule out anchors</div>
+                        <div class="pd">Which positions hit real metal. No solver runs.</div>
+                    </div>
+                    <div class="pnode agent">
+                        <div class="pk"><span class="pn">03</span>Judgment</div>
+                        <div class="pt">Agent proposes</div>
+                        <div class="pd">Type, position, length — with a stated reason.</div>
+                    </div>
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">04</span>Physics &amp; output</div>
+                        <div class="pt">PyNEC scores</div>
+                        <div class="pd">S11, bandwidth, VSWR — into the ranked report.</div>
+                    </div>
                 </div>
-                <div class="pnode">
-                    <div class="pk"><span class="pn">02</span>Screen</div>
-                    <div class="pt">Rule out anchors</div>
-                    <div class="pd">Which positions hit real metal. No solver runs.</div>
-                </div>
-                <div class="pnode agent">
-                    <div class="pk"><span class="pn">03</span>Judgment</div>
-                    <div class="pt">Agent proposes</div>
-                    <div class="pd">Type, position, length — with a stated reason.</div>
-                </div>
-                <div class="pnode">
-                    <div class="pk"><span class="pn">04</span>Physics &amp; output</div>
-                    <div class="pt">PyNEC scores</div>
-                    <div class="pd">S11, bandwidth, VSWR — into the ranked report.</div>
-                </div>
-            </div>
 
-            <div class="feedback" data-anim="fade-in" data-delay="4">
-                <div class="fbtext">Evidence, not verdicts — back to the agent until it concludes</div>
-                <div class="fbline"></div>
+                <div class="feedback" data-anim="fade-in" data-delay="4">
+                    <div class="fbtext">Evidence, not verdicts — back to the agent until it concludes</div>
+                    <div class="fbline"></div>
+                </div>
             </div>
         </div>
 
