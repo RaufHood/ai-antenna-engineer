@@ -16,7 +16,7 @@ from app.agent.devin import DevinAgent, DevinConfigError
 from app.agent.mock import MockAgent
 from app.geometry import bands
 from app.geometry import extract as ex
-from app.geometry.spec import make_anchors, phone_v1
+from app.geometry.spec import default_spec, make_anchors
 from app.models import EventType
 from app.runs import devices, orchestrator, report, store
 from app.runs.store import Run
@@ -91,7 +91,7 @@ class CreateRun(BaseModel):
     prompt: str = ""
     bands: list[str] = ["wifi24"]
     agent: str = "devin"          # devin (live) | replay (recorded run) | mock
-    device_id: str | None = None  # from POST /devices; None -> canned phone_v1
+    device_id: str | None = None  # from POST /devices; None -> default_spec()
     # agent: Devin reads the .blend itself (skill), backend result is the
     # cross-check/fallback. backend: spec is final before the session starts.
     extract: str | None = None    # default from EXTRACT_MODE env, else "agent"
@@ -114,7 +114,7 @@ async def create_run(body: CreateRun) -> dict:
     else:
         if bad := bands.unknown(body.bands):
             raise HTTPException(400, f"unknown bands {bad}; have {sorted(bands.CATALOG)}")
-        spec = phone_v1().model_copy(
+        spec = default_spec(body.bands).model_copy(
             update={"requirements": bands.requirements_for(body.bands)})
         device, mode, anchors = None, "backend", make_anchors(spec)
     if mode not in ("agent", "backend"):

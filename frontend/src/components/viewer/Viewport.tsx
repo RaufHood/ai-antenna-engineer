@@ -7,7 +7,7 @@ import { VIEW_PRESETS } from "./Scene";
 const Scene = dynamic(() => import("./Scene"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center text-[11px] text-slate-600">
+    <div className="flex h-full items-center justify-center text-[11px] text-fg-faint">
       loading 3D viewer…
     </div>
   ),
@@ -31,10 +31,13 @@ function HudButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-md px-2.5 py-1 text-[11px] transition ${
+      // Layer toggles are not the primary action — the accent belongs to
+      // "Run study". Three saturated chips in the corner were the loudest
+      // thing on screen and the least important.
+      className={`rounded-md border px-2.5 py-1 text-[11px] transition ${
         active
-          ? "bg-slate-100 text-slate-900"
-          : "bg-slate-900/70 text-slate-300 hover:bg-slate-800"
+          ? "border-ink-600 bg-ink-800 text-fg"
+          : "border-transparent bg-ink-900/70 text-fg-muted hover:bg-ink-850 hover:text-fg"
       }`}
     >
       {children}
@@ -98,7 +101,7 @@ export function Viewport() {
               <select
                 value={focusBand ?? ""}
                 onChange={(e) => setFocusBand(e.target.value)}
-                className="rounded-md bg-slate-900/70 px-2 py-1 text-[11px] text-slate-200 outline-none"
+                className="rounded-md bg-ink-850/80 px-2 py-1 text-[11px] text-fg outline-none"
               >
                 {bands
                   .filter((b) => enabled.includes(b.id))
@@ -114,8 +117,8 @@ export function Viewport() {
 
         {/* exploded view only makes sense for the procedural handset */}
         {!modelUrl && (
-          <div className="pointer-events-auto absolute bottom-3 left-3 flex w-56 items-center gap-3 rounded-md bg-slate-900/70 px-3 py-2 backdrop-blur">
-            <span className="text-[11px] text-slate-400">Explode</span>
+          <div className="pointer-events-auto absolute bottom-3 left-3 flex w-56 items-center gap-3 rounded-md bg-ink-850/80 px-3 py-2 backdrop-blur">
+            <span className="text-[11px] text-fg-muted">Explode</span>
             <input
               type="range"
               min={0}
@@ -125,7 +128,7 @@ export function Viewport() {
               onChange={(e) => setExplode(parseFloat(e.target.value))}
               className="min-w-0 flex-1"
             />
-            <span className="w-8 text-right font-mono text-[10px] text-slate-500">
+            <span className="w-8 text-right font-mono text-[10px] text-fg-faint">
               {(explode * 100).toFixed(0)}%
             </span>
           </div>

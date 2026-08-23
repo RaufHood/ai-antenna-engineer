@@ -1,98 +1,157 @@
 "use client";
 
 import { useApp } from "@/lib/store";
+import { detuneMhz, rankKey, verdictOf } from "@/lib/evidence";
+import type { SimResult } from "@/lib/types";
+import { VerdictDot } from "./Verdict";
 
-const F_MIN = 0.6;
-const F_MAX = 6.5;
+/**
+ * Band coverage: the one question the candidate table cannot answer at a
+ * glance — of the bands this study was asked to cover, which ones now have a
+ * design that lands inside the window, and how far off the rest are.
+ *
+ * The old log-frequency strip is gone. It painted the requested bands as
+ * coloured blocks on a 0.6-6.5 GHz axis, where an 70 MHz cellular window is
+ * two pixels wide and a 40 MHz miss is invisible — decoration where the
+ * detuning is the whole point. Each band now gets its own track, scaled to
+ * its own window, so "in band" and "80 MHz low" look different.
+ */
 
-function pos(f: number) {
-  const t =
-    (Math.log10(Math.max(f, F_MIN)) - Math.log10(F_MIN)) /
-    (Math.log10(F_MAX) - Math.log10(F_MIN));
-  // Rounded so the server and client render byte-identical inline styles.
-  return +(Math.min(Math.max(t, 0), 1) * 100).toFixed(3);
-}
+/** How much spectrum either side of the window a track shows, in window widths. */
+const CONTEXT = 1.6;
+const MAX_CONTEXT = 8;
 
-const TICKS = [0.6, 0.8, 1, 1.5, 2, 3, 4, 5, 6];
+const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
-/** Log-scale spectrum showing target bands and where each design resonated. */
-export function SpectrumStrip() {
+export function BandCoverage() {
   const spec = useApp((s) => s.spec);
-  const enabled = useApp((s) => s.enabledBands);
-  const placements = useApp((s) => s.placements);
-  const results = useApp((s) => s.results);
   const candidates = useApp((s) => s.candidates);
-  const selectCandidate = useApp((s) => s.selectCandidate);
+  const results = useApp((s) => s.results);
+  const placements = useApp((s) => s.placements);
   const selected = useApp((s) => s.selectedCandidate);
+  const selectCandidate = useApp((s) => s.selectCandidate);
+
+  const cells = spec.requirements.bands
+    .filter((band) => candidates.some((c) => c.band_id === band.id))
+    .map((band) => {
+      const mine = candidates.filter((c) => c.band_id === band.id);
+      const done = mine
+        .map((c) => results[c.candidate_id])
+        .filter((r): r is SimResult => r?.status === "complete");
+      const chosenId = placements[band.id];
+      const best =
+        (chosenId && results[chosenId]?.status === "complete" ? results[chosenId] : undefined) ??
+        [...done].sort((a, b) => rankKey(b, band) - rankKey(a, band))[0];
+      const solving = mine.some((c) => results[c.candidate_id]?.status === "running");
+      const centre = (band.f_low_ghz + band.f_high_ghz) / 2;
+      const width = band.f_high_ghz - band.f_low_ghz;
+      const half = Math.min(
+        Math.max(width * CONTEXT, ...done.map((r) => Math.abs(r.resonant_ghz - centre) * 1.15)),
+        width * MAX_CONTEXT,
+      );
+      const at = (f: number) => clamp(((f - (centre - half)) / (2 * half)) * 100, 0, 100);
+      return {
+        band,
+        best,
+        done,
+        at,
+        verdict: verdictOf(best),
+        solving,
+        holds: mine.some((c) => c.candidate_id === selected),
+      };
+    });
+
+  if (!cells.length) return null;
+
+  const met = cells.filter((c) => c.verdict === "pass").length;
 
   return (
-    <div className="px-3 py-2">
-      <div className="mb-1 flex items-baseline justify-between">
-        <span className="text-[10px] uppercase tracking-[0.12em] text-slate-500">
-          Spectrum
-        </span>
-        <span className="font-mono text-[9px] text-slate-600">
-          target bands · resonance of each chosen design · log {F_MIN}–{F_MAX} GHz
+    <section className="border-b border-ink-800 px-4 pb-2 pt-2.5">
+      <div className="mb-2 flex items-baseline gap-3">
+        <h2 className="text-[11px] font-medium text-fg">
+          {met} of {cells.length} bands met
+        </h2>
+        <span className="ml-auto truncate font-mono text-[10px] text-fg-muted">
+          each track spans its own band · tick = simulated resonance
         </span>
       </div>
 
-      <div className="relative h-11 rounded-md border border-slate-800/80 bg-slate-950">
-        {spec.requirements.bands
-          .filter((b) => enabled.includes(b.id))
-          .map((b) => {
-            const left = pos(b.f_low_ghz);
-            const width = Math.max(pos(b.f_high_ghz) - left, 0.6);
-            return (
-              <div
-                key={b.id}
-                title={`${b.name} ${b.f_low_ghz}-${b.f_high_ghz} GHz`}
-                className="absolute top-1 h-5 rounded-sm"
-                style={{
-                  left: `${left}%`,
-                  width: `${width}%`,
-                  background: b.color,
-                  opacity: 0.35,
-                  border: `1px solid ${b.color}`,
-                }}
-              />
-            );
-          })}
-
-        {Object.entries(placements).map(([bandId, candId]) => {
-          const r = results[candId];
-          const band = spec.requirements.bands.find((b) => b.id === bandId);
-          const cand = candidates.find((c) => c.candidate_id === candId);
-          if (!r || !band || !cand || r.status !== "complete") return null;
-          const inBand =
-            r.resonant_ghz >= band.f_low_ghz && r.resonant_ghz <= band.f_high_ghz;
+      <div className="flex items-stretch gap-1">
+        {cells.map(({ band, best, done, at, verdict, holds, solving }) => {
+          const detune = best ? detuneMhz(best, band) : 0;
           return (
             <button
-              key={candId}
-              onClick={() => selectCandidate(candId)}
-              title={`${band.name}: resonance ${r.resonant_ghz.toFixed(2)} GHz, ${r.s11_min_db.toFixed(1)} dB`}
-              className="absolute top-0 h-7 w-0.5 -translate-x-1/2"
-              style={{
-                left: `${pos(r.resonant_ghz)}%`,
-                background: inBand ? "#ffffff" : "#ef4444",
-                boxShadow:
-                  selected === candId ? "0 0 6px 1px rgba(255,255,255,0.8)" : "none",
+              key={band.id}
+              type="button"
+              disabled={!best}
+              aria-current={holds || undefined}
+              onClick={() => {
+                const chosen = placements[band.id];
+                const id =
+                  chosen ??
+                  [...candidates.filter((c) => c.band_id === band.id)].sort(
+                    (a, b) =>
+                      rankKey(results[b.candidate_id], band) -
+                      rankKey(results[a.candidate_id], band),
+                  )[0]?.candidate_id;
+                if (id) selectCandidate(id);
               }}
-            />
+              title={
+                best
+                  ? `${band.name} · window ${band.f_low_ghz}-${band.f_high_ghz} GHz · best resonance ${best.resonant_ghz.toFixed(3)} GHz${
+                      detune === 0
+                        ? " (inside the window)"
+                        : ` (${Math.abs(detune).toFixed(0)} MHz ${detune < 0 ? "low" : "high"})`
+                    } · ${done.length} candidate${done.length === 1 ? "" : "s"} simulated`
+                  : `${band.name} · no completed simulation yet`
+              }
+              className={`min-w-0 flex-1 rounded-sm px-2 py-1.5 text-left transition-colors disabled:cursor-default ${
+                holds ? "bg-accent/10" : "enabled:hover:bg-ink-900"
+              }`}
+            >
+              <span className="flex items-baseline gap-1.5">
+                <VerdictDot v={verdict} />
+                <span className={`truncate text-[11px] ${holds ? "text-fg" : "text-fg-muted"}`}>
+                  {band.short}
+                </span>
+                <span className="ml-auto shrink-0 font-mono text-[10px] text-fg-muted">
+                  {best
+                    ? `${best.s11_min_db.toFixed(1)} dB`
+                    : solving
+                      ? "solving"
+                      : "queued"}
+                </span>
+              </span>
+
+              <span className="relative mt-1.5 block h-2.5">
+                <span className="absolute inset-x-0 top-1/2 h-px bg-ink-700" />
+                <span
+                  className="absolute inset-y-0 border-x border-ink-600 bg-ink-800"
+                  style={{
+                    left: `${at(band.f_low_ghz)}%`,
+                    width: `${Math.max(at(band.f_high_ghz) - at(band.f_low_ghz), 1)}%`,
+                  }}
+                />
+                {done.map((r) => (
+                  <span
+                    key={r.candidate_id}
+                    className="absolute inset-y-1 w-px bg-ink-600"
+                    style={{ left: `${at(r.resonant_ghz)}%` }}
+                  />
+                ))}
+                {best && (
+                  <span
+                    className={`absolute inset-y-0 w-0.5 -translate-x-px ${
+                      verdict === "pass" ? "bg-pass" : "bg-fail"
+                    }`}
+                    style={{ left: `${at(best.resonant_ghz)}%` }}
+                  />
+                )}
+              </span>
+            </button>
           );
         })}
-
-        <div className="absolute bottom-0 left-0 right-0 h-4">
-          {TICKS.map((t) => (
-            <span
-              key={t}
-              className="absolute -translate-x-1/2 font-mono text-[8px] text-slate-600"
-              style={{ left: `${pos(t)}%` }}
-            >
-              {t}
-            </span>
-          ))}
-        </div>
       </div>
-    </div>
+    </section>
   );
 }

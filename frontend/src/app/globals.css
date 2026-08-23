@@ -1,13 +1,85 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Kevin — AI antenna engineer.
+
+   Operate surface: an engineer is inside a task, not reading a page. The tool
+   should disappear into the work, so the palette is restrained and every
+   colour that survives carries meaning rather than mood.
+
+   Two colour systems live here and they must not be confused:
+
+   1. UI chrome — one cool neutral ramp plus a single accent. The neutral is
+      tinted toward the accent's hue instead of pure grey, so panels read as
+      chosen rather than defaulted.
+   2. Physics — the three material families the solver actually distinguishes
+      (rf/placement.py splits conductors from dielectrics at 1e4 S/m). These
+      are the same values the offline renders use, so the app and the deck are
+      one product. They are never used for decoration.
+--------------------------------------------------------------------------- */
+
 :root {
-  --background: #020617;
-  --foreground: #e2e8f0;
+  /* Ground: near-black with a blue bias, dark enough that the wireframe
+     device reads as emissive without bloom. */
+  --ink-950: #07090f;
+  --ink-900: #0b0e16;
+  --ink-850: #10131d;
+  --ink-800: #161a26;
+  --ink-700: #1f2432;
+  --ink-600: #2b3142;
+
+  /* Text ramp. Secondary and tertiary are tinted, never pure grey. */
+  --fg: #e6e9f0;
+  --fg-muted: #97a0b5;
+  --fg-faint: #626b80;
+
+  /* One accent. Actions, focus, the live cursor. Nothing else. */
+  --accent: #4c9dff;
+  --accent-dim: #2f6dbd;
+  --accent-wash: rgba(76, 157, 255, 0.1);
+
+  /* Semantic state, distinct from the accent so "selected" never reads as
+     "passing". */
+  --pass: #3ddc97;
+  --fail: #ff5c72;
+  --warn: #ffb648;
+
+  /* Physics — material families. Mirrors rf/viz/theme.py. */
+  --em-metal: #8c9eff;
+  --em-dielectric: #69f0ae;
+  --em-battery: #ff8a65;
+  --em-antenna: #ffd740;
+
+  --background: var(--ink-950);
+  --foreground: var(--fg);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-ink-950: var(--ink-950);
+  --color-ink-900: var(--ink-900);
+  --color-ink-850: var(--ink-850);
+  --color-ink-800: var(--ink-800);
+  --color-ink-700: var(--ink-700);
+  --color-ink-600: var(--ink-600);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+
+  --color-pass: var(--pass);
+  --color-fail: var(--fail);
+  --color-warn: var(--warn);
+
+  --color-em-metal: var(--em-metal);
+  --color-em-dielectric: var(--em-dielectric);
+  --color-em-battery: var(--em-battery);
+  --color-em-antenna: var(--em-antenna);
 }
 
 html,
@@ -17,21 +89,52 @@ body {
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   overscroll-behavior: none;
+  /* Measurements line up in columns everywhere in this app. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The surfaces we did not draw still carry the design. */
+::selection {
+  background: var(--accent-wash);
+  color: var(--fg);
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: var(--ink-700);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: var(--ink-600);
+  background-clip: content-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+textarea,
+input[type="text"] {
+  caret-color: var(--accent);
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -40,17 +143,42 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 input[type="range"] {
-  height: 4px;
+  height: 3px;
   border-radius: 2px;
-  background: #1e293b;
+  background: var(--ink-700);
   appearance: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: #0ea5e9;
+  background: var(--accent);
   cursor: pointer;
-  border: 2px solid #0c1322;
+  border: 2px solid var(--ink-950);
+}
+
+/* The agent's reasoning is ambient: present, detailed, never competing with
+   the device or the numbers. It fades in rather than appearing. */
+@keyframes think-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.think-in {
+  animation: think-in 420ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .think-in {
+    animation: none;
+  }
 }

@@ -22,7 +22,7 @@ load_env()          # backend/.env -> os.environ (shell always wins)
 async def main() -> None:
     print(f"config: {describe_agent_config()}")
     from app.geometry import bands
-    from app.geometry.spec import make_anchors, phone_v1
+    from app.geometry.spec import default_spec, make_anchors
     from app.runs import devices, orchestrator
     from app.runs.store import Run
     from app.sim import pool
@@ -65,7 +65,7 @@ async def main() -> None:
         anchors = device.anchors
         mode = os.environ.get("EXTRACT", "agent")
     else:
-        spec, anchors, mode = phone_v1(), None, "backend"
+        spec, anchors, mode = default_spec(band_ids), None, "backend"
         anchors = make_anchors(spec)
 
     run = Run(id="run_local", prompt="Integrate a 2.4 GHz antenna into this phone",

@@ -23,6 +23,23 @@ _NOT_OBSTACLES = {"ground", "display", "back_cover", "board", "frame"}
 _MIN_OBSTACLE_MM = 4.0   # screws, springs, pins: too small to detune anything
 
 
+def default_spec(band_ids: list[str] | None = None) -> DeviceSpec:
+    """The device a run gets when the engineer has not loaded their own.
+
+    Prefers the real iPhone 15 Pro manifest committed at
+    rf/blend_loader/out/device.json — 176 RF-relevant parts with real bounding
+    boxes and materials — and falls back to the canned slab only when that is
+    missing. The viewer draws that phone either way; letting the solver read a
+    nine-box abstraction of a different device made every clearance number and
+    every anchor belong to something nobody was looking at.
+    """
+    from app.geometry.manifest import default_device_spec
+    classified = default_device_spec(band_ids)
+    if classified is None:
+        return phone_v1()
+    return getattr(classified, "spec", classified)
+
+
 def phone_v1() -> DeviceSpec:
     """Handset A. Obstacle boxes (battery, camera, taptic, speaker) are the
     frontend's verbatim; the ground/display sheets are the RF model's view of
