@@ -58,6 +58,9 @@ interface AppState {
   media: MediaArtifact[];
   /** Backend stage — 'media' means the evidence is still rendering. */
   stage: string;
+  /** Pre-rendered evidence that ships with the app, shown when this session
+   *  has none of its own. Never mixed with a run's own output. */
+  showcase: MediaArtifact[];
   /** Which dock view is open. Lives here, not in the dock, because the
    *  layout gives the gallery more height than a table needs. */
   dockTab: "results" | "report" | "evidence";
@@ -90,6 +93,7 @@ interface AppState {
   setDockTab: (t: "results" | "report" | "evidence") => void;
   /** Adopt the device the backend will actually solve. Runs once on mount. */
   loadDefaultDevice: () => Promise<void>;
+  loadShowcase: () => Promise<void>;
   startRun: () => Promise<void>;
   /** Mid-run note to the agent. */
   sendNote: (text: string) => Promise<void>;
@@ -145,6 +149,7 @@ export const useApp = create<AppState>((set, get) => ({
   // seconds after the study has already finished and reported.
   wantMedia: true,
   dockTab: "results" as const,
+  showcase: [] as MediaArtifact[],
   ...EMPTY_RUN,
 
   setModel: (url, name) => set({ modelUrl: url, modelName: name }),
@@ -221,6 +226,26 @@ export const useApp = create<AppState>((set, get) => ({
   setWantMedia: (v) => set({ wantMedia: v }),
   setDockTab: (t) => set({ dockTab: t }),
   setAgent: (a) => set({ agent: a }),
+
+  loadShowcase: async () => {
+    // The gallery a run produces belongs to that run; this is the prepared one
+    // the app opens with. Loaded once, and it never replaces a live result.
+    try {
+      const res = await fetch("/api/showcase", { cache: "no-store" });
+      if (!res.ok) return;
+      const body = await res.json();
+      const arts = (body.artifacts ?? []) as MediaArtifact[];
+      set({
+        showcase: arts.map((a) => ({
+          ...a,
+          band_id: a.band_id ?? "",
+          url: `/api/media/_showcase/${encodeURIComponent(a.name)}`,
+        })),
+      });
+    } catch {
+      /* no prepared gallery; the Evidence tab simply says so */
+    }
+  },
 
   loadDefaultDevice: async () => {
     // Until this lands the panel shows the built-in spec, which is a different

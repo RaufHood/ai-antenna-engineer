@@ -182,6 +182,28 @@ export function ResultsDock() {
   const media = useApp((s) => s.media);
   const stage = useApp((s) => s.stage);
   const wantMedia = useApp((s) => s.wantMedia);
+  const showcase = useApp((s) => s.showcase);
+
+  // Before a run there is nothing to rank — but there is still evidence to
+  // look at, so the dock becomes the prepared gallery rather than a sentence
+  // apologising for being empty.
+  if (!candidates.length && showcase.length > 0 && !running) {
+    return (
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="flex shrink-0 gap-4 border-b border-ink-800 px-4">
+          <span
+            aria-current
+            className="-mb-px border-b border-accent py-1.5 text-[11px] text-fg"
+          >
+            Evidence ({shownCount(showcase)})
+          </span>
+        </div>
+        <div className="min-h-0 flex-1">
+          <EvidenceGallery />
+        </div>
+      </div>
+    );
+  }
 
   if (!candidates.length) {
     return (
@@ -195,7 +217,7 @@ export function ResultsDock() {
 
   // A tab only exists once it has something behind it, so the strip never
   // offers a dead end.
-  const hasEvidence = media.length > 0 || stage === "media" || wantMedia;
+  const hasEvidence = media.length > 0 || stage === "media" || wantMedia || showcase.length > 0;
   const tabs = (
     ["results", ...(report ? ["report"] : []), ...(hasEvidence ? ["evidence"] : [])] as const
   ) as readonly ("results" | "report" | "evidence")[];
@@ -224,7 +246,13 @@ export function ResultsDock() {
                     ? `Candidates (${candidates.length})`
                     : t === "report"
                       ? "Report"
-                      : `Evidence${media.length ? ` (${shownCount(media)})` : ""}`}
+                      : `Evidence${
+                          media.length
+                            ? ` (${shownCount(media)})`
+                            : showcase.length
+                              ? ` (${shownCount(showcase)})`
+                              : ""
+                        }`}
                 </button>
               ))}
             </div>
