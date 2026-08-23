@@ -1,0 +1,5 @@
+looks godd, but now i want to know how doe sth eacutal build file upload workd, rn it shows the uplaod on the left, not sur eit makes sence when we already display that phone rendering. maybe if you dnat have anythign uploaded you have the uploader someweer in the middle or smth where it makes sense. 
+
+aslo mayb move alothose visualisation settings lke view :  iso top etc: antennas, keep out etc, and the explode slide you could group togeather an put on one side or even righ bar. and the nake of the file more to the center part and the upload doesnt have to be shown when the file is already uploaded. 
+
+and tell me, can i catually manually upload the file , without it being preuploaded
