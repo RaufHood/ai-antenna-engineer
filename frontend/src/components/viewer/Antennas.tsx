@@ -35,7 +35,7 @@ function RadiationPulse({ color }: { color: string }) {
   );
 }
 
-function AntennaMarker({ cand }: { cand: Candidate }) {
+function AntennaMarker({ cand, dense = false }: { cand: Candidate; dense?: boolean }) {
   const bands = useBandMap();
   const band = bands[cand.band_id];
   const selected = useApp((s) => s.selectedCandidate);
@@ -116,19 +116,29 @@ function AntennaMarker({ cand }: { cand: Candidate }) {
         <Html center position={[p[0], p[1], p[2] + 0.14]} zIndexRange={[30, 10]}>
           <button
             onClick={() => select(isSel ? null : cand.candidate_id)}
-            className={`-translate-y-6 whitespace-nowrap rounded border px-1.5 py-0.5 text-[9px] font-semibold shadow-lg backdrop-blur transition ${
+            title={`${band.short} - ${cand.antenna_type}${meandered ? " meandered" : ""}`}
+            className={`whitespace-nowrap rounded border font-semibold shadow-lg backdrop-blur transition ${
+              // Every candidate keeps its label when the whole band is shown —
+              // a study you cannot read is not a study. Two dozen full-size
+              // pills would tile over the device, so the unselected ones shed
+              // the band name and shrink to the number that ranks them; the
+              // selected one, and every label in Chosen view, stays legible.
+              dense && !isSel
+                ? "-translate-y-4 px-1 py-0 text-[8px]"
+                : "-translate-y-6 px-1.5 py-0.5 text-[9px]"
+            } ${
               isSel
                 ? "border-white/60 bg-slate-900/95 text-white"
-                : "border-white/10 bg-slate-950/75 text-slate-300 hover:border-white/40"
+                : "border-white/10 bg-slate-950/75 text-slate-300 hover:border-white/40 hover:z-10"
             }`}
-            style={{ borderLeftColor: color, borderLeftWidth: 3 }}
+            style={{ borderLeftColor: color, borderLeftWidth: dense && !isSel ? 2 : 3 }}
           >
-            {band.short}
+            {(!dense || isSel) && band.short}
             {isSel && ` - ${cand.antenna_type}`}
             {isSel && meandered && (
               <span className="text-slate-400"> meandered</span>
             )}
-            <span className="ml-1 font-mono font-normal text-slate-400">
+            <span className={`font-mono font-normal text-slate-400 ${dense && !isSel ? "" : "ml-1"}`}>
               {running
                 ? "sim..."
                 : done
@@ -151,10 +161,11 @@ export function Antennas() {
   // placed in a phone nobody had asked about yet — the device is the subject
   // before a run, and the legal region has a proper home in the placement map,
   // where it is drawn with its scores instead of as anonymous specks.
+  const dense = visible.length > 6;
   return (
     <group>
       {visible.map((c) => (
-        <AntennaMarker key={c.candidate_id} cand={c} />
+        <AntennaMarker key={c.candidate_id} cand={c} dense={dense} />
       ))}
     </group>
   );

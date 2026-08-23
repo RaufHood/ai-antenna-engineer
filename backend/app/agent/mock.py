@@ -22,6 +22,21 @@ def _vol(b) -> float:
     return (x1 - x0) * (y1 - y0) * (z1 - z0)
 
 
+def _swept(cid: str, param: str) -> float | None:
+    """The value a sweep stamped on this candidate id, or None.
+
+    Ids are `<base>__<param>=<value>` and sweeps compose, so the value ends at
+    the next `__` rather than at the end of the string.
+    """
+    marker = f"__{param}="
+    if marker not in cid:
+        return None
+    try:
+        return float(cid.split(marker, 1)[1].split("__", 1)[0])
+    except ValueError:
+        return None
+
+
 class MockAgent:
     def __init__(self) -> None:
         self.ctx: RunContext | None = None
@@ -30,6 +45,7 @@ class MockAgent:
         self.cands: dict[str, Candidate] = {}
         self._story: list[str] = []
         self._swept_gap = False
+        self._refined = False
         self._spec_pending = False
 
     async def start(self, ctx: RunContext) -> None:
@@ -87,8 +103,13 @@ class MockAgent:
             return DoneRequest(action="done", ranking=[], rationale="all sims failed")
         if self.turn == 2:
             return self._sweep_length(best)
-        if self.turn == 3 and best.antenna_type == "IFA" and not self._swept_gap:
+        if self.turn == 3 and not self._refined:
             top = report.reports[0]  # best-scored variant from the length sweep
+            if top.result.status == "complete" and not all(d.passing for d in top.diffs):
+                self._refined = True
+                return self._refine_length(top.candidate_id)
+        if self.turn == 4 and best.antenna_type == "IFA" and not self._swept_gap:
+            top = report.reports[0]
             if top.result.status == "complete" and not all(d.passing for d in top.diffs):
                 self._swept_gap = True
                 return self._sweep_gap_on(top.candidate_id)
@@ -102,6 +123,11 @@ class MockAgent:
         # rather than piling onto the same corner
         bands = sorted((b for b in ctx.spec.requirements.bands if b.id in ctx.band_ids),
                        key=lambda b: b.f_low_ghz)
+        # Clearest first. The scan hands these over ranked by escape fraction,
+        # but escape says how well a spot radiates, not whether it satisfies the
+        # band's keep-out — and the keep-out is half the verdict. Sorting by
+        # clearance here picks anchors that can actually pass, and the length
+        # sweep recovers the radiation.
         ranked = sorted(ctx.anchors,
                         key=lambda a: clearance_at(ctx.spec, a.pos_mm)[0],
                         reverse=True)
@@ -143,8 +169,12 @@ class MockAgent:
         return None
 
     def _current_length(self, cid: str) -> float:
-        if "__length_mm=" in cid:
-            return float(cid.split("__length_mm=")[1])
+        # Sweeps stack their suffixes, so a candidate swept twice is
+        # `c000_ifa_p1__length_mm=32.1__gap_mm=5.0`. Taking everything after
+        # the marker swallowed the next parameter and float() threw, killing
+        # the agent channel mid-run. Read one segment.
+        if (v := _swept(cid, "length_mm")) is not None:
+            return v
         base = self.cands.get(cid)
         return base.length_mm if base else 30.0
 
@@ -162,6 +192,24 @@ class MockAgent:
                             param="length_mm", **{"from": round(centre - 3, 1),
                                                   "to": round(centre + 3, 1)},
                             step=0.5)
+
+    def _refine_length(self, cid: str) -> SweepRequest:
+        """Re-sweep finely around the coarse winner.
+
+        The resonance is sharp on a real chassis: at one anchor a 32.0 mm arm
+        holds -8.7 dB across the whole band while 30 and 34 mm miss it
+        entirely. A 0.5 mm coarse step can straddle that window and report
+        "best effort" for a design that exists 0.2 mm away, so spend one more
+        pass — a dozen solves, about a second — resolving it.
+        """
+        centre = self._current_length(cid)
+        self._story.append(
+            f"Coarse sweep left the band unmet; the optimum is narrow, so "
+            f"refining {centre - 0.6:.1f}..{centre + 0.6:.1f} mm at 0.1 mm.")
+        return SweepRequest(action="sweep", candidate_id=cid.split("__")[0],
+                            param="length_mm", **{"from": round(centre - 0.6, 2),
+                                                  "to": round(centre + 0.6, 2)},
+                            step=0.1)
 
     def _sweep_gap_on(self, cid: str) -> SweepRequest:
         self._story.append(f"{cid}: match not closed — sweeping IFA feed-short gap.")

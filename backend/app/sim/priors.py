@@ -227,11 +227,25 @@ def anchors_from_scan(spec: DeviceSpec, band: BandRequirement, *,
 
     # The grid sweep costs seconds (1000+ screens); the agent loop runs many
     # times against the same device+band. Cache on what actually changes it.
-    key = (str(manifest), manifest.stat().st_mtime_ns, band.id, step_mm,
+    # Sweep at the height the solver will actually build at. scan() defaults to
+    # 0.55 T — mid-stack, which in this phone is 6.0 mm, BELOW the ground plane
+    # at 8.6 mm. Anchors from there sit in the shadow of their own counterpoise
+    # and solved at 24% efficiency where the surface plane gives 96%. The rest
+    # of the system already agrees on antenna_z(); the scan has to as well, or
+    # the map and the candidates describe different antennas.
+    from app.geometry.spec import antenna_z
+    # antenna_z is where the radiator's OUTER face belongs — just inside the
+    # back cover. scan() takes the feed plane and builds the 0.9 mm strip
+    # upward from it, so drop by that thickness or the strip pokes through the
+    # cover and every point screens as illegal.
+    from rf.placement import ARM_H_MM
+    z = round(max(0.5, antenna_z(spec) - ARM_H_MM), 2)
+    key = (str(manifest), manifest.stat().st_mtime_ns, band.id, step_mm, z,
            round(_quarter_wave_mm(band), 2))
     rows = _SCAN_CACHE.get(key)
     if rows is None:
-        rows = scan(device, band_length_mm=_quarter_wave_mm(band), step_mm=step_mm)
+        rows = scan(device, band_length_mm=_quarter_wave_mm(band), step_mm=step_mm,
+                    z_mm=z)
         _SCAN_CACHE[key] = rows
     legal = [r for r in rows if r["legal"]]
     if not legal:

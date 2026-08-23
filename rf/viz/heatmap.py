@@ -50,8 +50,12 @@ def render_placement_map(run, out_png: str | None = None, *,
     dev = Device.from_manifest(manifest)
     cfg_path = run_dir / "config.json"
     cand = json.loads(cfg_path.read_text())["candidate"] if cfg_path.exists() else {}
+    # Sweep at the candidate's own height, not scan()'s mid-stack default: a
+    # map drawn at a different z from the antenna it accompanies is a map of a
+    # different antenna. The feed z is where the radiator sits.
+    z = cand.get("feed_point_mm") or cand.get("position_mm")
     rows = scan(dev, band_length_mm=float(cand.get("length_mm", 27.5)),
-                step_mm=step_mm)
+                step_mm=step_mm, z_mm=float(z[2]) if z else None)
 
     xs = sorted({r["position_mm"][0] for r in rows})
     ys = sorted({r["position_mm"][1] for r in rows})

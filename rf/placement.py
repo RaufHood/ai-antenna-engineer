@@ -41,7 +41,19 @@ METAL_SIGMA = 1.0e4
 # compare against the band in play.
 NEARFIELD_MM = 12.0
 
-WALL_INSET_MM = 1.5      # chassis wall the antenna must stay clear of
+WALL_INSET_MM = 1.5      # chassis side wall the antenna must stay clear of
+# Through-thickness the same 1.5 mm is not a margin, it is a ban: an 11 mm
+# phone has ~2.4 mm above the ground plane, so insetting 1.5 mm from both faces
+# leaves nowhere legal and the scan returns an empty device. A back cover is a
+# sub-millimetre shell and a handset antenna sits against its inner face.
+WALL_INSET_Z_MM = 0.5
+
+# The printed strip itself: 1.8 mm wide, 0.9 mm proud of the feed plane.
+ARM_W_MM = 1.8
+ARM_H_MM = 0.9
+
+# Per-axis, in the corner frame: x, y are side walls; z is the cover.
+WALL_INSET_XYZ = (WALL_INSET_MM, WALL_INSET_MM, WALL_INSET_Z_MM)
 SOFT_MATERIALS = ("foam", "abs", "rubber", "nylon", "pet", "adhesive")
 
 # A part whose footprint covers at least this share of the device is an
@@ -123,7 +135,7 @@ Box = tuple[tuple[float, float, float], tuple[float, float, float]]
 
 
 def antenna_box(candidate: dict, device: Device, *,
-                arm_w: float = 1.8, arm_h: float = 0.9) -> Box:
+                arm_w: float = ARM_W_MM, arm_h: float = ARM_H_MM) -> Box:
     """The candidate's printed strip as a box, in the corner frame.
 
     Mirrors the arm-direction convention the Blender renderer and
@@ -134,8 +146,8 @@ def antenna_box(candidate: dict, device: Device, *,
     px, py, pz = (float(v) for v in candidate["position_mm"])
     length = float(candidate["length_mm"])
     k0, k1 = candidate.get("keepout_mm") or ([0, 0, 0], [W, L, T])
-    b0 = [max(k0[i], WALL_INSET_MM) for i in range(3)]
-    b1 = [min(k1[i], device.size_mm[i] - WALL_INSET_MM) for i in range(3)]
+    b0 = [max(k0[i], WALL_INSET_XYZ[i]) for i in range(3)]
+    b1 = [min(k1[i], device.size_mm[i] - WALL_INSET_XYZ[i]) for i in range(3)]
 
     runs = [(b1[1] - py, "y", 1.0), (py - b0[1], "y", -1.0),
             (b1[0] - px, "x", 1.0), (px - b0[0], "x", -1.0)]
@@ -194,9 +206,10 @@ def legality(candidate: dict, device: Device) -> dict:
     W, L, T = device.size_mm
     out = []
     for i, axis in enumerate("xyz"):
-        if box[0][i] < WALL_INSET_MM:
-            out.append(f"{axis}-min {box[0][i]:.1f} mm < {WALL_INSET_MM} mm wall inset")
-        limit = device.size_mm[i] - WALL_INSET_MM
+        inset = WALL_INSET_XYZ[i]
+        if box[0][i] < inset:
+            out.append(f"{axis}-min {box[0][i]:.1f} mm < {inset} mm wall inset")
+        limit = device.size_mm[i] - inset
         if box[1][i] > limit:
             out.append(f"{axis}-max {box[1][i]:.1f} mm > {limit:.1f} mm wall inset")
 
