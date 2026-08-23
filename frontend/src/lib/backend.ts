@@ -46,6 +46,9 @@ export interface RunSnapshot {
   placements: Record<string, string>;
   anchors: Anchor[];
   artifacts: string[];
+  /** True when the orchestrator finished this run on the heuristic agent
+   *  because the real one died. Shown, never hidden. */
+  agentFellBack: boolean;
 }
 
 export const BACKEND_URL =
@@ -442,6 +445,12 @@ export function toSnapshot(run: BackendRun, events: BackendEvent[]): RunSnapshot
     planning: run.status === "running" && candidates.length === 0,
     status: run.status,
     engine: "PyNEC",
+    // The orchestrator restarts a dead agent channel on the built-in heuristic
+    // so a demo always ends with a result, and marks the run
+    // `<source>+mock-fallback`. That is a reasonable default and a terrible
+    // thing to hide: a run finished by the heuristic must never be presented
+    // as Devin's work. Surface it and let the UI say so.
+    agentFellBack: run.spec_source.includes("mock-fallback"),
     jobs,
     results,
     candidates,

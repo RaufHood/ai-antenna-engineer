@@ -18,6 +18,7 @@ export function AgentPanel() {
   const runId = useApp((s) => s.runId);
   const agent = useApp((s) => s.agent);
   const setAgent = useApp((s) => s.setAgent);
+  const agentFellBack = useApp((s) => s.agentFellBack);
   const sendNote = useApp((s) => s.sendNote);
   const [note, setNote] = useState("");
   const feedRef = useRef<HTMLDivElement>(null);
@@ -52,6 +53,24 @@ export function AgentPanel() {
           ))}
         </div>
       </header>
+
+      {agentFellBack && (
+        // The orchestrator restarts a dead agent channel on the built-in
+        // heuristic so a demo always ends with a result. Saying so is the
+        // whole point: these numbers are not the real agent's work, and a
+        // run that looks like Devin's but isn't is worse than no run.
+        <div className="mx-4 mt-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+          <p className="text-[11px] font-medium text-amber-300">
+            Devin did not run — heuristic agent finished this
+          </p>
+          <p className="mt-0.5 text-[10px] leading-relaxed text-amber-200/70">
+            The Devin channel failed before the first simulation, so the
+            built-in heuristic completed the run. The simulations below are
+            real; the reasoning that chose them is not Devin&apos;s. Check the
+            feed for the API error.
+          </p>
+        </div>
+      )}
 
       <div ref={feedRef} className="flex-1 space-y-1.5 overflow-y-auto px-4 py-3">
         {!messages.length && (

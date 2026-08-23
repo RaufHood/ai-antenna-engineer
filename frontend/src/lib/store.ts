@@ -46,6 +46,8 @@ interface AppState {
   running: boolean;
   planning: boolean;
   engine: string | null;
+  /** The real agent died and the heuristic finished the run. Never hide this. */
+  agentFellBack: boolean;
   error: string | null;
   candidates: Candidate[];
   results: Record<string, SimResult>;
@@ -85,6 +87,7 @@ const EMPTY_RUN = {
   running: false,
   planning: false,
   engine: null,
+  agentFellBack: false,
   error: null,
   candidates: [] as Candidate[],
   results: {} as Record<string, SimResult>,
@@ -258,6 +261,7 @@ export const useApp = create<AppState>((set, get) => ({
       planning: !!snap.planning,
       running: !done,
       engine: snap.engine ?? get().engine,
+      agentFellBack: !!snap.agentFellBack,
       messages: [...(userMsg ? [userMsg] : []), ...(snap.messages ?? [])],
       error: snap.status === "failed" ? "run failed — see the agent feed" : get().error,
       selectedCandidate:
