@@ -43,6 +43,35 @@ def _dump(obj: Any) -> Any:
     return obj
 
 
+TAPES_DIR = Path(__file__).resolve().parents[2] / "var" / "tapes"
+
+
+def tape_for(spec, band_ids: list[str]) -> str:
+    """The recorded run that matches this device and these bands.
+
+    A tape is a real agent's real decisions on one object. Playing the phone's
+    tape into a laptop would replay a transcript about anchors that do not
+    exist there, so the pick is by device first and bands second, and it falls
+    back to whatever is on disk rather than failing — the run is marked when
+    the recording was made elsewhere.
+    """
+    want_device = getattr(spec, "device_id", None)
+    want_bands = sorted(band_ids or [])
+    best, fallback = None, None
+    for path in sorted(TAPES_DIR.glob("*.json")):
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        fallback = fallback or str(path)
+        if sorted(doc.get("band_ids") or []) != want_bands:
+            continue
+        if doc.get("device_id") == want_device:
+            return str(path)
+        best = best or str(path)
+    return best or fallback or str(TAPES_DIR / "wifi24_devin.json")
+
+
 class RecordingAgent:
     """Passes every call through to `inner` and writes the answers to a tape."""
 
