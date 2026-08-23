@@ -24,14 +24,11 @@ export default function Home() {
   const running = useApp((s) => s.running);
   const loadDefaultDevice = useApp((s) => s.loadDefaultDevice);
   const dockTab = useApp((s) => s.dockTab);
-  const loadShowcase = useApp((s) => s.loadShowcase);
-  const hasShowcase = useApp((s) => s.showcase.length > 0);
 
   // The device the solver will read, adopted before anything is asked of it.
   useEffect(() => {
     void loadDefaultDevice();
-    void loadShowcase();
-  }, [loadDefaultDevice, loadShowcase]);
+  }, [loadDefaultDevice]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-ink-950 text-fg">
@@ -49,20 +46,13 @@ export default function Home() {
           <div className="min-h-0 flex-1">
             <Viewport />
           </div>
-          {/* The dock also opens for the prepared gallery, so the evidence this
-              tool exists to produce is there before you have asked for
-              anything — not a placeholder, two finished studies. */}
-          {(hasResults || running || hasShowcase) && (
+          {(hasResults || running) && (
             // The gallery earns more room than a table does: these are the
             // pictures the study exists to produce, and a 280 px rail turns
             // them into stamps.
             <div
               className={`shrink-0 border-t border-ink-800 transition-[height] duration-200 ${
-                // Before a run the dock IS the gallery, so it gets the
-                // gallery's height rather than a table's.
-                dockTab === "evidence" || (!hasResults && !running && hasShowcase)
-                  ? "h-[440px]"
-                  : "h-[280px]"
+                dockTab === "evidence" ? "h-[440px]" : "h-[280px]"
               }`}
             >
               <ResultsDock />

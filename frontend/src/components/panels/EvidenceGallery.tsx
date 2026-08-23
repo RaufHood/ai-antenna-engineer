@@ -124,18 +124,8 @@ export function EvidenceGallery() {
   const running = useApp((s) => s.running);
   const [open, setOpen] = useState<number | null>(null);
   const bands = useApp((s) => s.spec.requirements.bands);
-  const showcase = useApp((s) => s.showcase);
 
-  // A run's own evidence always wins. The prepared gallery only fills the gap
-  // before there is any — and it says so, because a picture of somebody else's
-  // study presented as yours is the one thing this panel must never do.
-  const own = preferred(media);
-  const busy = running || stage === "media";
-  // While a study of your own is in flight, the prepared gallery steps aside
-  // for the progress note. Leaving it up would put finished pictures of a
-  // different study on screen at the exact moment you are waiting for yours.
-  const prepared = own.length === 0 && !busy && showcase.length > 0;
-  const items = prepared ? preferred(showcase) : own;
+  const items = preferred(media);
   const step = useCallback(
     (delta: number) =>
       setOpen((i) => (i === null ? i : (i + delta + items.length) % items.length)),
@@ -143,7 +133,7 @@ export function EvidenceGallery() {
   );
 
   if (!items.length) {
-    const rendering = busy;
+    const rendering = stage === "media" || running;
     return (
       <div className="flex h-full items-center justify-center px-6">
         <p className="max-w-[52ch] text-center text-[11px] leading-5 text-fg-muted">
@@ -154,9 +144,9 @@ export function EvidenceGallery() {
             </>
           ) : (
             <>
-              No evidence yet. Tick <span className="text-fg">Render evidence</span> beside the
-              spec and run a study to draw the placement maps, the response and the field
-              animation for the device you have loaded.
+              No evidence rendered for this run. Tick{" "}
+              <span className="text-fg">Render evidence</span> beside the spec to draw the
+              placement maps and the field animation for the device you have loaded.
             </>
           )}
         </p>
@@ -181,15 +171,6 @@ export function EvidenceGallery() {
 
   return (
     <div className="h-full overflow-y-auto px-4 py-3">
-      {prepared && (
-        <p className="mb-3 flex flex-wrap items-baseline gap-x-2 text-[11px] leading-5 text-fg-faint">
-          <span className="rounded border border-ink-600 px-1.5 py-px font-mono text-[9px] uppercase tracking-wide text-fg-muted">
-            prepared
-          </span>
-          Two studies rendered ahead of time on this device — real PyNEC solves and a real
-          openEMS field dump. Run one yourself and your own evidence replaces these.
-        </p>
-      )}
       {groups.map((g) => (
         <section key={g.band} className="mb-4 last:mb-0">
           <h3 className="mb-2 flex items-baseline gap-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-fg-faint">

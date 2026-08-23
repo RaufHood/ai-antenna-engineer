@@ -1,13 +1,1 @@
 var/
-# ...except the pre-rendered Evidence gallery: two finished studies (Wi-Fi 2.4
-# and GPS L1) so the app opens showing evidence instead of an empty panel, and
-# a demo never depends on a live render. Rebuild with
-#   backend/.venv/bin/python scripts/build_showcase.py
-!var/
-var/*
-!var/media/
-var/media/*
-!var/media/_showcase/
-!var/media/_showcase/**
-!var/tapes/
-!var/tapes/*.json

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 import secrets
 import shutil
@@ -25,9 +24,6 @@ from app.runs import devices, orchestrator, report, store
 from app.runs.store import Run
 
 router = APIRouter()
-
-# backend/var — where runs, devices, tapes and the pre-rendered gallery live
-REPO_VAR = Path(__file__).resolve().parents[2] / "var"
 
 _MEDIA = {".glb": "model/gltf-binary", ".json": "application/json",
           ".stl": "model/stl"}
@@ -234,31 +230,6 @@ async def run_artifact(run_id: str, name: str) -> Response:
         raise HTTPException(404, f"no artifact {name!r}; have {report.artifact_names(run)}")
     body, media = rendered
     return Response(content=body, media_type=media)
-
-
-@router.get("/showcase")
-async def showcase() -> dict:
-    """The pre-rendered gallery that ships with the app.
-
-    A run's evidence belongs to its session, so a fresh page has none and the
-    Evidence tab opens empty — a poor first impression for a tool whose claim
-    is "here is the evidence", and a bad thing to depend on live in a demo.
-    These two studies (Wi-Fi 2.4 and GPS L1) are rendered ahead of time by
-    scripts/build_showcase.py from real solves, and the files sit under a
-    stable run id so the ordinary media route serves them, ranges and all.
-
-    Empty list when it has not been built — the app then simply has no
-    fallback, which is a missing convenience, not a broken run.
-    """
-    doc = REPO_VAR / "media" / "_showcase" / "showcase.json"
-    if not doc.exists():
-        return {"artifacts": [], "built": False}
-    try:
-        body = json.loads(doc.read_text(encoding="utf-8"))
-    except Exception:
-        return {"artifacts": [], "built": False}
-    body["built"] = True
-    return body
 
 
 @router.get("/runs/{run_id}/media/{name}")
