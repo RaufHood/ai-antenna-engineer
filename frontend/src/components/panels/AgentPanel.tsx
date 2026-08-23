@@ -38,17 +38,23 @@ export function AgentPanel() {
       <header className="flex items-center gap-3 border-b border-slate-800/80 px-4 py-3">
         <SectionTitle>Agent</SectionTitle>
         <div className="ml-auto flex rounded-md border border-slate-800 p-0.5">
-          {(["mock", "devin"] as const).map((a) => (
+          {(["mock", "replay", "devin"] as const).map((a) => (
             <button
               key={a}
               disabled={running}
               onClick={() => setAgent(a)}
-              title={a === "devin" ? "Devin via API — needs backend/.env" : "offline heuristic agent on the backend"}
+              title={
+                a === "devin"
+                  ? "Devin, live via the API — costs quota, ~2.5 min"
+                  : a === "replay"
+                    ? "A recorded live Devin run, played back instantly and free"
+                    : "The backend's offline heuristic — fast, but not the agent's reasoning"
+              }
               className={`rounded px-2 py-0.5 text-[10px] transition disabled:cursor-not-allowed ${
                 agent === a ? "bg-slate-800 text-slate-100" : "text-slate-500 hover:text-slate-300"
               }`}
             >
-              {a === "mock" ? "Mock" : "Devin"}
+              {a === "mock" ? "Mock" : a === "replay" ? "Replay" : "Devin"}
             </button>
           ))}
         </div>

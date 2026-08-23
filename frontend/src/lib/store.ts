@@ -12,7 +12,11 @@ import type {
 } from "./types";
 
 export type ViewMode = "system" | "focus";
-export type AgentKind = "mock" | "devin";
+// Single definition: backend.ts owns it because the backend is what accepts
+// these values. Two copies had already drifted apart ("replay" existed in one
+// and not the other), which the compiler only caught at the call site.
+export type { AgentKind } from "./backend";
+import type { AgentKind } from "./backend";
 export type Layer = "showKeepouts" | "showPins" | "showLabels";
 
 interface AppState {

@@ -27,12 +27,23 @@ async def main() -> None:
     from app.runs.store import Run
     from app.sim import pool
 
-    if os.environ.get("AGENT", "mock") == "devin":
+    kind = os.environ.get("AGENT", "mock")
+    if kind == "replay":
+        from app.agent.replay import ReplayAgent
+        agent = ReplayAgent(os.environ.get("REPLAY_TAPE", "var/tapes/last.json"))
+        print(f"replaying {agent.path} (recorded from {agent.meta.get('agent')})")
+    elif kind == "devin":
         from app.agent.devin import DevinAgent
         agent = DevinAgent()
     else:
         from app.agent.mock import MockAgent
         agent = MockAgent()
+
+    # Wrap whatever we chose so one live run can be kept and replayed later.
+    if tape := os.environ.get("RECORD_TAPE"):
+        from app.agent.replay import RecordingAgent
+        agent = RecordingAgent(agent, tape)
+        print(f"recording this run to {tape}")
 
     pool.start_pool()
     band_ids = os.environ.get("BANDS", "wifi24").split(",")

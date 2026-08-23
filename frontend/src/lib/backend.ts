@@ -54,7 +54,7 @@ export interface RunSnapshot {
 export const BACKEND_URL =
   process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
 
-export type AgentKind = "devin" | "mock";
+export type AgentKind = "devin" | "replay" | "mock";
 
 /** Which agent drives the loop by default. "devin" needs backend/.env credentials. */
 export const AGENT: AgentKind = (process.env.AGENT as AgentKind) ?? "mock";

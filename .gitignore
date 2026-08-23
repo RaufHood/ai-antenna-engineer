@@ -79,3 +79,7 @@ rf/blend_loader/out/*
 # orbit frames are build intermediates: the gif/mp4 carry the same content
 # and rendering them again is one command (see rf/README.md)
 runs/**/orbit_frames/
+
+# recorded agent tapes: real Devin runs, replayable for free (app/agent/replay.py)
+!backend/var/tapes/
+!backend/var/tapes/*.json

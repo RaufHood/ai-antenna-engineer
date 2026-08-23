@@ -90,7 +90,7 @@ async def device_artifact(device_id: str, name: str) -> FileResponse:
 class CreateRun(BaseModel):
     prompt: str = ""
     bands: list[str] = ["wifi24"]
-    agent: str = "devin"          # devin (default) | mock (offline fallback)
+    agent: str = "devin"          # devin (live) | replay (recorded run) | mock
     device_id: str | None = None  # from POST /devices; None -> canned phone_v1
     # agent: Devin reads the .blend itself (skill), backend result is the
     # cross-check/fallback. backend: spec is final before the session starts.
@@ -128,8 +128,20 @@ async def create_run(body: CreateRun) -> dict:
                                      f"Pass agent='mock' for the offline loop.")
     elif body.agent == "mock":
         agent = MockAgent()
+    elif body.agent == "replay":
+        # A recorded live run, played back instantly and for free. Not the
+        # heuristic: these are the real agent's decisions and prose, which is
+        # the part worth showing when quota is gone or a demo has to be
+        # repeatable.
+        from app.agent.replay import ReplayAgent
+        tape = os.environ.get("REPLAY_TAPE", "var/tapes/wifi24_devin.json")
+        try:
+            agent = ReplayAgent(tape)
+        except (FileNotFoundError, ValueError) as e:
+            raise HTTPException(503, f"no usable tape: {e}")
     else:
-        raise HTTPException(400, f"unknown agent {body.agent!r}")
+        raise HTTPException(400, f"unknown agent {body.agent!r}; "
+                                 f"expected devin, replay or mock")
 
     run = Run(id=f"run_{secrets.token_hex(4)}", prompt=body.prompt,
               band_ids=body.bands, spec=spec, anchors=anchors, device=device,
