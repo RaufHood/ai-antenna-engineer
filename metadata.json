@@ -3,7 +3,7 @@
   "checkpoint_id": "01M0PW5TJ5F868GGR934601NY9",
   "strategy": "manual-commit",
   "branch": "dev",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
     "backend/scripts/tape_from_run.py",
     "backend/var/tapes/iphone_wifi24_devin.json"
@@ -22,13 +22,20 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 542,
-    "cache_creation_tokens": 1265187,
-    "cache_read_tokens": 49364028,
-    "output_tokens": 134270,
-    "api_call_count": 271
+    "input_tokens": 682,
+    "cache_creation_tokens": 1403395,
+    "cache_read_tokens": 57430907,
+    "output_tokens": 175122,
+    "api_call_count": 341
   }
 }

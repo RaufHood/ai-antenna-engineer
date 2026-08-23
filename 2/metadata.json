@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0PW5TJ5F868GGR934601NY9",
+  "session_id": "faeafaa9-78bf-448e-af8c-a392a29d8e9d",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-23T08:35:50.943617Z",
+  "branch": "dev",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/scripts/tape_from_run.py",
+    "backend/var/tapes/iphone_wifi24_devin.json"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5",
+  "turn_id": "67683cff6a0d",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 140,
+    "cache_creation_tokens": 138208,
+    "cache_read_tokens": 8066879,
+    "output_tokens": 40852,
+    "api_call_count": 70
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-23T08:35:50.735557Z",
+    "agent_lines": 1239,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1239,
+    "total_lines_changed": 1239,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

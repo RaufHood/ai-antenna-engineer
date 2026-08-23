@@ -1,0 +1,33 @@
+look ony at the pitich deck now, dont change the code
+
+we need to update the current messy slides to have the follwoing structure 
+
+why antenas are importnat and where we use antennas - all wigfi and bluethooth devices
+
+where do anteas come from: rf / antenna egineers design them - is a full time job - some info how mch time tehy ususally need for designes etc
+
+market: how large is the market and how mhc it is suppsosed t grow soon an why
+
+market 2: if it makes sense - comapre it to the swe market so people hwo know hwo muhc ai tools simplified and trnasformed swe relate to antenna engineering
+
+product:
+
+worflwo upload the build file (or what ever) + spec - the agne reads the specs, proposes the antenna design + placemetn , runs the simulaiton to test - iterates until done
+
+fully autonomous optimization, no bottle necks.
+
+demo: (here we do the live demo)
+
+team
+
+qestions
+
+generally make the slide as a good putch deck not mcuh text, clear statemtent dense on information, no BS. the style of slides mus tbe the same everywhere. for screenshots get new UI screenshotrs. Use best practices and modern slick design for slides
+
+---
+
+fyi, sync the latest versio now
+
+---
+
+start alreadu on the pithsc deck if you havent before, ypou can finfih screenshots later
