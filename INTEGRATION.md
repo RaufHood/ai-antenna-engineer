@@ -117,6 +117,7 @@ The browser never talks to port 8000. Next.js route handlers do, and
 | `GET /api/run?runId=` | `GET /runs/{id}` + `GET /runs/{id}/log` | snapshot + event log → jobs, results, candidates (with `keepout_mm` derived from the band's clearance), messages, one placement per band (the agent's ranking, or best-so-far while running), anchors |
 | `GET /api/run?runId=&artifact=report.md` | `GET /runs/{id}/artifacts/report.md` | the agent's report, shown in the Report tab |
 | `PATCH /api/run` | `POST /runs/{id}/messages` | mid-run note to the agent |
+| `DELETE /api/run?runId=` | `POST /runs/{id}/stop` | Stop: cancels the loop and terminates the agent session, so a live Devin stops reasoning and stops spending. The run comes back `stopped`, never presented as a conclusion |
 | `POST /api/device` | `POST /devices` | `.blend` (+ `materials.json`) passthrough; reply has the backend's spec + anchors and a same-origin `glbUrl` for the viewer |
 | `GET /api/device?id=&artifact=` | `GET /devices/{id}/artifacts/{name}` | streamed |
 

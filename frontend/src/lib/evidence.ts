@@ -21,9 +21,24 @@ export function verdictOf(r: SimResult | undefined): Verdict {
   return r.meets_requirements ? "pass" : "fail";
 }
 
-/** dB in hand against the band's S11 target. Positive = met, with room. */
+/**
+ * The S11 the requirement is judged on: the worst point inside the band.
+ * The solver's `meets_requirements` is computed from this, not from the
+ * minimum — a −17 dB null 60 MHz below Wi-Fi 2.4 is a fine antenna for the
+ * wrong band, and judging it on its minimum put "8.7 dB margin" next to a
+ * Fail. Falls back to the minimum only when there is no sweep to read.
+ */
+export function worstInBandDb(r: SimResult, band: BandRequirement): number {
+  const inBand = (r.s11_curve ?? []).filter(
+    (p) => p.f_ghz >= band.f_low_ghz && p.f_ghz <= band.f_high_ghz,
+  );
+  if (!inBand.length) return r.s11_min_db;
+  return Math.max(...inBand.map((p) => p.s11_db));
+}
+
+/** dB in hand against the band's S11 target, at the band's worst point. Positive = met, with room. */
 export function marginDb(r: SimResult, band: BandRequirement): number {
-  return band.s11_db_max - r.s11_min_db;
+  return band.s11_db_max - worstInBandDb(r, band);
 }
 
 /** Signed MHz from the nearest band edge; 0 when the resonance sits inside. */
@@ -40,8 +55,13 @@ export function unmetRequirements(
   vswrMax: number,
 ): string[] {
   const out: string[] = [];
-  if (r.s11_min_db > band.s11_db_max)
-    out.push(`S11 ${r.s11_min_db.toFixed(1)} dB, target ${band.s11_db_max.toFixed(1)} dB`);
+  const worst = worstInBandDb(r, band);
+  if (worst > band.s11_db_max)
+    out.push(
+      worst === r.s11_min_db
+        ? `S11 ${worst.toFixed(1)} dB, target ${band.s11_db_max.toFixed(1)} dB`
+        : `In-band S11 ${worst.toFixed(1)} dB, target ${band.s11_db_max.toFixed(1)} dB (dip ${r.s11_min_db.toFixed(1)} dB at ${r.resonant_ghz.toFixed(3)} GHz)`,
+    );
   if (r.efficiency < band.efficiency_min)
     out.push(
       `Efficiency ${Math.round(r.efficiency * 100)}%, target ${Math.round(band.efficiency_min * 100)}%`,

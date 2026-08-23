@@ -53,7 +53,7 @@ class Run:
     device: Device | None = None
     extract_mode: str = "backend"    # agent | backend (DESIGN.md §8)
     created_at: float = field(default_factory=time.time)
-    status: str = "running"          # running | finished | failed
+    status: str = "running"          # running | finished | failed | stopped
     stage: str = "ingest"
     iteration: int = 0
     truncated: bool = False

@@ -15,13 +15,27 @@ def diffs_for(spec: DeviceSpec, band: BandRequirement, cand: Candidate,
     worst = max((p.s11_db for p in in_band), default=0.0)
     clear_mm, _blocker = clearance_at(spec, cand.position_mm)
     band_mhz = (band.f_high_ghz - band.f_low_ghz) * 1000.0
+    # "Covers" means the -6 dB window sits OVER the band, not merely that it
+    # is as wide as the band. Comparing widths alone passed a 115 MHz window
+    # centred 60 MHz below Wi-Fi 2.4 while the line above it failed the same
+    # design for in-band S11 -- contradictory evidence to the agent.
+    # `actual` is how much of the band the window covers (MHz); `margin` is
+    # how far the window reaches past the nearer band edge, negative when
+    # that much of the band is uncovered.
+    window = _window_6db(r)
+    if window is None:
+        covered, cover_margin = 0.0, -band_mhz
+    else:
+        lo, hi = window
+        covered = max(0.0, min(hi, band.f_high_ghz) - max(lo, band.f_low_ghz)) * 1000.0
+        cover_margin = min(band.f_low_ghz - lo, hi - band.f_high_ghz) * 1000.0
     return [
         RequirementDiff(requirement="worst in-band S11", target=band.s11_db_max,
                         actual=round(worst, 2), margin=round(band.s11_db_max - worst, 2),
                         unit="dB", passing=worst <= band.s11_db_max),
         RequirementDiff(requirement="-6 dB bandwidth covers band", target=band_mhz,
-                        actual=r.bandwidth_mhz, margin=round(r.bandwidth_mhz - band_mhz, 1),
-                        unit="MHz", passing=r.bandwidth_mhz >= band_mhz),
+                        actual=round(covered, 1), margin=round(cover_margin, 1),
+                        unit="MHz", passing=cover_margin >= 0.0),
         RequirementDiff(requirement="total efficiency", target=band.efficiency_min,
                         actual=r.efficiency, margin=round(r.efficiency - band.efficiency_min, 3),
                         unit="", passing=r.efficiency >= band.efficiency_min),
@@ -32,6 +46,37 @@ def diffs_for(spec: DeviceSpec, band: BandRequirement, cand: Candidate,
                         actual=round(clear_mm, 1), margin=round(clear_mm - band.clearance_mm, 1),
                         unit="mm", passing=clear_mm >= band.clearance_mm),
     ]
+
+
+def _window_6db(r: SimResult, level: float = -6.0) -> tuple[float, float] | None:
+    """The contiguous span around the S11 minimum that stays under `level`,
+    with the crossings interpolated. None when the trace never gets there.
+    Mirrors `bandwidthSpan` in frontend/src/lib/evidence.ts so the chart's
+    shaded window and this verdict are the same window."""
+    curve = r.s11_curve
+    if len(curve) < 2:
+        return None
+    k = min(range(len(curve)), key=lambda i: curve[i].s11_db)
+    if curve[k].s11_db > level:
+        return None
+
+    def cross(a, b):
+        span = b.s11_db - a.s11_db
+        if abs(span) < 1e-9:
+            return a.f_ghz
+        return a.f_ghz + (level - a.s11_db) * (b.f_ghz - a.f_ghz) / span
+
+    lo = curve[0].f_ghz
+    for i in range(k, 0, -1):
+        if curve[i - 1].s11_db > level:
+            lo = cross(curve[i - 1], curve[i])
+            break
+    hi = curve[-1].f_ghz
+    for i in range(k, len(curve) - 1):
+        if curve[i + 1].s11_db > level:
+            hi = cross(curve[i], curve[i + 1])
+            break
+    return (lo, hi) if hi > lo else None
 
 
 def hints_for(spec: DeviceSpec, band: BandRequirement, cand: Candidate,
@@ -87,7 +132,11 @@ def score_of(diffs: list[RequirementDiff]) -> float:
         elif d.requirement == "clearance to nearest metal":
             s += max(min(0.03 * d.margin, 0.1), -0.15)
         elif d.requirement == "-6 dB bandwidth covers band":
-            s += 0.05 if d.passing else -0.05
+            # Graded by the covered fraction, not pass/fail: a wide dip just
+            # outside the band is a better place to sweep from than a narrow
+            # one, and a binary term could not tell them apart.
+            frac = d.actual / d.target if d.target else 0.0
+            s += 0.05 * max(min(2.0 * frac - 1.0, 1.0), -1.0)
     return round(max(0.0, min(1.0, s)), 3)
 
 

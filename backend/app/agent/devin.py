@@ -149,6 +149,24 @@ class DevinAgent:
         await self._http.aclose()
         return report
 
+    async def abort(self, reason: str) -> None:
+        """Terminate the Devin session (DELETE /sessions/{id}; the v3 API
+        marks it for deletion asynchronously, so the UI may show it for a few
+        seconds more). Stopping from the UI must stop the spend, not just the
+        polling -- a session left running keeps reasoning and billing ACUs
+        against a run nobody is reading."""
+        sid = self.session_id
+        self.session_id = None                  # any later send/close is a no-op
+        try:
+            if sid:
+                await self._request("DELETE", f"{self._org_base}/sessions/{sid}")
+                self._narration.append(
+                    f"Devin session {sid} terminated ({reason}).")
+        except Exception as e:
+            self._narration.append(f"abort: could not terminate session {sid}: {e}")
+        finally:
+            await self._http.aclose()
+
     # ------------------------------------------------------------- internals --
 
     async def _send(self, message: str) -> None:
@@ -224,9 +242,22 @@ class DevinAgent:
         return None, err or "no json block found"
 
     async def _request(self, method: str, url: str, **kw) -> httpx.Response:
+        # A Devin run polls for minutes; a single dropped connection or read
+        # timeout mid-poll must not end it. Retry transient transport errors
+        # (connect/read/pool) and 429 with backoff; only give up after the
+        # budget, and raise with a NON-EMPTY message (httpx timeouts stringify
+        # to "" -- that is what produced the opaque `error: ""` in the run log
+        # and the silent fall back to the heuristic).
         delay = 2.0
-        for _ in range(6):
-            r = await self._http.request(method, url, **kw)
+        last_transport: Exception | None = None
+        for attempt in range(6):
+            try:
+                r = await self._http.request(method, url, **kw)
+            except (httpx.TransportError,) as e:  # connect/read/write/pool/timeout
+                last_transport = e
+                await asyncio.sleep(min(delay, 60.0))
+                delay = min(delay * 2, 60.0)
+                continue
             if r.status_code == 429:
                 retry = float(r.headers.get("Retry-After", delay))
                 await asyncio.sleep(min(retry, 60.0))
@@ -237,4 +268,9 @@ class DevinAgent:
                     f"Devin API {r.status_code} on {method} {url.split('/v3/')[-1]}: "
                     f"{r.text[:300]}")
             return r
-        raise RuntimeError(f"Devin API rate-limited after retries: {url}")
+        endpoint = url.split("/v3/")[-1]
+        if last_transport is not None:
+            raise RuntimeError(
+                f"Devin API unreachable after retries on {method} {endpoint}: "
+                f"{type(last_transport).__name__}: {last_transport}")
+        raise RuntimeError(f"Devin API rate-limited after retries on {method} {endpoint}")

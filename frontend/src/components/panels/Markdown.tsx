@@ -2,10 +2,18 @@
 
 import { Fragment, type ReactNode } from "react";
 
-/** `**bold**`, `` `code` `` and `_em_` inside one line. */
+/**
+ * `**bold**`, `` `code` `` and `_em_` inside one line.
+ *
+ * Underscores only open emphasis between words, the way GFM has it. Treating
+ * every `_` as emphasis rewrote the report's own identifiers —
+ * `c002_ifa_p10__length_mm=31.9` was rendered `c002ifap10_lengthmm=31.9` —
+ * so the one name a reader would search the run for was the one name the
+ * page got wrong.
+ */
 function inline(text: string): ReactNode[] {
   const out: ReactNode[] = [];
-  const re = /(\*\*[^*]+\*\*|`[^`]+`|_[^_]+_)/g;
+  const re = /(\*\*[^*]+\*\*|`[^`]+`|(?<![\w])_[^_\s][^_]*_(?![\w]))/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let k = 0;

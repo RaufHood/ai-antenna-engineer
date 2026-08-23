@@ -18,6 +18,7 @@
  * error; there is deliberately no local stand-in that could be mistaken for
  * a simulation.
  */
+import { worstInBandDb } from "./evidence";
 import type {
   AgentMessage,
   Anchor,
@@ -95,7 +96,7 @@ const TIMEOUT_MS = 8000;
 export type BackendRun = {
   run_id: string;
   device_id: string | null;
-  status: "running" | "finished" | "failed";
+  status: "running" | "finished" | "failed" | "stopped";
   stage: string;
   iteration: number;
   truncated: boolean;
@@ -231,6 +232,11 @@ export async function readBackendReport(runId: string): Promise<string> {
   return res.text();
 }
 
+/** Stop a run for real: the backend cancels its loop and terminates the agent session. */
+export async function stopBackendRun(runId: string): Promise<{ status: string; stopped: boolean }> {
+  return call<{ status: string; stopped: boolean }>(`/runs/${runId}/stop`, { method: "POST" });
+}
+
 export async function postBackendMessage(runId: string, text: string): Promise<void> {
   await call<unknown>(`/runs/${runId}/messages`, {
     method: "POST",
@@ -356,12 +362,21 @@ function messagesFrom(
           push(ev, "agent", "result", `${r.candidate_id}: solve failed. ${r.notes ?? ""}`);
           break;
         }
+        // The requirement is judged on the worst point inside the band. Lead
+        // with that when the dip sits outside it, or a -19 dB null 80 MHz
+        // below the band reads as the iteration's best result.
+        const band = c ? bands[c.band_id] : undefined;
+        const worst = band ? worstInBandDb(r, band) : r.s11_min_db;
+        const s11 =
+          Math.abs(worst - r.s11_min_db) < 0.05
+            ? `S11 ${fmt(r.s11_min_db)} dB at ${fmt(r.resonant_ghz, 3)} GHz`
+            : `in-band S11 ${fmt(worst)} dB (dip ${fmt(r.s11_min_db)} dB at ${fmt(r.resonant_ghz, 3)} GHz)`;
         push(
           ev,
           "agent",
           "result",
           `${r.candidate_id}${c ? ` (${c.antenna_type}, ${bandName(c.band_id)})` : ""}: ` +
-            `S11 ${fmt(r.s11_min_db)} dB at ${fmt(r.resonant_ghz, 3)} GHz, BW ${fmt(r.bandwidth_mhz, 0)} MHz, ` +
+            `${s11}, BW ${fmt(r.bandwidth_mhz, 0)} MHz, ` +
             `eff ${fmt(r.efficiency * 100, 0)}%, VSWR ${fmt(r.vswr, 2)} -> ${r.meets_requirements ? "PASS" : "FAIL"}.` +
             (r.notes ? ` ${r.notes}` : ""),
         );
@@ -389,6 +404,21 @@ function messagesFrom(
         }
         const best = p.best_candidate as BackendCandidate | null | undefined;
         const r = p.best as BackendResult | null | undefined;
+        if (p.status === "stopped") {
+          // Not a recommendation: the agent was cut off. Say what was on the
+          // table when it happened, and nothing more.
+          push(
+            ev,
+            "agent",
+            "text",
+            best && r
+              ? `Stopped: best simulated so far was ${best.antenna_type} at ${best.position_mm.map((v) => v.toFixed(1)).join(", ")} mm ` +
+                `for ${bandName(best.band_id)}, length ${best.length_mm} mm — S11 ${fmt(r.s11_min_db)} dB${verdictPhrase(r)}. ` +
+                `The agent session was terminated.`
+              : "Stopped: before anything was simulated. The agent session was terminated.",
+          );
+          break;
+        }
         push(
           ev,
           "agent",

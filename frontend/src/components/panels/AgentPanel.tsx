@@ -395,6 +395,9 @@ export function AgentPanel() {
   const agentFellBack = useApp((s) => s.agentFellBack);
   const tapeOtherDevice = useApp((s) => s.tapeOtherDevice);
   const sendNote = useApp((s) => s.sendNote);
+  const stopRun = useApp((s) => s.stopRun);
+  const stopping = useApp((s) => s.stopping);
+  const stopped = useApp((s) => s.stopped);
   const enabledBands = useApp((s) => s.enabledBands);
   const jobs = useApp((s) => s.jobs);
   const engine = useApp((s) => s.engine);
@@ -453,7 +456,17 @@ export function AgentPanel() {
     void startRun();
   };
 
-  const status = running ? (planning ? "Planning" : "Simulating") : rendering ? "Rendering" : "Finished";
+  const status = stopping
+    ? "Stopping"
+    : running
+      ? planning
+        ? "Planning"
+        : "Simulating"
+      : rendering
+        ? "Rendering"
+        : stopped
+          ? "Stopped"
+          : "Finished";
   const solved = jobs.filter((j) => j.status === "complete").length;
   const failed = jobs.filter((j) => j.status === "failed").length;
 
@@ -489,7 +502,22 @@ export function AgentPanel() {
               </span>
             )}
             <span className="ml-auto flex items-center gap-3">
-              {!running && (
+              {(running || rendering) && (
+                // Stops the run for real: the backend cancels its loop and
+                // terminates the agent session, so a Devin that was mid-thought
+                // stops spending. What was simulated stays on screen, marked
+                // as stopped rather than concluded.
+                <button
+                  type="button"
+                  onClick={() => void stopRun()}
+                  disabled={stopping}
+                  title="Stop the run: the agent session is terminated on the backend, not just hidden here."
+                  className="rounded-full border border-fail/50 px-2.5 py-0.5 text-[11px] font-medium text-fail transition hover:bg-fail/10 disabled:cursor-wait disabled:opacity-60"
+                >
+                  {stopping ? "Stopping…" : "Stop"}
+                </button>
+              )}
+              {!running && !rendering && (
                 <button
                   type="button"
                   onClick={() => setEditingSpec(true)}
@@ -498,18 +526,16 @@ export function AgentPanel() {
                   Edit spec
                 </button>
               )}
-              <button
-                type="button"
-                onClick={reset}
-                title={
-                  running
-                    ? "Clears this run from the workspace. The solve keeps running on the backend."
-                    : "Clears this run's candidates, results and report."
-                }
-                className="text-[11px] text-fg-muted transition hover:text-fg"
-              >
-                Clear
-              </button>
+              {!running && !rendering && (
+                <button
+                  type="button"
+                  onClick={reset}
+                  title="Clears this run's candidates, results and report."
+                  className="text-[11px] text-fg-muted transition hover:text-fg"
+                >
+                  Clear
+                </button>
+              )}
             </span>
           </div>
           <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-5 text-fg">{prompt}</p>
@@ -585,25 +611,29 @@ export function AgentPanel() {
                     Cancel
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={run}
-                  disabled={!canRun}
-                  title="Run the placement study (Cmd + Enter)"
-                  className="ml-auto flex items-center gap-1.5 rounded-full bg-fg py-1 pl-3 pr-2 text-[12px] font-medium text-ink-950 transition hover:bg-white active:bg-fg disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-faint"
-                >
-                  {running ? (
-                    <>
-                      Running
-                      <Spinner />
-                    </>
-                  ) : (
-                    <>
-                      Run
-                      <ArrowUp />
-                    </>
-                  )}
-                </button>
+                {running ? (
+                  <button
+                    type="button"
+                    onClick={() => void stopRun()}
+                    disabled={stopping}
+                    title="Stop the run: the agent session is terminated on the backend."
+                    className="ml-auto flex items-center gap-1.5 rounded-full border border-fail/50 py-1 px-3 text-[12px] font-medium text-fail transition hover:bg-fail/10 disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {stopping ? "Stopping…" : "Stop"}
+                    {!stopping && <Spinner />}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={run}
+                    disabled={!canRun}
+                    title="Run the placement study (Cmd + Enter)"
+                    className="ml-auto flex items-center gap-1.5 rounded-full bg-fg py-1 pl-3 pr-2 text-[12px] font-medium text-ink-950 transition hover:bg-white active:bg-fg disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-faint"
+                  >
+                    Run
+                    <ArrowUp />
+                  </button>
+                )}
               </div>
             </div>
             {!running && blocker && (
