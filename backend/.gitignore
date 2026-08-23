@@ -1,1 +1,9 @@
 var/
+# ...except the recorded agent tapes. Each is a real Devin session's own
+# decisions on one device, replayed for free — the "Saved run" option in the
+# picker — and they are a few tens of KB of JSON. Recover one from a finished
+# run with backend/scripts/tape_from_run.py.
+!var/
+var/*
+!var/tapes/
+!var/tapes/*.json

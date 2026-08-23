@@ -72,10 +72,15 @@ interface AgentChoice {
   meta: string;
 }
 
+// Three ways to run, and the difference that matters is whose reasoning you
+// get. Saved is Devin's own decisions on THIS device, recovered from a real
+// session and replayed for free — the solver still re-runs every candidate, so
+// the numbers are computed now, not remembered. Mock is the fallback that
+// invents placements itself, and it says so: it is a stand-in, not a result.
 const AGENT_CHOICES: AgentChoice[] = [
   { id: "devin", name: "Devin", meta: "Live reasoning on this device · ~2.5 min, uses quota" },
-  { id: "replay", name: "Replay", meta: "A recorded Devin run, played back · instant, free" },
-  { id: "mock", name: "Mock", meta: "Heuristic placement, real solves · seconds, free" },
+  { id: "replay", name: "Saved run", meta: "Devin's real decisions on this device, re-solved · instant, free" },
+  { id: "mock", name: "Mock", meta: "Heuristic stand-in, real solves · seconds, free" },
 ];
 
 const agentName = (id: AgentKind) => AGENT_CHOICES.find((a) => a.id === id)?.name ?? id;
