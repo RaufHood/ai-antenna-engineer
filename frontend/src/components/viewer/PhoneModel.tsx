@@ -139,11 +139,6 @@ function Part({ c }: { c: DeviceComponent }) {
   );
 }
 
-/** Height (mm) the x-ray is scaled to, from the spec's own device outline. */
-function deviceHeightMm(spec: { board: { size_mm: [number, number, number] } }) {
-  return spec.board?.size_mm?.[1] ?? 146.6;
-}
-
 export function PhoneModel() {
   const spec = useApp((s) => s.spec);
   const modelUrl = useApp((s) => s.modelUrl);
@@ -173,7 +168,7 @@ export function PhoneModel() {
         </group>
       }
     >
-      <DeviceXray heightMm={deviceHeightMm(spec)} />
+      <DeviceXray />
     </Suspense>
   );
 }

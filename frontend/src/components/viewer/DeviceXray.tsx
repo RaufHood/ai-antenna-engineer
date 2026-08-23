@@ -62,13 +62,7 @@ const STYLE: Record<Family, { opacity: number; threshold: number }> = {
   battery: { opacity: 0.85, threshold: 18 },
 };
 
-export function DeviceXray({
-  url = "/models/iphone15pro.glb",
-  heightMm,
-}: {
-  url?: string;
-  heightMm: number;
-}) {
+export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }) {
   const { scene } = useGLTF(url);
 
   // Build the line art once per model: EdgesGeometry is expensive over 191
@@ -103,19 +97,18 @@ export function DeviceXray({
       out.add(line);
     });
 
-    // Fit to the spec's device height so candidate pins and keep-outs, which
-    // are placed in millimetres, land where they belong.
+    // The export is in millimetres on Blender's native axes (x width,
+    // y length, z thickness), which is exactly the frame lib/geometry.ts
+    // works in — so the scale is SCALE itself, not a fit. Fitting by the
+    // tallest axis silently rescales the model whenever the spec's height
+    // and the mesh's height disagree, which slides every candidate pin off
+    // the geometry it is supposed to sit on.
     const box = new THREE.Box3().setFromObject(out);
-    const size = new THREE.Vector3();
     const center = new THREE.Vector3();
-    box.getSize(size);
     box.getCenter(center);
-    const tallest = Math.max(size.x, size.y, size.z) || 1;
-    return {
-      group: out,
-      fit: { s: (heightMm * SCALE) / tallest, center },
-    };
-  }, [scene, heightMm]);
+    // toScene() puts the device centre at the origin; match it exactly.
+    return { group: out, fit: { s: SCALE, center } };
+  }, [scene]);
 
   return (
     <group
