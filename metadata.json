@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0PV8EFCGC7F6Q81E3ZWR6NA",
+  "strategy": "manual-commit",
+  "branch": "dev",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "backend/app/agent/devin.py",
+    "backend/app/agent/mock.py",
+    "backend/app/agent/port.py",
+    "backend/app/agent/replay.py",
+    "backend/app/api/routes.py",
+    "backend/app/runs/orchestrator.py",
+    "backend/app/runs/store.py",
+    "backend/app/sim/oracle.py",
+    "backend/app/sim/score.py",
+    "backend/scripts/selftest.py",
+    "frontend/src/app/api/run/route.ts",
+    "frontend/src/components/panels/AgentPanel.tsx",
+    "frontend/src/components/panels/S11Chart.tsx",
+    "frontend/src/lib/backend.ts",
+    "frontend/src/lib/evidence.ts",
+    "frontend/src/lib/store.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 38617,
+    "cache_read_tokens": 1072979,
+    "output_tokens": 8429,
+    "api_call_count": 17
+  }
+}

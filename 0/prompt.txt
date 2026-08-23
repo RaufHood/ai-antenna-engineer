@@ -1,0 +1,5 @@
+check how much recosunrece will we need if we want to deploy this to a vm? dont cde anything
+
+---
+
+what ubuntu shoudl i use
