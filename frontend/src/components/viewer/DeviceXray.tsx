@@ -56,6 +56,15 @@ function familyOf(name: string): Family {
   return METAL_KEYS.some((m) => key.includes(m)) ? "metal" : "dielectric";
 }
 
+/** Surface finish per family, for the shaded pass. Metals read as metal, the
+ *  dielectrics stay glassy so the stack does not become one opaque brick, and
+ *  the battery keeps the weight it has in every other view. */
+const SURFACE: Record<Family, { metalness: number; roughness: number; opacity: number }> = {
+  metal: { metalness: 0.85, roughness: 0.38, opacity: 1 },
+  dielectric: { metalness: 0.05, roughness: 0.22, opacity: 0.5 },
+  battery: { metalness: 0.2, roughness: 0.6, opacity: 0.92 },
+};
+
 /** Edges thick enough to read, dim enough not to shout. Battery leads. */
 const STYLE: Record<Family, { opacity: number; threshold: number }> = {
   metal: { opacity: 0.55, threshold: 25 },
@@ -84,12 +93,14 @@ function ease(t: number): number {
 export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }) {
   const { scene } = useGLTF(url);
   const explode = useApp((s) => s.explode);
+  const showShaded = useApp((s) => s.showShaded);
   const offsets = useRef<{ line: THREE.Object3D; dir: THREE.Vector3 }[]>([]);
 
   // Build the line art once per model: EdgesGeometry is expensive over 191
   // meshes, and nothing about it changes as the user orbits.
-  const { group, fit, spread } = useMemo(() => {
+  const { group, fit, spread, shaded } = useMemo(() => {
     const out = new THREE.Group();
+    const shaded: THREE.Mesh[] = [];
     const source = scene.clone(true);
 
     source.traverse((child) => {
@@ -115,7 +126,34 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
       line.name = mesh.name;
       mesh.updateWorldMatrix(true, false);
       line.applyMatrix4(mesh.matrixWorld);
-      out.add(line);
+
+      // The shaded twin, built once and simply hidden when the toggle is off.
+      // Rebuilding 191 materials on every toggle would stall the frame, and
+      // the geometry is shared with the source mesh rather than cloned.
+      const surface = SURFACE[family];
+      const solid = new THREE.Mesh(
+        mesh.geometry,
+        new THREE.MeshStandardMaterial({
+          color: COLORS[family],
+          metalness: surface.metalness,
+          roughness: surface.roughness,
+          transparent: surface.opacity < 1,
+          opacity: surface.opacity,
+          // Interior faces matter here: a phone is hollow shells, and culling
+          // them leaves holes you can see straight through.
+          side: THREE.DoubleSide,
+        }),
+      );
+      solid.applyMatrix4(mesh.matrixWorld);
+      solid.visible = false;
+
+      // One group per part so the explode offset moves the line art and its
+      // shaded twin together.
+      const part = new THREE.Group();
+      part.name = mesh.name;
+      part.add(line, solid);
+      shaded.push(solid);
+      out.add(part);
     });
 
     // Where each part goes when the stack comes apart. A phone is a laminate,
@@ -153,7 +191,7 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
     // the geometry it is supposed to sit on.
     // Centre on the un-exploded stack: recomputing it as parts move would drag
     // the whole device across the viewport while the user drags the slider.
-    return { group: out, fit: { s: SCALE, center: mid.clone() }, spread };
+    return { group: out, fit: { s: SCALE, center: mid.clone() }, spread, shaded };
   }, [scene]);
 
   // Applied outside the memo so dragging the slider costs 191 vector writes,
@@ -164,6 +202,10 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
       line.position.set(dir.x * explode, dir.y * explode, dir.z * explode);
     }
   }, [explode, spread]);
+
+  useEffect(() => {
+    for (const m of shaded) m.visible = showShaded;
+  }, [showShaded, shaded]);
 
   return (
     <group

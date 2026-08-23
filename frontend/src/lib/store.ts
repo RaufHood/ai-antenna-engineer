@@ -17,7 +17,7 @@ export type ViewMode = "system" | "focus";
 // and not the other), which the compiler only caught at the call site.
 export type { AgentKind } from "./backend";
 import type { AgentKind, MediaArtifact } from "./backend";
-export type Layer = "showKeepouts" | "showPins" | "showLabels";
+export type Layer = "showKeepouts" | "showPins" | "showLabels" | "showShaded";
 
 interface AppState {
   // ---- device
@@ -41,6 +41,9 @@ interface AppState {
   showKeepouts: boolean;
   showPins: boolean;
   showLabels: boolean;
+  /** Solid shaded surfaces over the x-ray line art. Off by default: the
+   *  wireframe is what lets you see the antenna inside the phone. */
+  showShaded: boolean;
 
   // ---- run
   prompt: string;
@@ -140,6 +143,7 @@ export const useApp = create<AppState>((set, get) => ({
   showKeepouts: true,
   showPins: true,
   showLabels: true,
+  showShaded: false,
 
   prompt:
     "Where should the antennas be placed in this phone? Pick the type, target band and expected performance for each, and respect the keep-out limits.",

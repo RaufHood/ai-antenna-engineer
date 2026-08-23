@@ -17,6 +17,9 @@ const LAYERS: [Layer, string][] = [
   ["showPins", "Antennas"],
   ["showKeepouts", "Keep-out"],
   ["showLabels", "Labels"],
+  // Last because it is the one that changes what the device *is* on screen,
+  // not just what is annotated on top of it.
+  ["showShaded", "Shaded"],
 ];
 
 function HudButton({
@@ -52,7 +55,8 @@ export function Viewport() {
   const showPins = useApp((s) => s.showPins);
   const showKeepouts = useApp((s) => s.showKeepouts);
   const showLabels = useApp((s) => s.showLabels);
-  const layers: Record<Layer, boolean> = { showPins, showKeepouts, showLabels };
+  const showShaded = useApp((s) => s.showShaded);
+  const layers: Record<Layer, boolean> = { showPins, showKeepouts, showLabels, showShaded };
   const bands = useApp((s) => s.spec.requirements.bands);
   const enabled = useApp((s) => s.enabledBands);
   const viewMode = useApp((s) => s.viewMode);
