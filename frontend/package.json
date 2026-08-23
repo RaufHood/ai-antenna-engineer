@@ -16,6 +16,8 @@
     "react-dom": "19.1.0",
     "recharts": "^3.10.1",
     "three": "^0.185.1",
+    "three-gpu-pathtracer": "^0.0.24",
+    "three-mesh-bvh": "^0.9.14",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -27,6 +29,7 @@
     "@types/three": "^0.185.4",
     "eslint": "^9",
     "eslint-config-next": "15.5.23",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { rankKey, reasonFor, verdictOf } from "@/lib/evidence";
 import { useApp } from "@/lib/store";
 import type { Anchor, BandRequirement, Candidate, SimResult } from "@/lib/types";

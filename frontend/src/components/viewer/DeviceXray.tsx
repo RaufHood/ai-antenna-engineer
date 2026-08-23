@@ -56,14 +56,79 @@ function familyOf(name: string): Family {
   return METAL_KEYS.some((m) => key.includes(m)) ? "metal" : "dielectric";
 }
 
-/** Surface finish per family, for the shaded pass. Metals read as metal, the
- *  dielectrics stay glassy so the stack does not become one opaque brick, and
- *  the battery keeps the weight it has in every other view. */
-const SURFACE: Record<Family, { metalness: number; roughness: number; opacity: number }> = {
-  metal: { metalness: 0.85, roughness: 0.38, opacity: 1 },
-  dielectric: { metalness: 0.05, roughness: 0.22, opacity: 0.5 },
-  battery: { metalness: 0.2, roughness: 0.6, opacity: 0.92 },
+/**
+ * What each material actually looks like.
+ *
+ * The line art is colour-coded by physics — conductor, dielectric, battery —
+ * because that is what an antenna is fighting. The shaded pass answers a
+ * different question, "what is this object", so it uses the real thing:
+ * brushed titanium on the frame, copper on the MagSafe coil, dark glass over
+ * the camera, green FR4 on the board. The manifest already carries the
+ * material key for every one of the 191 parts, so nothing here is invented
+ * per-part; this is the lookup from that key to its finish.
+ *
+ * Values are physically-based: metals take metalness 1 and their real albedo,
+ * dielectrics take metalness 0. Glass gets transmission rather than plain
+ * opacity so it refracts what is behind it instead of just fading.
+ */
+interface Finish {
+  color: string;
+  metalness: number;
+  roughness: number;
+  /** 0 = opaque. Glass and films use transmission for real refraction. */
+  transmission?: number;
+  ior?: number;
+  clearcoat?: number;
+  opacity?: number;
+}
+
+const FINISH: Record<string, Finish> = {
+  stainless: { color: "#c2c6cc", metalness: 1, roughness: 0.28 },
+  steel: { color: "#8f949c", metalness: 1, roughness: 0.42 },
+  aluminium: { color: "#d2d6db", metalness: 1, roughness: 0.22 },
+  copper: { color: "#b87333", metalness: 1, roughness: 0.3 },
+  gold: { color: "#d4af37", metalness: 1, roughness: 0.24 },
+  cfrp: { color: "#212429", metalness: 0.35, roughness: 0.4, clearcoat: 0.6 },
+  fr4: { color: "#1d4a33", metalness: 0, roughness: 0.55 },
+  lipo: { color: "#333a45", metalness: 0.3, roughness: 0.55 },
+  abs: { color: "#26292f", metalness: 0, roughness: 0.62 },
+  nylon: { color: "#383b41", metalness: 0, roughness: 0.78 },
+  rubber: { color: "#141619", metalness: 0, roughness: 0.92 },
+  foam: { color: "#484d55", metalness: 0, roughness: 1 },
+  pet: { color: "#16202b", metalness: 0, roughness: 0.18, transmission: 0.55, ior: 1.55 },
+  lens: { color: "#0b141c", metalness: 0, roughness: 0.03, transmission: 0.82, ior: 1.52, clearcoat: 1 },
 };
+
+/** Anything unlabelled: dark anodised, which is most of a phone's interior. */
+const DEFAULT_FINISH: Finish = { color: "#31353c", metalness: 0.25, roughness: 0.6 };
+
+/**
+ * A few parts need their own finish because the material key cannot tell them
+ * apart. The manifest calls the back cover, the front cover and the fifteen
+ * camera lenses all `lens`, which is right for the solver — they are the same
+ * dielectric — and wrong for a render: treating the body as near-black glass
+ * with 82% transmission is what made the traced phone come back a silhouette.
+ * A back cover is opaque frosted glass in the body colour, and a screen that
+ * is off is black and glossy.
+ *
+ * Matched on the node path prefix, most specific first.
+ */
+const BY_NAME: [string, Finish][] = [
+  // Natural titanium: warm grey, frosted, barely metallic.
+  ["exterior.glass.back", { color: "#b6b1a8", metalness: 0.1, roughness: 0.42 }],
+  // The screen, off: black under a glossy shield.
+  ["exterior.glass.front", { color: "#07090d", metalness: 0.05, roughness: 0.04, clearcoat: 1 }],
+];
+
+/** Node names look like `exterior.frame.band_seg_2__stainless`. */
+function finishOf(name: string): Finish {
+  const path = name.toLowerCase();
+  for (const [prefix, finish] of BY_NAME) {
+    if (path.startsWith(prefix)) return finish;
+  }
+  const key = (name.split("__")[1] ?? "").toLowerCase();
+  return FINISH[key] ?? DEFAULT_FINISH;
+}
 
 /** Edges thick enough to read, dim enough not to shout. Battery leads. */
 const STYLE: Record<Family, { opacity: number; threshold: number }> = {
@@ -98,9 +163,10 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
 
   // Build the line art once per model: EdgesGeometry is expensive over 191
   // meshes, and nothing about it changes as the user orbits.
-  const { group, fit, spread, shaded } = useMemo(() => {
+  const { group, fit, spread, shaded, wires } = useMemo(() => {
     const out = new THREE.Group();
     const shaded: THREE.Mesh[] = [];
+    const wires: THREE.LineSegments[] = [];
     const source = scene.clone(true);
 
     source.traverse((child) => {
@@ -130,15 +196,21 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
       // The shaded twin, built once and simply hidden when the toggle is off.
       // Rebuilding 191 materials on every toggle would stall the frame, and
       // the geometry is shared with the source mesh rather than cloned.
-      const surface = SURFACE[family];
+      const f = finishOf(mesh.name);
       const solid = new THREE.Mesh(
         mesh.geometry,
-        new THREE.MeshStandardMaterial({
-          color: COLORS[family],
-          metalness: surface.metalness,
-          roughness: surface.roughness,
-          transparent: surface.opacity < 1,
-          opacity: surface.opacity,
+        new THREE.MeshPhysicalMaterial({
+          color: f.color,
+          metalness: f.metalness,
+          roughness: f.roughness,
+          transmission: f.transmission ?? 0,
+          ior: f.ior ?? 1.5,
+          thickness: f.transmission ? 0.4 : 0,
+          clearcoat: f.clearcoat ?? 0,
+          clearcoatRoughness: 0.1,
+          transparent: (f.opacity ?? 1) < 1,
+          opacity: f.opacity ?? 1,
+          envMapIntensity: 1.15,
           // Interior faces matter here: a phone is hollow shells, and culling
           // them leaves holes you can see straight through.
           side: THREE.DoubleSide,
@@ -153,6 +225,7 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
       part.name = mesh.name;
       part.add(line, solid);
       shaded.push(solid);
+      wires.push(line);
       out.add(part);
     });
 
@@ -191,7 +264,7 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
     // the geometry it is supposed to sit on.
     // Centre on the un-exploded stack: recomputing it as parts move would drag
     // the whole device across the viewport while the user drags the slider.
-    return { group: out, fit: { s: SCALE, center: mid.clone() }, spread, shaded };
+    return { group: out, fit: { s: SCALE, center: mid.clone() }, spread, shaded, wires };
   }, [scene]);
 
   // Applied outside the memo so dragging the slider costs 191 vector writes,
@@ -205,7 +278,10 @@ export function DeviceXray({ url = "/models/iphone15pro.glb" }: { url?: string }
 
   useEffect(() => {
     for (const m of shaded) m.visible = showShaded;
-  }, [showShaded, shaded]);
+    // The wireframe is the x-ray; over solid surfaces it is a cage on top of
+    // the object and it fights every reflection. One or the other.
+    for (const w of wires) w.visible = !showShaded;
+  }, [showShaded, shaded, wires]);
 
   return (
     <group

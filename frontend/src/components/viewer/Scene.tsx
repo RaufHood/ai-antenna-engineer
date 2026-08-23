@@ -14,6 +14,7 @@ import * as THREE from "three";
 import { useApp } from "@/lib/store";
 import { Antennas } from "./Antennas";
 import { Keepouts } from "./Keepouts";
+import { PathTracer } from "./PathTracer";
 import { PhoneModel } from "./PhoneModel";
 
 export const VIEW_PRESETS: Record<string, [number, number, number]> = {
@@ -65,6 +66,7 @@ function CameraRig() {
 
 export default function Scene() {
   const explode = useApp((s) => s.explode);
+  const shaded = useApp((s) => s.showShaded);
   const selectComponent = useApp((s) => s.selectComponent);
   const selectCandidate = useApp((s) => s.selectCandidate);
 
@@ -91,6 +93,9 @@ export default function Scene() {
         target={[0, 0, 0]}
       />
       <CameraRig />
+      {/* Real ray tracing, but only where it belongs: shaded surfaces, and
+          only once the camera is still. See PathTracer for why. */}
+      <PathTracer enabled={shaded} />
 
       <ambientLight intensity={1.1} />
       <directionalLight position={[3, 5, 4]} intensity={2.2} castShadow />
@@ -98,11 +103,18 @@ export default function Scene() {
       <directionalLight position={[0, -3, -5]} intensity={0.9} color="#c4b5fd" />
 
       <Suspense fallback={null}>
-        <Environment resolution={256} frames={1}>
-          <Lightformer intensity={2.4} position={[0, 3, 2]} scale={[6, 3, 1]} color="#ffffff" />
-          <Lightformer intensity={1.2} position={[-4, 1, 1]} scale={[3, 6, 1]} color="#60a5fa" />
-          <Lightformer intensity={1.0} position={[4, -1, 1]} scale={[3, 6, 1]} color="#f472b6" />
-          <Lightformer intensity={0.8} position={[0, -3, -2]} scale={[6, 3, 1]} color="#a78bfa" />
+        <Environment resolution={512} frames={1}>
+          {/* A dim shell all the way round. The four panels below are key
+              lights and they leave everything they do not face pitch black —
+              fine for raster, where ambientLight fills in, and wrong for the
+              path tracer, which has no ambient term and takes every photon
+              from here. This is the room those lights are standing in. */}
+          <Lightformer form="ring" intensity={0.5} scale={40} position={[0, 0, -20]} color="#7c8aa5" />
+          <Lightformer form="ring" intensity={0.4} scale={40} position={[0, 0, 20]} color="#5a6a85" />
+          <Lightformer intensity={3.4} position={[0, 4, 3]} scale={[12, 6, 1]} color="#ffffff" />
+          <Lightformer intensity={2.0} position={[-6, 1, 2]} scale={[5, 10, 1]} color="#60a5fa" />
+          <Lightformer intensity={1.7} position={[6, -1, 2]} scale={[5, 10, 1]} color="#f472b6" />
+          <Lightformer intensity={1.4} position={[0, -4, -3]} scale={[12, 6, 1]} color="#a78bfa" />
         </Environment>
 
         {/* The assembly grows as it comes apart, so the whole scene is scaled
