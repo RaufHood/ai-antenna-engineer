@@ -675,6 +675,24 @@ svg {
     color: var(--fg-muted);
 }
 
+/* A stage's cost, anchored to the bottom of its node. The manual loop on
+   slide 03 and Kevin's loop on slide 06 use the same component, so the two
+   flows can be read against each other. */
+.pnode .pcost {
+    margin-top: auto;
+    padding-top: 22px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    line-height: 1.5;
+}
+.pnode .pcost.bad  { color: var(--warn); }
+.pnode .pcost.good { color: var(--pass); }
+.pnode.agent .pcost { color: var(--signal); }
+
 .feedback {
     display: flex;
     align-items: center;
@@ -975,112 +993,237 @@ svg {
             </div>
 
             <p class="h3" style="margin-top:22px;font-weight:500;color:var(--on-sig-body);" data-anim="fade-up" data-delay="2">
-                the AI Antenna engineer
+                the AI antenna engineer
             </p>
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:flex-end;" data-anim="fade-in" data-delay="5">
-            <div class="label">AI antenna engineer&nbsp;·&nbsp;any device that needs one</div>
-            <div class="label">Demonstrated on Apple iPhone 15 Pro&nbsp;·&nbsp;176 parts&nbsp;·&nbsp;Wi-Fi / BT 2.4&nbsp;GHz</div>
+            <div class="label">Build file in&nbsp;·&nbsp;defensible placement out</div>
+            <div class="label">Hackathon&nbsp;·&nbsp;Munich&nbsp;2026</div>
         </div>
     </div>
 </section>
 
 <!-- =========================================================
-     SLIDE 2 — THE PROBLEM, AND HOW OFTEN IT REPEATS
-     Problem stats above the rule; market strip below it.
+     SLIDE 2 — WHY ANTENNAS
+     One claim, three numbers. Nothing else.
      ========================================================= -->
 <section class="slide">
     <div class="pad">
         <div class="slide-chrome">
-            <div class="label">The problem</div>
+            <div class="label">Why antennas</div>
             <div class="label slide-num"></div>
         </div>
 
-        <div class="slide-body">
-            <div class="kicker" data-anim="fade-in" data-delay="0">Placement is still a human guess</div>
-            <h2 class="h2" style="font-size:78px;max-width:1500px;margin-top:18px;" data-anim="fade-up" data-delay="1">
-                Every guess costs a full-wave run, and the run is the slowest thing in
-                the building.
-            </h2>
+        <div class="slide-body" style="justify-content:center;gap:110px;">
+            <div>
+                <div class="kicker" data-anim="fade-in" data-delay="0">Every wireless thing</div>
+                <h2 class="h2" style="font-size:94px;max-width:1560px;margin-top:20px;" data-anim="fade-up" data-delay="1">
+                    If it connects, it has an antenna.
+                </h2>
+            </div>
 
-            <div class="stats" style="grid-template-columns:repeat(3,1fr);margin:auto 0;" data-anim="fade-up" data-delay="2">
+            <div class="stats" style="grid-template-columns:repeat(3,1fr);" data-anim="fade-up" data-delay="2">
                 <div class="stat">
-                    <span class="stat-value" style="font-size:150px;">≈ 1 h</span>
-                    <div class="stat-label" style="font-size:25px;">one full-wave run of a whole device</div>
+                    <span class="stat-value" style="font-size:158px;">5.4B</span>
+                    <div class="stat-label" style="font-size:26px;">Bluetooth devices a year</div>
                 </div>
                 <div class="stat">
-                    <span class="stat-value" style="font-size:150px;">18.8B</span>
-                    <div class="stat-label" style="font-size:25px;">IoT devices</div>
+                    <span class="stat-value" style="font-size:158px;">3.8B</span>
+                    <div class="stat-label" style="font-size:26px;">Wi-Fi devices a year</div>
                 </div>
                 <div class="stat">
-                    <span class="stat-value" style="font-size:150px;">dozens</span>
-                    <div class="stat-label" style="font-size:25px;">iterations before sign-off</div>
+                    <span class="stat-value" style="font-size:158px;">6&ndash;12</span>
+                    <div class="stat-label" style="font-size:26px;">antennas in one phone</div>
                 </div>
             </div>
         </div>
 
         <div class="slide-foot">
+            <div class="source">Shipment figures: industry estimates, external to this repo</div>
             <div class="label">Kevin</div>
         </div>
     </div>
 </section>
 
 <!-- =========================================================
-     SLIDE 3 — HOW IT WORKS (the loop, and the unlock that allows it)
+     SLIDE 3 — WHERE THEY COME FROM
+     The manual loop, priced per stage. The prices are the content.
      ========================================================= -->
 <section class="slide">
     <div class="pad">
         <div class="slide-chrome">
-            <div class="label">How it works</div>
+            <div class="label">Where they come from</div>
             <div class="label slide-num"></div>
         </div>
 
-        <div class="slide-body">
-            <div class="kicker" data-anim="fade-in" data-delay="0">One loop</div>
-            <h2 class="h2" style="font-size:72px;max-width:1560px;margin-top:18px;" data-anim="fade-up" data-delay="1">
-                The agent proposes, the solver scores, and it decides when to stop.
-            </h2>
+        <div class="slide-body" style="justify-content:center;gap:78px;">
+            <div>
+                <div class="kicker" data-anim="fade-in" data-delay="0">A full-time specialism</div>
+                <h2 class="h2" style="font-size:84px;max-width:1620px;margin-top:20px;" data-anim="fade-up" data-delay="1">
+                    An RF engineer places it by hand, one guess at a time.
+                </h2>
+            </div>
 
-            <div style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;">
+            <div>
                 <div class="pipeline" data-anim="fade-up" data-delay="2">
                     <div class="pnode">
-                        <div class="pk"><span class="pn">01</span>Input &amp; ingest</div>
-                        <div class="pt">.blend + prompt</div>
-                        <div class="pd">Build file and intent, extracted into per-part geometry.</div>
+                        <div class="pk"><span class="pn">01</span>Guess</div>
+                        <div class="pt">Pick a corner</div>
+                        <div class="pcost">Judgment &amp; experience</div>
                     </div>
                     <div class="pnode">
-                        <div class="pk"><span class="pn">02</span>Screen</div>
-                        <div class="pt">Rule out anchors</div>
-                        <div class="pd">Which positions hit real metal. No solver runs.</div>
-                    </div>
-                    <div class="pnode agent">
-                        <div class="pk"><span class="pn">03</span>Judgment</div>
-                        <div class="pt">Agent proposes</div>
-                        <div class="pd">Type, position, length — with a stated reason.</div>
+                        <div class="pk"><span class="pn">02</span>Model</div>
+                        <div class="pt">Mesh it in HFSS</div>
+                        <div class="pcost">Hours of setup</div>
                     </div>
                     <div class="pnode">
-                        <div class="pk"><span class="pn">04</span>Physics &amp; output</div>
-                        <div class="pt">PyNEC scores</div>
-                        <div class="pd">S11, bandwidth, VSWR — into the ranked report.</div>
+                        <div class="pk"><span class="pn">03</span>Wait</div>
+                        <div class="pt">Full-wave solve</div>
+                        <div class="pcost bad">&asymp; 1 hour &mdash; one candidate</div>
+                    </div>
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">04</span>Tune</div>
+                        <div class="pt">Build &amp; measure</div>
+                        <div class="pcost bad">Days to weeks</div>
                     </div>
                 </div>
 
-                <div class="feedback" data-anim="fade-in" data-delay="4">
-                    <div class="fbtext">Evidence, not verdicts — back to the agent until it concludes</div>
+                <div class="feedback" data-anim="fade-in" data-delay="3">
+                    <div class="fbtext">Dozens of times, before sign-off</div>
                     <div class="fbline"></div>
                 </div>
             </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:46px;" data-anim="fade-up" data-delay="4">
+                <div class="tick"><div class="tv">3&ndash;6 weeks</div><div class="label">per redesign cycle</div></div>
+                <div class="tick"><div class="tv">$130&ndash;220K</div><div class="label">loaded, per engineer, per year</div></div>
+                <div class="tick"><div class="tv">73%</div><div class="label">of EE roles unfilled after six months</div></div>
+            </div>
         </div>
 
         <div class="slide-foot">
+            <div class="source">Solve time: deep_research_on_challenge.md&nbsp;·&nbsp;cycle time, salary and hiring: external industry and IEEE estimates</div>
             <div class="label">Kevin</div>
         </div>
     </div>
 </section>
 
 <!-- =========================================================
-     SLIDE 4 — IT RUNS (live product capture + the screening numbers)
+     SLIDE 4 — THE MARKET
+     Three rows and three drivers. No prose.
+     ========================================================= -->
+<section class="slide">
+    <div class="pad">
+        <div class="slide-chrome">
+            <div class="label">The market</div>
+            <div class="label slide-num"></div>
+        </div>
+
+        <div class="slide-body" style="justify-content:center;gap:76px;">
+            <div>
+                <div class="kicker" data-anim="fade-in" data-delay="0">Big, and compounding</div>
+                <h2 class="h2" style="font-size:84px;max-width:1620px;margin-top:20px;" data-anim="fade-up" data-delay="1">
+                    $28B of antennas ship a year. It doubles by 2035.
+                </h2>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:100px;align-items:start;">
+                <div class="ledger" data-anim="fade-up" data-delay="2">
+                    <div class="lrow lhead">
+                        <div class="label">Segment</div>
+                        <div class="label" style="text-align:right;">Now</div>
+                        <div class="label" style="text-align:right;color:var(--signal);">Forecast</div>
+                    </div>
+                    <div class="lrow">
+                        <div class="lk">Antenna hardware</div>
+                        <div class="lv">$28B</div>
+                        <div class="lv hi">$54B &rsquo;35</div>
+                    </div>
+                    <div class="lrow">
+                        <div class="lk">5G antennas</div>
+                        <div class="lv">$23B</div>
+                        <div class="lv hi">$50B &rsquo;30</div>
+                    </div>
+                    <div class="lrow">
+                        <div class="lk">Design &amp; simulation software</div>
+                        <div class="lv">$1.5B</div>
+                        <div class="lv hi">$2.9B &rsquo;34</div>
+                    </div>
+                </div>
+
+                <div data-anim="fade-up" data-delay="3">
+                    <div class="label">What is pushing it</div>
+                    <div class="spec-rows" style="margin-top:22px;">
+                        <div class="spec-row"><dt>5G, and then 6G</dt><dd class="hi">+16.9% / yr</dd></div>
+                        <div class="spec-row"><dt>IoT endpoints by 2030</dt><dd class="hi">30B+</dd></div>
+                        <div class="spec-row"><dt>Antennas per car by 2030</dt><dd class="hi">4 &rarr; 8</dd></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-foot">
+            <div class="source">Market sizes and growth rates: published industry estimates, external to this repo</div>
+            <div class="label">Kevin</div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     SLIDE 5 — THE SAME SHAPE AS SOFTWARE
+     Two panels, four numbers, one closing line.
+     ========================================================= -->
+<section class="slide s-compare">
+    <div class="pad">
+        <div class="slide-chrome">
+            <div class="label">The market, by analogy</div>
+            <div class="label slide-num"></div>
+        </div>
+
+        <div class="slide-body" style="justify-content:center;gap:66px;">
+            <div>
+                <div class="kicker" data-anim="fade-in" data-delay="0">You have seen this before</div>
+                <h2 class="h2" style="font-size:84px;max-width:1620px;margin-top:20px;" data-anim="fade-up" data-delay="1">
+                    Software had this exact loop. Then AI ate it.
+                </h2>
+            </div>
+
+            <div class="compare" style="flex:0 0 auto;">
+                <div class="compare-left" data-anim="fade-up" data-delay="2">
+                    <div class="kicker">Software, 2021</div>
+                    <div class="rule" style="margin:20px 0 32px;"></div>
+                    <ul class="list">
+                        <li><b>47M developers</b></li>
+                        <li><b>$7.6B of tools, none of them with judgment</b></li>
+                    </ul>
+                </div>
+
+                <div class="compare-right filled" data-anim="fade-up" data-delay="3">
+                    <div class="kicker">Software, now</div>
+                    <div class="rule" style="margin:20px 0 32px;"></div>
+                    <ul class="list">
+                        <li><b>$3.5B of AI coding tools, from zero in three years</b></li>
+                        <li><b>84% of developers use them</b></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="h3" style="font-size:52px;font-weight:800;letter-spacing:-0.025em;max-width:1580px;" data-anim="fade-up" data-delay="4">
+                Antenna design is the same loop. Nobody has built the agent for it.
+            </div>
+        </div>
+
+        <div class="slide-foot">
+            <div class="source">Developer population, tooling spend and AI-assistant adoption: published industry estimates, external to this repo</div>
+            <div class="label">Kevin</div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     SLIDE 6 — THE PRODUCT
+     The same strip as slide 03, priced in Kevin's numbers.
      ========================================================= -->
 <section class="slide">
     <div class="pad">
@@ -1089,311 +1232,101 @@ svg {
             <div class="label slide-num"></div>
         </div>
 
-        <div class="slide-body" style="flex-direction:row;gap:52px;">
-            <div style="flex:1 1 auto;display:flex;flex-direction:column;min-width:0;">
-                <div class="figure contain" style="flex:1 1 auto;min-height:0;" data-anim="scale-in" data-delay="1">
-                    <img src="assets/ui-result.png" alt="Kevin’s interface after a completed placement study: 29 of 29 solves, the agent transcript, ranked candidates and the S11 response">
-                </div>
-                <div class="figcap" data-anim="fade-in" data-delay="3">Live capture&nbsp;·&nbsp;one study, start to report, on this machine</div>
+        <div class="slide-body" style="justify-content:center;gap:78px;">
+            <div>
+                <div class="kicker" data-anim="fade-in" data-delay="0">Two inputs, one loop</div>
+                <h2 class="h2" style="font-size:84px;max-width:1620px;margin-top:20px;" data-anim="fade-up" data-delay="1">
+                    Drop in the build file and the spec. Kevin does the rest.
+                </h2>
             </div>
 
-            <div style="flex:0 0 430px;display:flex;flex-direction:column;">
-                <div class="kicker" data-anim="fade-in" data-delay="0">It runs</div>
-                <h3 class="h3" style="margin-top:18px;font-size:50px;" data-anim="fade-up" data-delay="1">
-                    Nothing on screen is a mock-up of a result.
-                </h3>
+            <div>
+                <div class="pipeline" data-anim="fade-up" data-delay="2">
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">01</span>Upload</div>
+                        <div class="pt">.blend + spec</div>
+                        <div class="pcost">Seconds</div>
+                    </div>
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">02</span>Read</div>
+                        <div class="pt">Geometry &amp; keep-outs</div>
+                        <div class="pcost">191 parts, no solver</div>
+                    </div>
+                    <div class="pnode agent">
+                        <div class="pk"><span class="pn">03</span>Propose</div>
+                        <div class="pt">Design &amp; placement</div>
+                        <div class="pcost">With its reasoning</div>
+                    </div>
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">04</span>Simulate</div>
+                        <div class="pt">Score each candidate</div>
+                        <div class="pcost good">83 ms &mdash; one candidate</div>
+                    </div>
+                    <div class="pnode">
+                        <div class="pk"><span class="pn">05</span>Iterate</div>
+                        <div class="pt">Until it converges</div>
+                        <div class="pcost good">It decides when to stop</div>
+                    </div>
+                </div>
 
-                <ul class="list" style="margin-top:30px;" data-anim="fade-up" data-delay="2">
-                    <li><b>29 solves, one second.</b><span>Every candidate on the list has a real response behind it.</span></li>
-                    <li><b>Every verdict has a reason.</b><span>Pass or fail, with the margin and the requirement that decided it.</span></li>
-                    <li><b>The agent’s reasoning is the transcript.</b><span>Not a progress bar — the actual argument it made, candidate by candidate.</span></li>
+                <div class="feedback" data-anim="fade-in" data-delay="3">
+                    <div class="fbtext">Fully autonomous &mdash; no human in the loop</div>
+                    <div class="fbline"></div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:46px;" data-anim="fade-up" data-delay="4">
+                <div class="tick"><div class="tv">38</div><div class="label">candidates simulated</div></div>
+                <div class="tick"><div class="tv">1 min 29 s</div><div class="label">upload to finished design</div></div>
+                <div class="tick"><div class="tv">0</div><div class="label">engineer hours waiting on a solver</div></div>
+            </div>
+        </div>
+
+        <div class="slide-foot">
+            <div class="source">Devin owns the judgment&nbsp;·&nbsp;our orchestrator owns the loop&nbsp;·&nbsp;measured on this machine</div>
+            <div class="label">Kevin</div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     SLIDE 7 — DEMO
+     The capture is the backstop if the live run stalls.
+     ========================================================= -->
+<section class="slide">
+    <div class="pad">
+        <div class="slide-chrome">
+            <div class="label">Demo</div>
+            <div class="label slide-num"></div>
+        </div>
+
+        <div class="slide-body" style="flex-direction:row;gap:64px;align-items:center;">
+            <div style="flex:1 1 auto;min-width:0;">
+                <div class="figure" style="width:100%;aspect-ratio:16/9;" data-anim="scale-in" data-delay="1">
+                    <img src="assets/ui-idle.png" alt="Kevin’s interface before a run: the spec, the agent and band selectors, and the iPhone 15 Pro build file rendered as 176 parts">
+                </div>
+            </div>
+
+            <div style="flex:0 0 500px;">
+                <div class="kicker" data-anim="fade-in" data-delay="0">Live</div>
+                <h2 class="h2" style="margin-top:20px;font-size:88px;" data-anim="fade-up" data-delay="1">
+                    Let&rsquo;s run one.
+                </h2>
+
+                <ul class="list" style="margin-top:54px;" data-anim="fade-up" data-delay="2">
+                    <li><b>It reads the real device</b></li>
+                    <li><b>It argues out loud</b></li>
+                    <li><b>It stops on its own</b></li>
                 </ul>
-
-                <p class="caption" style="margin-top:32px;">
-                    The device is an input, not an assumption: drop in another build file
-                    and the same loop runs against it.
-                </p>
-
-                <div style="margin-top:auto;display:flex;gap:10px;flex-wrap:wrap;" data-anim="fade-in" data-delay="4">
-                    <span class="chip pass">Pass</span>
-                    <span class="chip fail">Fail</span>
-                    <span class="tag">PyNEC</span>
-                    <span class="tag">Three.js</span>
-                </div>
             </div>
         </div>
 
         <div class="slide-foot">
+            <div class="source">iPhone 15 Pro&nbsp;·&nbsp;176 parts&nbsp;·&nbsp;Wi-Fi / BT 2.4 GHz&nbsp;·&nbsp;nothing on screen is a mock-up</div>
             <div class="label">Kevin</div>
         </div>
     </div>
 </section>
-
-<!-- =========================================================
-     SLIDE 5 — INSIDE THE LOOP
-     What the tool computes before the agent is allowed to propose:
-     a solver-free screening pass over the real part list.
-     ========================================================= -->
-<section class="slide">
-    <div class="pad">
-        <div class="slide-chrome">
-            <div class="label">Inside the loop</div>
-            <div class="label slide-num"></div>
-        </div>
-
-        <div class="slide-body">
-            <div class="kicker" data-anim="fade-in" data-delay="0">Screening</div>
-            <h2 class="h2" style="font-size:62px;max-width:1560px;margin-top:16px;" data-anim="fade-up" data-delay="1">
-                Before it proposes anything, it works out where an antenna physically
-                cannot go.
-            </h2>
-
-            <div style="display:grid;grid-template-columns:0.38fr 0.62fr;gap:52px;margin-top:32px;flex:1 1 auto;min-height:0;">
-
-                <!-- What it reads: the real per-part geometry -->
-                <div style="display:flex;flex-direction:column;min-height:0;">
-                    <div class="motion" style="width:100%;height:300px;" data-anim="scale-in" data-delay="2">
-                        <video src="assets/orbit.mp4" poster="assets/orbit-poster.jpg"
-                               autoplay loop muted playsinline
-                               aria-label="Orbiting X-ray render of the iPhone 15 Pro solver geometry"></video>
-                        <img class="print-frame" src="assets/orbit-poster.jpg" alt="X-ray render of the iPhone 15 Pro solver geometry">
-                    </div>
-                    <div class="figcap" data-anim="fade-in" data-delay="3">The geometry it reads — 176 parts, rendered from the build file</div>
-
-                    <div class="label" style="margin-top:30px;" data-anim="fade-in" data-delay="3">What the screening pass returns</div>
-                    <div class="spec-rows s-run" style="margin-top:12px;" data-anim="fade-up" data-delay="4">
-                        <div class="spec-row"><dt>Parts read</dt><dd>191 · 106 conductive</dd></div>
-                        <div class="spec-row"><dt>Grid points tested</dt><dd>1&nbsp;034 @ 3 mm</dd></div>
-                        <div class="spec-row"><dt>Clear of every component</dt><dd class="hi">455</dd></div>
-                        <div class="spec-row"><dt>Anchors legal</dt><dd class="hi">5 of 20</dd></div>
-                    </div>
-                </div>
-
-                <!-- What it rules out -->
-                <div style="display:flex;flex-direction:column;min-height:0;">
-                    <div class="figure contain" style="flex:1 1 auto;min-height:0;" data-anim="scale-in" data-delay="2">
-                        <img src="assets/placement-map.png" alt="Antenna placement map: buildable positions on the left, escape-fraction placement score with the five legal anchors on the right">
-                    </div>
-                    <div class="figcap" data-anim="fade-in" data-delay="4">
-                        Left: every position that clears all 191 parts. Right: the same volume scored by
-                        how much of the sphere the signal can leave through — the five surviving anchors, numbered.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="slide-foot">
-            <div class="label">Kevin</div>
-        </div>
-    </div>
-</section>
-
-<!-- =========================================================
-     SLIDE 6 — THE RESULT
-     Every faint line is one of the 27 candidate responses on disk; they draw
-     in the order the loop produced them, and the accepted design lands last.
-     ========================================================= -->
-<section class="slide">
-    <div class="pad">
-        <div class="slide-chrome">
-            <div class="label">The result</div>
-            <div class="label slide-num"></div>
-        </div>
-
-        <div class="slide-body">
-            <div style="display:flex;align-items:center;gap:22px;" data-anim="fade-in" data-delay="0">
-                <div class="kicker">Run <span class="mono" style="text-transform:none;">run_local</span> · Wi-Fi / BT 2.4 GHz</div>
-                <span class="chip pass">Every requirement met</span>
-            </div>
-            <h2 class="h2" style="font-size:72px;max-width:1500px;margin-top:16px;" data-anim="fade-up" data-delay="1">
-                It tried 41 positions. It kept the one it could defend.
-            </h2>
-
-            <div style="display:grid;grid-template-columns:1fr 400px;gap:64px;margin-top:34px;flex:1 1 auto;min-height:0;">
-
-                <div style="display:flex;flex-direction:column;min-height:0;">
-                    <div style="flex:1 1 auto;min-height:0;" data-anim="fade-up" data-delay="2">
-                        <svg class="s11" viewBox="0 0 980 400" style="width:100%;height:auto;" role="img"
-                             aria-label="Reflection response of every simulated candidate; the accepted design reaches minus 15.63 dB, well under the minus 8 dB requirement">
-                            <rect x="420.6" y="26" width="190.7" height="320" fill="#4c9dff" opacity="0.08"/>
-                            <g stroke="#1f2432" stroke-width="1">
-                                <line x1="78" y1="26"    x2="954" y2="26"/>
-                                <line x1="78" y1="98.7"  x2="954" y2="98.7"/>
-                                <line x1="78" y1="171.5" x2="954" y2="171.5"/>
-                                <line x1="78" y1="244.2" x2="954" y2="244.2"/>
-                                <line x1="78" y1="316.9" x2="954" y2="316.9"/>
-                                <line x1="78" y1="346"   x2="954" y2="346"/>
-                            </g>
-                            <polyline class="cand" style="--i:0" points="78,71 122,76 165,81 209,87 253,92 297,98 341,105 385,111 428,118 472,125 516,131 560,135 604,138 647,138 691,136 735,131 779,124 823,116 866,107 910,99 954,92"/>
-                            <polyline class="cand" style="--i:1" points="78,172 122,174 165,175 209,175 253,173 297,171 341,167 385,163 428,158 472,152 516,147 560,141 604,135 647,129 691,123 735,117 779,112 823,107 866,102 910,98 954,94"/>
-                            <polyline class="cand" style="--i:2" points="78,140 122,146 165,152 209,159 253,165 297,172 341,178 385,185 428,191 472,198 516,204 560,210 604,215 647,220 691,224 735,227 779,228 823,227 866,225 910,220 954,215"/>
-                            <polyline class="cand" style="--i:3" points="78,151 122,158 165,165 209,172 253,180 297,187 341,194 385,201 428,208 472,214 516,219 560,224 604,227 647,229 691,229 735,227 779,223 823,218 866,211 910,204 954,197"/>
-                            <polyline class="cand" style="--i:4" points="78,161 122,169 165,177 209,185 253,193 297,200 341,207 385,214 428,219 472,224 516,227 560,228 604,228 647,226 691,221 735,216 779,209 823,201 866,193 910,185 954,177"/>
-                            <polyline class="cand" style="--i:5" points="78,171 122,179 165,187 209,195 253,202 297,209 341,215 385,220 428,224 472,225 516,225 560,223 604,219 647,213 691,206 735,199 779,191 823,183 866,175 910,167 954,160"/>
-                            <polyline class="cand" style="--i:6" points="78,178 122,186 165,193 209,201 253,207 297,212 341,216 385,219 428,219 472,218 516,214 560,210 604,203 647,196 691,189 735,181 779,173 823,165 866,158 910,151 954,144"/>
-                            <polyline class="cand" style="--i:7" points="78,56 122,61 165,68 209,77 253,88 297,103 341,121 385,146 428,179 472,221 516,260 560,255 604,215 647,178 691,150 735,129 779,112 823,100 866,90 910,82 954,75"/>
-                            <polyline class="cand" style="--i:8" points="78,59 122,65 165,73 209,84 253,97 297,115 341,138 385,170 428,212 472,262 516,272 560,230 604,187 647,155 691,132 735,114 779,100 823,90 866,82 910,75 954,69"/>
-                            <polyline class="cand" style="--i:9" points="78,62 122,69 165,79 209,91 253,107 297,128 341,156 385,196 428,249 472,286 516,251 560,201 604,164 647,138 691,118 735,103 779,92 823,83 866,76 910,70 954,65"/>
-                            <polyline class="cand" style="--i:10" points="78,71 122,76 165,81 209,87 253,92 297,98 341,105 385,111 428,118 472,125 516,131 560,135 604,138 647,138 691,136 735,131 779,124 823,116 866,107 910,99 954,92"/>
-                            <polyline class="cand" style="--i:11" points="78,47 122,50 165,54 209,59 253,64 297,71 341,80 385,91 428,104 472,121 516,142 560,166 604,193 647,214 691,217 735,201 779,178 823,156 866,137 910,122 954,110"/>
-                            <polyline class="cand" style="--i:12" points="78,50 122,54 165,58 209,64 253,71 297,80 341,92 385,106 428,125 472,149 516,178 560,211 604,234 647,229 691,202 735,173 779,149 823,130 866,115 910,103 954,93"/>
-                            <polyline class="cand" style="--i:13" points="78,57 122,63 165,70 209,79 253,91 297,106 341,125 385,151 428,184 472,225 516,257 560,244 604,206 647,172 691,146 735,126 779,110 823,98 866,89 910,81 954,75"/>
-                            <polyline class="cand" style="--i:14" points="78,63 122,70 165,79 209,91 253,107 297,129 341,157 385,196 428,245 472,278 516,245 560,199 604,164 647,138 691,118 735,104 779,92 823,83 866,76 910,70 954,66"/>
-                            <polyline class="cand" style="--i:15" points="78,71 122,81 165,94 209,111 253,134 297,167 341,212 385,270 428,286 472,233 516,186 560,152 604,128 647,110 691,96 735,86 779,78 823,71 866,66 910,62 954,58"/>
-                            <polyline class="cand" style="--i:16" points="78,172 122,174 165,175 209,175 253,173 297,171 341,167 385,163 428,158 472,152 516,147 560,141 604,135 647,129 691,123 735,117 779,112 823,107 866,102 910,98 954,94"/>
-                            <polyline class="cand" style="--i:17" points="78,47 122,49 165,53 209,57 253,63 297,70 341,78 385,88 428,101 472,118 516,138 560,163 604,191 647,216 691,223 735,208 779,184 823,160 866,141 910,125 954,112"/>
-                            <polyline class="cand" style="--i:18" points="78,49 122,53 165,57 209,63 253,70 297,78 341,89 385,104 428,122 472,145 516,174 560,208 604,237 647,237 691,210 735,179 779,154 823,133 866,117 910,105 954,95"/>
-                            <polyline class="cand" style="--i:19" points="78,56 122,61 165,68 209,77 253,88 297,103 341,121 385,146 428,179 472,221 516,260 560,255 604,215 647,178 691,150 735,129 779,112 823,100 866,90 910,82 954,75"/>
-                            <polyline class="cand" style="--i:20" points="78,61 122,68 165,77 209,89 253,105 297,125 341,152 385,190 428,241 472,284 516,257 560,207 604,169 647,141 691,121 735,105 779,93 823,84 866,77 910,71 954,66"/>
-                            <polyline class="cand" style="--i:21" points="78,70 122,79 165,92 209,109 253,131 297,163 341,207 385,267 428,295 472,242 516,191 560,155 604,130 647,111 691,97 735,87 779,78 823,72 866,66 910,62 954,58"/>
-                            <polyline class="cand" style="--i:22" points="78,52 122,57 165,63 209,70 253,80 297,91 341,105 385,122 428,143 472,168 516,194 560,216 604,222 647,209 691,188 735,167 779,148 823,133 866,120 910,110 954,101"/>
-                            <polyline class="cand" style="--i:23" points="78,65 122,72 165,80 209,91 253,104 297,119 341,137 385,158 428,180 472,200 516,208 560,201 604,182 647,162 691,143 735,126 779,113 823,101 866,92 910,84 954,78"/>
-                            <polyline class="cand" style="--i:24" points="78,65 122,72 165,81 209,92 253,106 297,123 341,146 385,173 428,204 472,229 516,229 560,206 604,178 647,154 691,134 735,118 779,106 823,96 866,87 910,81 954,75"/>
-                            <polyline class="cand" style="--i:25" points="78,56 122,61 165,67 209,74 253,84 297,96 341,112 385,133 428,161 472,200 516,253 560,310 604,288 647,231 691,188 735,158 779,135 823,118 866,105 910,95 954,86"/>
-                            <line x1="78" y1="142.4" x2="954" y2="142.4" stroke="#ffb648" stroke-width="1.5" stroke-dasharray="7 6"/>
-                            <text x="948" y="134" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="13" letter-spacing="1.2" fill="#ffb648">ANYTHING BELOW THIS LINE PASSES</text>
-                            <polyline class="win" points="78,58 122,64 165,71 209,80 253,92 297,107 341,126 385,152 428,185 472,225 516,253 560,240 604,204 647,171 691,145 735,125 779,110 823,98 866,89 910,81 954,75"/>
-                            <line x1="78" y1="26" x2="78" y2="346" stroke="#2b3142" stroke-width="1"/>
-                            <g font-family="IBM Plex Mono, monospace" font-size="13" letter-spacing="1" fill="#626b80">
-                                <text x="66" y="31"  text-anchor="end">0</text>
-                                <text x="66" y="104" text-anchor="end">−5</text>
-                                <text x="66" y="176" text-anchor="end">−10</text>
-                                <text x="66" y="249" text-anchor="end">−15</text>
-                                <text x="66" y="322" text-anchor="end">−20</text>
-                                <text x="30" y="200" transform="rotate(-90 30 200)" text-anchor="middle">REFLECTED (dB)</text>
-                                <text x="78" y="372">2.25</text>
-                                <text x="516" y="372" text-anchor="middle" fill="#4c9dff">THE BAND IT HAS TO COVER</text>
-                                <text x="954" y="372" text-anchor="end">2.63 GHz</text>
-                            </g>
-                        </svg>
-                    </div>
-                    <div class="figcap" data-anim="fade-in" data-delay="5">
-                        One faint line per simulated candidate, in the order the loop produced them&nbsp;·&nbsp;the accepted design in blue&nbsp;·&nbsp;drawn from the run's own CSVs
-                    </div>
-                </div>
-
-                <div style="display:flex;flex-direction:column;justify-content:center;">
-                    <div class="stat" style="border-top:1px solid var(--border);padding-top:var(--gap-md);" data-anim="fade-up" data-delay="3">
-                        <span class="stat-value" style="font-size:66px;">97%</span>
-                        <div class="stat-label">of the power fed in leaves as radio, instead of bouncing back down the cable.</div>
-                    </div>
-                    <div class="stat" style="border-top:1px solid var(--border);padding-top:var(--gap-md);margin-top:22px;" data-anim="fade-up" data-delay="4">
-                        <span class="stat-value" style="font-size:66px;">2×</span>
-                        <div class="stat-label">the bandwidth the band actually needs — 172.6 MHz of headroom over an 83.5 MHz channel.</div>
-                    </div>
-                    <div class="stat" style="border-top:1px solid var(--border);padding-top:var(--gap-md);margin-top:22px;" data-anim="fade-up" data-delay="5">
-                        <span class="stat-value" style="font-size:66px;">3</span>
-                        <div class="stat-label">rounds of proposing and simulating before the agent called it converged.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="slide-foot">
-            <div class="label">Kevin</div>
-        </div>
-    </div>
-</section>
-
-<!-- =========================================================
-     SLIDE 7 — WHAT IT COSTS (commented out per request)
-     Measured and modelled figures are labelled separately, and the
-     arithmetic behind the modelled column is printed on the slide.
-
-<section class="slide">
-    <div class="pad">
-        <div class="slide-chrome">
-            <div class="label">What it costs</div>
-            <div class="label slide-num"></div>
-        </div>
-
-        <div class="slide-body s-cost">
-            <div class="kicker" data-anim="fade-in" data-delay="0">Economics</div>
-            <h2 class="h2" style="font-size:72px;max-width:1520px;margin-top:18px;" data-anim="fade-up" data-delay="1">
-                The compute was never the expensive part. The calendar attached to it
-                was.
-            </h2>
-
-            <div style="display:grid;grid-template-columns:0.72fr 1.28fr;gap:76px;margin-top:44px;flex:1 1 auto;min-height:0;">
-
-                <div style="display:flex;flex-direction:column;">
-                    <div class="stat" style="border-top:1px solid var(--border);padding-top:var(--gap-md);" data-anim="fade-up" data-delay="2">
-                        <span class="stat-value">≈40,000×</span>
-                        <div class="stat-label" style="max-width:420px;">
-                            evaluations per unit of solver time — which is the whole reason
-                            an agent can sweep candidates instead of picking one and hoping.
-                        </div>
-                        <div class="stat-note">measured · 41 solves in 3.7 s</div>
-                    </div>
-
-                    <p class="caption" style="margin-top:auto;max-width:430px;" data-anim="fade-in" data-delay="5">
-                        Fidelity is not equivalent, and that is the point. The in-loop model
-                        <b style="color:var(--fg);font-weight:600;">selects</b>; openEMS
-                        <b style="color:var(--fg);font-weight:600;">confirms</b> the winner.
-                        What collapses is the cost of asking the question, not the cost of
-                        the final answer.
-                    </p>
-                </div>
-
-                <div style="display:flex;flex-direction:column;min-width:0;">
-                    <div class="ledger" data-anim="fade-up" data-delay="3">
-                        <div class="lrow lhead">
-                            <div class="label">One 41-candidate placement study</div>
-                            <div class="label" style="text-align:right;">Full-wave path</div>
-                            <div class="label" style="text-align:right;color:var(--signal);">With Kevin</div>
-                        </div>
-                        <div class="lrow">
-                            <div class="lk">Solver time</div>
-                            <div class="lv">≈ 41 h</div>
-                            <div class="lv hi">3.7 s</div>
-                        </div>
-                        <div class="lrow">
-                            <div class="lk">Wall clock to a ranked answer</div>
-                            <div class="lv">≈ 1 working week</div>
-                            <div class="lv hi">under a minute</div>
-                        </div>
-                        <div class="lrow">
-                            <div class="lk">Engineer time attached to it</div>
-                            <div class="lv">≈ 10 h</div>
-                            <div class="lv hi">&lt; 1 h</div>
-                        </div>
-                        <div class="lrow">
-                            <div class="lk">Engineer cost of the study</div>
-                            <div class="lv">$640 – $1,080</div>
-                            <div class="lv hi">≈ $60 – $110</div>
-                        </div>
-                    </div>
-
-                    <div style="display:flex;gap:56px;margin-top:34px;" data-anim="fade-up" data-delay="4">
-                        <div style="flex:1;">
-                            <div class="mono" style="font-size:46px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">≈ 90%</div>
-                            <div class="caption" style="margin-top:9px;">off the engineer cost of a placement sweep — modelled</div>
-                        </div>
-                        <div style="flex:1;">
-                            <div class="mono" style="font-size:46px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">83 ms</div>
-                            <div class="caption" style="margin-top:9px;">per Wi-Fi 2.4 GHz solve, measured on this device</div>
-                        </div>
-                        <div style="flex:1;">
-                            <div class="mono" style="font-size:46px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">$0</div>
-                            <div class="caption" style="margin-top:9px;">of solver licence — PyNEC and openEMS are both open source</div>
-                        </div>
-                    </div>
-
-                    <div class="assump" style="margin-top:auto;" data-anim="fade-in" data-delay="5">
-                        Arithmetic: 41 × 91 ms = 3.7 s against 41 × 1 h.
-                        Engineer time at 15 min of setup and review per configuration;
-                        fully-loaded RF engineer $130K–$220K/yr → $63–$106 per hour.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="slide-foot">
-            <div class="label">Kevin</div>
-        </div>
-    </div>
-</section>
-     ========================================================= -->
 
 <!-- =========================================================
      SLIDE 8 — THE TEAM
@@ -1405,13 +1338,8 @@ svg {
             <div class="label slide-num"></div>
         </div>
 
-        <div class="slide-body">
-            <div class="kicker" data-anim="fade-in" data-delay="0">Built at the hackathon</div>
-            <h2 class="h2" style="font-size:78px;margin-top:18px;" data-anim="fade-up" data-delay="1">
-                Four people, four seams.
-            </h2>
-
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:44px;margin-top:46px;" data-anim="fade-up" data-delay="2">
+        <div class="slide-body" style="justify-content:center;">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:44px;" data-anim="fade-up" data-delay="1">
                 <div>
                     <div class="portrait"><img src="assets/team-alex.jpg" alt="Aleksandr Gorbunov"></div>
                     <div class="mn" style="font-size:38px;font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-top:22px;">Aleksandr<br>Gorbunov</div>
@@ -1436,13 +1364,14 @@ svg {
         </div>
 
         <div class="slide-foot">
+            <div class="source">Built at the hackathon&nbsp;·&nbsp;Munich&nbsp;2026</div>
             <div class="label">Kevin</div>
         </div>
     </div>
 </section>
 
 <!-- =========================================================
-     SLIDE 9 — CLOSE (signal register, chrome suppressed)
+     SLIDE 9 — QUESTIONS (signal register, chrome suppressed)
      ========================================================= -->
 <section class="slide signal">
     <div class="pad">
@@ -1452,8 +1381,8 @@ svg {
         </div>
 
         <div style="flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;">
-            <h2 class="display" style="font-size:214px;" data-anim="fade-up" data-delay="1">
-                kevin knows<br>where.
+            <h2 class="display" style="font-size:236px;" data-anim="fade-up" data-delay="1">
+                questions.
             </h2>
 
             <div class="rule" style="margin:38px 0 28px;" data-anim="reveal-right" data-delay="2"></div>
@@ -1461,7 +1390,6 @@ svg {
             <p class="h3" style="max-width:1420px;font-weight:500;font-size:50px;" data-anim="fade-up" data-delay="3">
                 Build file in. Defensible placement out.
             </p>
-
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:flex-end;" data-anim="fade-in" data-delay="5">
@@ -1470,7 +1398,6 @@ svg {
         </div>
     </div>
 </section>
-
 </div><!-- /.deck-stage -->
 </div><!-- /.deck-viewport -->
 
