@@ -58,6 +58,9 @@ interface AppState {
   media: MediaArtifact[];
   /** Backend stage — 'media' means the evidence is still rendering. */
   stage: string;
+  /** Height the user dragged the results dock to, in px. Null means the
+   *  layout picks — a table and a gallery want different room. */
+  dockHeight: number | null;
   /** Which dock view is open. Lives here, not in the dock, because the
    *  layout gives the gallery more height than a table needs. */
   dockTab: "results" | "report" | "evidence";
@@ -88,6 +91,7 @@ interface AppState {
   setAgent: (a: AgentKind) => void;
   setWantMedia: (v: boolean) => void;
   setDockTab: (t: "results" | "report" | "evidence") => void;
+  setDockHeight: (px: number | null) => void;
   /** Adopt the device the backend will actually solve. Runs once on mount. */
   loadDefaultDevice: () => Promise<void>;
   startRun: () => Promise<void>;
@@ -145,6 +149,7 @@ export const useApp = create<AppState>((set, get) => ({
   // seconds after the study has already finished and reported.
   wantMedia: true,
   dockTab: "results" as const,
+  dockHeight: null as number | null,
   ...EMPTY_RUN,
 
   setModel: (url, name) => set({ modelUrl: url, modelName: name }),
@@ -220,6 +225,7 @@ export const useApp = create<AppState>((set, get) => ({
   setPrompt: (p) => set({ prompt: p }),
   setWantMedia: (v) => set({ wantMedia: v }),
   setDockTab: (t) => set({ dockTab: t }),
+  setDockHeight: (px) => set({ dockHeight: px }),
   setAgent: (a) => set({ agent: a }),
 
   loadDefaultDevice: async () => {

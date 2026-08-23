@@ -6,6 +6,7 @@ import { ResultsDock } from "@/components/panels/ResultsDock";
 import { SpecPanel } from "@/components/panels/SpecPanel";
 import { TopBar } from "@/components/panels/TopBar";
 import { Viewport } from "@/components/viewer/Viewport";
+import { DockResizer } from "@/components/panels/DockResizer";
 import { useApp } from "@/lib/store";
 import { useEffect } from "react";
 
@@ -24,6 +25,8 @@ export default function Home() {
   const running = useApp((s) => s.running);
   const loadDefaultDevice = useApp((s) => s.loadDefaultDevice);
   const dockTab = useApp((s) => s.dockTab);
+  const dockHeight = useApp((s) => s.dockHeight);
+  const setDockHeight = useApp((s) => s.setDockHeight);
 
   // The device the solver will read, adopted before anything is asked of it.
   useEffect(() => {
@@ -51,10 +54,19 @@ export default function Home() {
             // pictures the study exists to produce, and a 280 px rail turns
             // them into stamps.
             <div
-              className={`shrink-0 border-t border-ink-800 transition-[height] duration-200 ${
-                dockTab === "evidence" ? "h-[440px]" : "h-[280px]"
+              // Automatic until the user says otherwise: a gallery wants more
+              // room than a table. Once they drag, their number wins and the
+              // animation is dropped — a height that eases toward the cursor
+              // feels like lag, not polish.
+              className={`relative shrink-0 border-t border-ink-800 ${
+                dockHeight === null ? "transition-[height] duration-200" : ""
               }`}
+              style={{ height: dockHeight ?? (dockTab === "evidence" ? 440 : 280) }}
             >
+              <DockResizer
+                height={dockHeight ?? (dockTab === "evidence" ? 440 : 280)}
+                onResize={setDockHeight}
+              />
               <ResultsDock />
             </div>
           )}

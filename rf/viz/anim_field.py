@@ -139,18 +139,40 @@ def _device_overlays(device: dict | None):
     (same shift rule as placement3d.build_scene, so overlays land in the
     frame the candidate coordinates live in).
 
-    -> (outline ((x0, y0), (x1, y1)) | None, [battery rects in same form])
+    -> (outline | None, [battery rects], [conductor rects]) — all in the
+    same ((x0, y0), (x1, y1)) form
     """
     parts = (device or {}).get("parts") or []
     drawable = [p for p in parts if p.get("bbox_mm")]
     usable = [p for p in drawable if p.get("eps_r") is not None]
     ref = usable or drawable
     if not ref:
-        return None, []
+        return None, [], []
     allc = np.array([c for p in ref for c in p["bbox_mm"]], dtype=float)
     shift = -allc.min(axis=0)
     hi = allc.max(axis=0) + shift
     outline = ((0.0, 0.0), (float(hi[0]), float(hi[1])))
+
+    # Every conductor's footprint, not just one box round the whole phone.
+    # The field animation exists to show what the wave has to get past, and
+    # "past" is these: shield cans, the board, the camera plateau, the frame.
+    # A single bounding rectangle is a picture of a slab, and the slab is not
+    # the device anyone is designing against.
+    #
+    # Enclosure layers are skipped by the same rule rf/placement.py screens
+    # with: a part covering most of the device footprint is a shell, and
+    # drawing it just puts another big rectangle on top of the outline.
+    area_device = float(hi[0]) * float(hi[1]) or 1.0
+    conductors = []
+    for p in drawable:
+        if (p.get("sigma_S_per_m") or 0.0) <= 1e4:
+            continue
+        lo = np.asarray(p["bbox_mm"][0], dtype=float) + shift
+        chi = np.asarray(p["bbox_mm"][1], dtype=float) + shift
+        if abs((chi[0] - lo[0]) * (chi[1] - lo[1])) >= 0.40 * area_device:
+            continue
+        conductors.append(((float(lo[0]), float(lo[1])),
+                           (float(chi[0]), float(chi[1]))))
 
     cells = [p for p in drawable if _is_battery_cell(p)]
     if not cells:                       # fall back to the biggest tagged part
@@ -165,7 +187,7 @@ def _device_overlays(device: dict | None):
         lo = np.asarray(p["bbox_mm"][0], dtype=float) + shift
         bhi = np.asarray(p["bbox_mm"][1], dtype=float) + shift
         rects.append(((float(lo[0]), float(lo[1])), (float(bhi[0]), float(bhi[1]))))
-    return outline, rects
+    return outline, rects, conductors
 
 
 def _antenna_footprint(candidate: dict, device: dict | None = None):
@@ -315,9 +337,18 @@ def render_field_animation(run: dict, out_gif: str, max_frames: int = 64,
         handles.append(Line2D([0], [0], color=PALETTE["metal"], lw=1.6,
                               label="Device (x-ray)"))
 
-    outline, battery_rects = _device_overlays(device)
+    outline, battery_rects, conductor_rects = _device_overlays(device)
     if beauty is not None:
-        outline, battery_rects = None, []      # the render already shows both
+        # the render already shows every part
+        outline, battery_rects, conductor_rects = None, [], []
+    for (cx0, cy0), (cx1, cy1) in conductor_rects:
+        ax.add_patch(Rectangle((cx0, cy0), cx1 - cx0, cy1 - cy0,
+                               fill=False, edgecolor=PALETTE["metal"],
+                               linewidth=0.7, alpha=0.5, zorder=5))
+    if conductor_rects:
+        handles.append(Line2D([0], [0], color=PALETTE["metal"], lw=1.2,
+                              alpha=0.8,
+                              label=f"Conductors ({len(conductor_rects)})"))
     if outline is not None:
         (ox0, oy0), (ox1, oy1) = outline
         ax.add_patch(Rectangle((ox0, oy0), ox1 - ox0, oy1 - oy0,
