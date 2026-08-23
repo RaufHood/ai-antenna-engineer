@@ -974,6 +974,9 @@ svg {
                 <h1 class="display" style="font-size:288px;margin-bottom:-26px;">kevin</h1>
             </div>
 
+            <p class="h3" style="margin-top:22px;font-weight:500;color:var(--on-sig-body);" data-anim="fade-up" data-delay="2">
+                the AI Antenna engineer
+            </p>
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:flex-end;" data-anim="fade-in" data-delay="5">
@@ -1021,33 +1024,20 @@ svg {
             <!-- The market strip: the same loop, multiplied -->
             <div style="display:flex;align-items:flex-end;gap:52px;margin-top:24px;" data-anim="fade-up" data-delay="4">
                 <div class="label" style="flex:0 0 168px;line-height:1.6;">And it repeats,<br>every device,<br>every band</div>
-                <div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:34px;">
+                <div style="flex:1;display:grid;grid-template-columns:repeat(2,1fr);gap:34px;">
                     <div>
-                        <div class="mono" style="font-size:36px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">1.24B</div>
-                        <div class="caption" style="margin-top:7px;">smartphones a year, 6+ antennas each</div>
+                        <div class="mono" style="font-size:54px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">1.24B</div>
+                        <div class="caption" style="margin-top:9px;">smartphones a year, 6+ antennas each</div>
                     </div>
                     <div>
-                        <div class="mono" style="font-size:36px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">18.8→40B</div>
-                        <div class="caption" style="margin-top:7px;">IoT devices, 2024 to 2030</div>
-                    </div>
-                    <div>
-                        <div class="mono" style="font-size:36px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">4→8</div>
-                        <div class="caption" style="margin-top:7px;">antennas per car by 2030</div>
-                    </div>
-                    <div>
-                        <div class="mono" style="font-size:36px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">$25–27B</div>
-                        <div class="caption" style="margin-top:7px;">antenna hardware, 2025</div>
-                    </div>
-                    <div>
-                        <div class="mono" style="font-size:36px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">$3.9–7.7B</div>
-                        <div class="caption" style="margin-top:7px;">the software and services layer on top</div>
+                        <div class="mono" style="font-size:54px;font-weight:700;color:var(--signal);letter-spacing:-0.02em;">18.8→40B</div>
+                        <div class="caption" style="margin-top:9px;">IoT devices, 2024 to 2030</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="slide-foot">
-            <div class="source">Loop figures: deep_research_on_challenge.md&nbsp;·&nbsp;market sizes: industry estimates, external to this repo</div>
             <div class="label">Kevin</div>
         </div>
     </div>
@@ -1071,34 +1061,24 @@ svg {
 
             <div class="pipeline" style="margin-top:auto;" data-anim="fade-up" data-delay="2">
                 <div class="pnode">
-                    <div class="pk"><span class="pn">01</span>Input</div>
+                    <div class="pk"><span class="pn">01</span>Input &amp; ingest</div>
                     <div class="pt">.blend + prompt</div>
-                    <div class="pd">Any device's build file and one sentence of intent.</div>
+                    <div class="pd">Build file and intent, extracted into per-part geometry.</div>
                 </div>
                 <div class="pnode">
-                    <div class="pk"><span class="pn">02</span>Ingest</div>
-                    <div class="pt">Extract &amp; classify</div>
-                    <div class="pd">Per-part geometry, materials, ground reference.</div>
-                </div>
-                <div class="pnode">
-                    <div class="pk"><span class="pn">03</span>Screen</div>
+                    <div class="pk"><span class="pn">02</span>Screen</div>
                     <div class="pt">Rule out anchors</div>
                     <div class="pd">Which positions hit real metal. No solver runs.</div>
                 </div>
                 <div class="pnode agent">
-                    <div class="pk"><span class="pn">04</span>Judgment</div>
+                    <div class="pk"><span class="pn">03</span>Judgment</div>
                     <div class="pt">Agent proposes</div>
                     <div class="pd">Type, position, length — with a stated reason.</div>
                 </div>
                 <div class="pnode">
-                    <div class="pk"><span class="pn">05</span>Physics</div>
+                    <div class="pk"><span class="pn">04</span>Physics &amp; output</div>
                     <div class="pt">PyNEC scores</div>
-                    <div class="pd">S11, bandwidth, VSWR, efficiency, clearance.</div>
-                </div>
-                <div class="pnode">
-                    <div class="pk"><span class="pn">06</span>Output</div>
-                    <div class="pt">report.md</div>
-                    <div class="pd">The recommendation, the ranking, and the limits.</div>
+                    <div class="pd">S11, bandwidth, VSWR — into the ranked report.</div>
                 </div>
             </div>
 
@@ -1106,24 +1086,9 @@ svg {
                 <div class="fbtext">Evidence, not verdicts — back to the agent until it concludes</div>
                 <div class="fbline"></div>
             </div>
-
-            <!-- The unlock: why a loop is possible at all -->
-            <div style="margin-top:auto;padding-top:44px;" data-anim="fade-up" data-delay="5">
-                <div class="h3" style="font-size:56px;font-weight:800;letter-spacing:-0.025em;max-width:1600px;">
-                    A solve has to cost milliseconds, or there is no loop.
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:30px;margin-top:30px;">
-                    <div class="tick"><div class="tv">1.9 ms</div><div class="label">B5 · 850 MHz</div></div>
-                    <div class="tick"><div class="tv">17 ms</div><div class="label">GPS L1</div></div>
-                    <div class="tick"><div class="tv">83 ms</div><div class="label">Wi-Fi / BT 2.4</div></div>
-                    <div class="tick"><div class="tv">404 ms</div><div class="label">n78 · 3.5 GHz</div></div>
-                    <div class="tick"><div class="tv">2.0 s</div><div class="label">Wi-Fi 5 · 5.85 GHz</div></div>
-                </div>
-            </div>
         </div>
 
         <div class="slide-foot">
-            <div class="source">Devin owns the judgment · the backend owns the loop · rf/ owns the physics&nbsp;·&nbsp;solve times measured on this device</div>
             <div class="label">Kevin</div>
         </div>
     </div>
@@ -1174,7 +1139,6 @@ svg {
         </div>
 
         <div class="slide-foot">
-            <div class="source">If the backend is down the UI says so and draws nothing, rather than a stand-in</div>
             <div class="label">Kevin</div>
         </div>
     </div>
@@ -1234,7 +1198,6 @@ svg {
         </div>
 
         <div class="slide-foot">
-            <div class="source">rf/placement.py&nbsp;·&nbsp;no solver involved&nbsp;·&nbsp;the 15 illegal anchors are kept and sorted last, each naming the part that blocks it</div>
             <div class="label">Kevin</div>
         </div>
     </div>
@@ -1342,17 +1305,16 @@ svg {
         </div>
 
         <div class="slide-foot">
-            <div class="source">IFA at anchor e_r2, arm 30.75 mm&nbsp;·&nbsp;worst in-band −10.94 dB against a −8 dB spec&nbsp;·&nbsp;PEC wire-grid MoM: directional, not certification-grade — openEMS confirms the winner</div>
             <div class="label">Kevin</div>
         </div>
     </div>
 </section>
 
 <!-- =========================================================
-     SLIDE 7 — WHAT IT COSTS
+     SLIDE 7 — WHAT IT COSTS (commented out per request)
      Measured and modelled figures are labelled separately, and the
      arithmetic behind the modelled column is printed on the slide.
-     ========================================================= -->
+
 <section class="slide">
     <div class="pad">
         <div class="slide-chrome">
@@ -1369,7 +1331,6 @@ svg {
 
             <div style="display:grid;grid-template-columns:0.72fr 1.28fr;gap:76px;margin-top:44px;flex:1 1 auto;min-height:0;">
 
-                <!-- The one measured figure, given the display moment -->
                 <div style="display:flex;flex-direction:column;">
                     <div class="stat" style="border-top:1px solid var(--border);padding-top:var(--gap-md);" data-anim="fade-up" data-delay="2">
                         <span class="stat-value">≈40,000×</span>
@@ -1389,7 +1350,6 @@ svg {
                     </p>
                 </div>
 
-                <!-- The ledger: same 41-candidate study, both ways -->
                 <div style="display:flex;flex-direction:column;min-width:0;">
                     <div class="ledger" data-anim="fade-up" data-delay="3">
                         <div class="lrow lhead">
@@ -1444,11 +1404,11 @@ svg {
         </div>
 
         <div class="slide-foot">
-            <div class="source">Solve times measured on this device&nbsp;·&nbsp;the full-wave hour and the loaded-salary range are external estimates, not our measurements</div>
             <div class="label">Kevin</div>
         </div>
     </div>
 </section>
+     ========================================================= -->
 
 <!-- =========================================================
      SLIDE 8 — THE TEAM
@@ -1471,31 +1431,26 @@ svg {
                     <div class="portrait"><img src="assets/team-alex.jpg" alt="Aleksandr Gorbunov"></div>
                     <div class="mn" style="font-size:38px;font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-top:22px;">Aleksandr<br>Gorbunov</div>
                     <div class="mr" style="font-size:21px;color:var(--signal);margin-top:12px;">Agent &amp; systems integration</div>
-                    <div class="ml" style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.06em;color:var(--fg-faint);margin-top:14px;">Devin API · orchestrator</div>
                 </div>
                 <div>
                     <div class="portrait"><img src="assets/team-damia.jpg" alt="Damià Vicens Ramis"></div>
                     <div class="mn" style="font-size:38px;font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-top:22px;">Damià<br>Vicens Ramis</div>
                     <div class="mr" style="font-size:21px;color:var(--signal);margin-top:12px;">3D modelling &amp; simulation</div>
-                    <div class="ml" style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.06em;color:var(--fg-faint);margin-top:14px;">linkedin.com/in/dvr168</div>
                 </div>
                 <div>
                     <div class="portrait"><img src="assets/team-amr.jpg" alt="Amr Moussa"></div>
                     <div class="mn" style="font-size:38px;font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-top:22px;">Amr<br>Moussa</div>
                     <div class="mr" style="font-size:21px;color:var(--signal);margin-top:12px;">Visualisation &amp; UI</div>
-                    <div class="ml" style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.06em;color:var(--fg-faint);margin-top:14px;">linkedin.com/in/amrmoussa777</div>
                 </div>
                 <div>
                     <div class="portrait"><img src="assets/team-rauf.jpg" alt="Rauf Boudenne"></div>
                     <div class="mn" style="font-size:38px;font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-top:22px;">Rauf<br>Boudenne</div>
                     <div class="mr" style="font-size:21px;color:var(--signal);margin-top:12px;">RF research &amp; simulation</div>
-                    <div class="ml" style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.06em;color:var(--fg-faint);margin-top:14px;">openEMS · PyNEC calibration</div>
                 </div>
             </div>
         </div>
 
         <div class="slide-foot">
-            <div class="source">Three workstreams, one integration branch, and a rule that nobody reaches across a seam except through the written contracts</div>
             <div class="label">Kevin</div>
         </div>
     </div>
