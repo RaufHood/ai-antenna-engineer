@@ -613,7 +613,7 @@ export function AgentPanel() {
         )}
 
         {started && (
-          <div className="space-y-3.5 px-5 py-5">
+          <div className="space-y-3.5 px-5 pb-12 pt-5">
             {blocks.map((b, i) =>
               b.t === "solves" ? (
                 <SolveGroup key={b.key} lines={b.lines} live={running && i === blocks.length - 1} />
