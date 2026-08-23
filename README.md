@@ -98,6 +98,7 @@ missing — say so rather than working around it.
 | `runs/` | Committed run artifacts and the demo media (reviewers see results without running anything). |
 | `tools/` | `.blend` extraction script shared by backend and rf; synthetic fixture generator. |
 | `brand/` | The Kevin marks (icon + lockup); the frontend inlines them. |
+| [pitch-deck/](pitch-deck/README.md) | The nine slides we present, as a self-contained HTML deck plus a PDF and one PNG per slide. Every figure on them traces back to this repo. |
 | [ENTIRE.md](ENTIRE.md) | Entire session capture — mandatory for the submission, two machine-local steps. |
 | [deep_research_on_challenge.md](deep_research_on_challenge.md) | The research the JSON contracts in `types.ts` / `models.py` mirror. |
 
