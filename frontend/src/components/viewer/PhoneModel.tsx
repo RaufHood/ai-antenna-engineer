@@ -7,6 +7,7 @@ import { SCALE, sceneCenter, sceneSize } from "@/lib/geometry";
 import { useApp } from "@/lib/store";
 import type { DeviceComponent } from "@/lib/types";
 import { CustomModel } from "./CustomModel";
+import { DeviceXray } from "./DeviceXray";
 
 /** The aluminium rim, drawn as four rails so the internals stay visible. */
 function FrameRails({
@@ -138,10 +139,16 @@ function Part({ c }: { c: DeviceComponent }) {
   );
 }
 
+/** Height (mm) the x-ray is scaled to, from the spec's own device outline. */
+function deviceHeightMm(spec: { board: { size_mm: [number, number, number] } }) {
+  return spec.board?.size_mm?.[1] ?? 146.6;
+}
+
 export function PhoneModel() {
   const spec = useApp((s) => s.spec);
   const modelUrl = useApp((s) => s.modelUrl);
 
+  // A user-supplied export still wins — that is what the upload flow is for.
   if (modelUrl) {
     return (
       <Suspense fallback={null}>
@@ -150,11 +157,23 @@ export function PhoneModel() {
     );
   }
 
+  // Default: the real iPhone 15 Pro (191 parts, exported from
+  // data/apple_iphone_15_pro/), drawn as x-ray line art so the internals and
+  // the antenna inside them stay legible — same visual language as the
+  // offline renders in rf/runs/demo/media. The procedural RoundedBox handset
+  // below is the fallback while the 5 MB model streams in, and if it fails to
+  // load at all.
   return (
-    <group>
-      {spec.components.map((c) => (
-        <Part key={c.name} c={c} />
-      ))}
-    </group>
+    <Suspense
+      fallback={
+        <group>
+          {spec.components.map((c) => (
+            <Part key={c.name} c={c} />
+          ))}
+        </group>
+      }
+    >
+      <DeviceXray heightMm={deviceHeightMm(spec)} />
+    </Suspense>
   );
 }
