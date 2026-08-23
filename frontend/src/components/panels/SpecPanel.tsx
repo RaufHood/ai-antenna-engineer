@@ -5,22 +5,17 @@ import { useApp } from "@/lib/store";
 import type { BandRequirement } from "@/lib/types";
 
 /**
- * The brief: what the engineer is asking for, and nothing else.
- *
- *   Device      — which geometry the solver actually meshes, and how to
- *                 replace it.
- *   Target band — one band, chosen with its solve cost in view. Extra bands
- *                 are a deliberate addition, never the default.
- *
- * Everything that is reference rather than request (per-band metric grids,
- * the part list) lives elsewhere or behind a disclosure.
+ * The brief: the device and the band. Two decisions, two controls, and the
+ * numbers each one fixes. Everything that explains rather than decides —
+ * solve cost, radiator size, how a .blend differs from a .glb — sits in a
+ * tooltip on the control it describes, so the rail reads at a glance.
  */
 
 /* --------------------------------------------------------------- primitives */
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
+    <h2 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-faint">
       {children}
     </h2>
   );
@@ -91,18 +86,6 @@ const Spinner = () => (
 /** Strips the dimensions the catalogue repeats inside the device name. */
 const bareName = (n: string) => n.replace(/\s*\([^)]*\)\s*$/, "").trim() || n;
 
-function Tag({ tone, children }: { tone: "pass" | "warn"; children: React.ReactNode }) {
-  return (
-    <span
-      className={`shrink-0 rounded px-1.5 py-px text-[10px] ring-1 ${
-        tone === "pass" ? "text-pass ring-pass/30" : "text-warn ring-warn/30"
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
-
 function DeviceCard() {
   const spec = useApp((s) => s.spec);
   const deviceId = useApp((s) => s.deviceId);
@@ -120,36 +103,29 @@ function DeviceCard() {
   const [w, h, t] = spec.board.size_mm;
   const parts = spec.components.length;
   // deviceId is set only after a .blend has been extracted on the backend.
-  // Until then the solver meshes the built-in catalogue spec, whatever the
-  // viewer happens to be drawing.
   const extracted = deviceId !== null;
+  // A .glb with no .blend behind it is drawn but never solved. That is the
+  // one case where what you see and what the solver reads disagree, and it
+  // is the only time the card says anything about the viewer.
+  const displayOnly = !!modelUrl && !extracted;
 
   async function load(file: File) {
     const name = file.name.toLowerCase();
     if (name.endsWith(".blend")) {
-      // Goes to the backend: parts and materials are extracted there and
-      // become the geometry the solver meshes.
       setProblem(null);
       await uploadBlend(file);
       const err = useApp.getState().error;
-      if (err) {
-        setProblem(
-          `${file.name} was not extracted — ${err}. Check the backend is running, then load the file again.`,
-        );
-      }
+      if (err) setProblem(`${file.name} was not extracted — ${err}`);
       return;
     }
     if (name.endsWith(".glb") || name.endsWith(".gltf")) {
-      // Display only: a .glb never reaches the solver.
       const prev = useApp.getState().modelUrl;
       if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
       setModel(URL.createObjectURL(file), file.name);
       setProblem(null);
       return;
     }
-    setProblem(
-      `Kevin reads .blend and .glb. ${file.name} is neither — export the build from Blender and load that.`,
-    );
+    setProblem(`${file.name} is not a .blend or .glb.`);
   }
 
   function clearModel() {
@@ -160,7 +136,7 @@ function DeviceCard() {
   }
 
   return (
-    <section className="border-b border-ink-800 px-4 pb-5 pt-4">
+    <section className="px-4 pb-5 pt-5">
       <SectionTitle>Device</SectionTitle>
 
       <div
@@ -185,84 +161,49 @@ function DeviceCard() {
           if (f) void load(f);
         }}
         aria-busy={uploading}
-        className={`mt-2.5 rounded-lg border bg-ink-900 transition ${
+        className={`mt-3 rounded-lg border px-3.5 py-3 transition ${
           dragging
             ? "border-dashed border-accent bg-accent/5"
             : uploading
-              ? "border-accent-dim"
-              : "border-ink-700"
+              ? "border-accent-dim bg-ink-900"
+              : "border-ink-800 bg-ink-900"
         }`}
       >
-        {/* What the solver meshes. */}
-        <div className="px-3 py-2.5">
-          <p className="text-[11px] text-fg-muted">Solver geometry</p>
-          <p className="mt-0.5 truncate text-[13px] font-medium text-fg">{bareName(spec.name)}</p>
-          <p className="mt-0.5 font-mono text-[11px] text-fg-muted">
-            {w} × {h} × {t} mm · {parts} parts
-          </p>
-          <p className="mt-0.5 text-[11px] text-fg-muted">
-            {uploading
-              ? "Reading parts and materials from your build file — this spec is still what the solver would use."
-              : extracted
-                ? `Extracted from ${modelName ?? "your build file"}.`
-                : "Built-in catalogue spec."}
-          </p>
-        </div>
+        <p className="truncate text-[13px] font-medium text-fg">{bareName(spec.name)}</p>
+        <p className="mt-1 font-mono text-[11px] text-fg-muted">
+          {w} × {h} × {t} mm · {parts} parts
+        </p>
+        {extracted && (
+          <p className="mt-1 truncate text-[11px] text-fg-muted">from {modelName}</p>
+        )}
 
-        {/* What the viewer draws — said plainly, because they are not always
-            the same thing. */}
-        <div className="border-t border-ink-800 px-3 py-2.5">
-          <p className="text-[11px] text-fg-muted">Viewer</p>
-          <div className="mt-0.5 flex items-baseline gap-2">
-            <p className="min-w-0 flex-1 truncate text-[12px] text-fg">
-              {modelUrl ? (modelName ?? "Loaded mesh") : "iPhone 15 Pro mesh"}
-            </p>
-            {modelUrl && extracted ? (
-              <Tag tone="pass">solver geometry</Tag>
-            ) : (
-              <Tag tone="warn">display only</Tag>
-            )}
-          </div>
-          <p className="mt-1 text-[11px] leading-relaxed text-fg-muted">
-            {modelUrl && extracted
-              ? "The same geometry the solver meshes."
-              : extracted
-                ? "The solver meshes your extracted geometry above, not this mesh."
-                : modelUrl
-                  ? `Not meshed. The solver still reads the ${bareName(
-                      spec.name,
-                    )} spec above — load the .blend to make this geometry solvable.`
-                  : `191 drawn parts, none of them meshed. The solver reads the ${parts}-part ${bareName(
-                      spec.name,
-                    )} spec above.`}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 border-t border-ink-800 px-3 py-2">
-          <button
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            className="inline-flex items-center gap-1.5 rounded-md border border-ink-600 px-2.5 py-1.5 text-[11px] font-medium text-fg transition hover:border-accent hover:text-accent disabled:cursor-wait disabled:border-ink-700 disabled:text-fg-muted disabled:hover:border-ink-700 disabled:hover:text-fg-muted"
-          >
-            {uploading ? <Spinner /> : <FileIn />}
-            {uploading ? "Extracting…" : dragging ? "Drop to load" : "Load build file"}
-          </button>
-          {modelUrl && !extracted && !uploading && (
+        {displayOnly && (
+          <div className="mt-2.5 flex items-center gap-2 text-[11px]">
+            <span className="rounded px-1.5 py-px text-warn ring-1 ring-warn/30">
+              display only
+            </span>
+            <span className="min-w-0 truncate text-fg-muted" title={modelName ?? undefined}>
+              {modelName} is drawn, not solved
+            </span>
             <button
               onClick={clearModel}
-              className="ml-auto shrink-0 text-[11px] text-fg-muted transition hover:text-fg"
+              className="ml-auto shrink-0 text-fg-muted transition hover:text-fg"
             >
-              Remove mesh
+              Remove
             </button>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
 
-      <p className="mt-2 text-[11px] leading-relaxed text-fg-muted">
-        A <span className="font-mono">.blend</span> is extracted on the backend and becomes solver
-        geometry. A <span className="font-mono">.glb</span> is display only. Drop one on the card
-        above or use the button.
-      </p>
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          title="A .blend is extracted and solved. A .glb is drawn only. Drop a file here or choose one."
+          className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-ink-700 py-1.5 text-[12px] text-fg transition hover:border-ink-600 hover:bg-ink-850 disabled:cursor-wait disabled:text-fg-muted"
+        >
+          {uploading ? <Spinner /> : <FileIn />}
+          {uploading ? "Extracting…" : dragging ? "Drop to load" : "Load build file"}
+        </button>
+      </div>
 
       {problem && (
         <p role="alert" className="mt-2 text-[11px] leading-relaxed text-fail">
@@ -288,13 +229,9 @@ function DeviceCard() {
 /* -------------------------------------------------------------- target band */
 
 /**
- * Solve cost for one candidate, one band.
- *
- * The solver meshes at lambda/10 taken at the top of the band, so the segment
- * count rises with frequency and the method-of-moments matrix cost rises
- * faster still. Two measured points on the backend's PyNEC path — 83 ms at
- * 2.4835 GHz (Wi-Fi 2.4) and 2007 ms at 5.85 GHz (Wi-Fi 5) — fix the exponent
- * at f^3.72. Every other band here is scaled from those two, not measured.
+ * Solve cost for one candidate, one band. The solver meshes at lambda/10 at
+ * the top of the band, so cost rises as f^3.72 — fitted to two measured
+ * points on the PyNEC path: 83 ms at 2.4835 GHz, 2007 ms at 5.85 GHz.
  */
 const REF_GHZ = 2.4835;
 const REF_MS = 83;
@@ -326,7 +263,7 @@ function armMm(b: { f_low_ghz: number; f_high_ghz: number }): number {
 function Req({ label, value }: { label: string; value: string }) {
   return (
     <span className="whitespace-nowrap">
-      <span className="text-[10px] text-fg-muted">{label} </span>
+      <span className="text-[11px] text-fg-muted">{label} </span>
       <span className="font-mono text-[11px] text-fg">{value}</span>
     </span>
   );
@@ -345,8 +282,7 @@ function TargetBand() {
   const didInit = useRef(false);
 
   // The brief opens on one band. Multi-band is legitimate but costly, so it
-  // has to be asked for: this narrows the store's default selection to the
-  // cheapest useful target once, using the store's own action.
+  // has to be asked for: narrow the store's default selection once.
   useEffect(() => {
     if (didInit.current) return;
     didInit.current = true;
@@ -382,13 +318,10 @@ function TargetBand() {
   }
 
   return (
-    <section className="border-b border-ink-800 px-4 pb-5 pt-5">
-      <div className="flex items-baseline justify-between">
-        <SectionTitle>Target band</SectionTitle>
-        <span className="text-[10px] text-fg-muted">per solve</span>
-      </div>
+    <section className="border-t border-ink-800 px-4 pb-5 pt-5">
+      <SectionTitle>Target band</SectionTitle>
 
-      <div role="radiogroup" aria-label="Primary target band" className="mt-2.5 grid grid-cols-2 gap-1">
+      <div role="radiogroup" aria-label="Primary target band" className="mt-3 flex flex-wrap gap-1.5">
         {bands.map((b) => {
           const isPrimary = b.id === primary?.id;
           const on = enabled.includes(b.id);
@@ -399,59 +332,42 @@ function TargetBand() {
               aria-checked={isPrimary}
               disabled={running}
               onClick={() => choose(b.id)}
-              title={`${b.name} · ${b.service} · ${ghz(b.f_low_ghz)}–${ghz(b.f_high_ghz)} GHz`}
-              className={`flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              title={`${b.name} · ${ghz(b.f_low_ghz)}–${ghz(b.f_high_ghz)} GHz · ${fmtMs(solveMs(b))} per solve`}
+              className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12px] transition disabled:cursor-not-allowed disabled:opacity-60 ${
                 isPrimary
-                  ? "border-accent/60 bg-accent/10"
-                  : "border-ink-700 hover:border-ink-600 hover:bg-ink-850"
+                  ? "border-accent/50 bg-accent/10 text-fg"
+                  : "border-ink-800 text-fg-muted hover:border-ink-600 hover:text-fg"
               }`}
             >
               <span
                 className="h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ background: on ? b.color : "var(--ink-600)" }}
               />
-              <span className={`truncate text-[11px] ${isPrimary ? "text-fg" : "text-fg-muted"}`}>
-                {b.short}
-              </span>
-              <span className="ml-auto shrink-0 font-mono text-[10px] text-fg-muted">
-                {fmtMs(solveMs(b))}
-              </span>
+              {b.short}
             </button>
           );
         })}
       </div>
 
-      <p className="mt-2 text-[11px] leading-relaxed text-fg-muted">
-        Mesh pitch is λ/10 at the top of the band, so a solve costs about{" "}
-        <span className="font-mono">f^3.7</span> — 83 ms measured at 2.4835 GHz, 2.0 s at 5.85 GHz.
-      </p>
-
       {primary ? (
-        <div className="mt-3 border-t border-ink-800 pt-3">
+        <div
+          className="mt-4"
+          title={`Radiator ${armMm(primary).toFixed(0)} × ${ARM_W_MM} × ${ARM_H_MM} mm · ${(
+            primary.antenna_types ?? ["IFA"]
+          ).join(" / ")} · ${fmtMs(solveMs(primary))} per solve`}
+        >
           <div className="flex items-baseline gap-2">
             <h3 className="min-w-0 flex-1 truncate text-[13px] font-medium text-fg">
               {primary.name}
             </h3>
-            <span className="shrink-0 font-mono text-[10px] text-fg-muted">
+            <span className="shrink-0 font-mono text-[11px] text-fg-muted">
               {ghz(primary.f_low_ghz)}–{ghz(primary.f_high_ghz)} GHz
             </span>
           </div>
           <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <Req label="S11" value={`≤ ${primary.s11_db_max} dB`} />
-            <Req label="Efficiency" value={`≥ ${Math.round(primary.efficiency_min * 100)}%`} />
-            <Req label="Clearance" value={`≥ ${primary.clearance_mm} mm`} />
-          </div>
-          {/* The band is not just a frequency: it fixes how much room the
-              radiator needs. A quarter wave at 850 MHz is 87 mm of arm in a
-              147 mm phone; at 5 GHz it is 13 mm. That is why the legal region
-              and the placement map differ per band, and why the same device
-              can host one antenna and refuse another. */}
-          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <Req
-              label="Radiator"
-              value={`${armMm(primary).toFixed(0)} × ${ARM_W_MM} × ${ARM_H_MM} mm`}
-            />
-            <Req label="Type" value={(primary.antenna_types ?? ["IFA"]).join(" / ")} />
+            <Req label="Eff." value={`≥ ${Math.round(primary.efficiency_min * 100)}%`} />
+            <Req label="Clear" value={`≥ ${primary.clearance_mm} mm`} />
           </div>
           {enabled.length > 1 && (
             <button
@@ -467,68 +383,57 @@ function TargetBand() {
           )}
         </div>
       ) : (
-        <p className="mt-3 border-t border-ink-800 pt-3 text-[11px] leading-relaxed text-fg-muted">
-          No band selected. Pick one above — Kevin needs a target before it can propose a placement.
-        </p>
+        <p className="mt-4 text-[12px] text-fg-muted">Pick a band to solve for.</p>
       )}
 
-      <div className="mt-3 border-t border-ink-800 pt-3">
+      <div className="mt-4">
         <button
           aria-expanded={extrasOpen}
           onClick={() => setExtrasOpen((o) => !o)}
-          className="flex w-full items-center gap-1.5 text-[11px] text-fg-muted transition hover:text-fg"
+          className="flex w-full items-center gap-1.5 text-[12px] text-fg-muted transition hover:text-fg"
         >
           <Chevron open={extrasOpen} />
           <span>Also solve another band</span>
-          <span className="ml-auto font-mono text-[10px]">
-            {extras.length ? `+${extras.length}` : "none"}
-          </span>
+          {extras.length > 0 && (
+            <span className="ml-auto font-mono text-[11px] text-fg">+{extras.length}</span>
+          )}
         </button>
 
-        {extras.length > 0 && (
-          <p className="mt-1.5 pl-[18px] text-[11px] leading-relaxed text-fg-muted">
-            {extras.map((b) => b.name).join(", ")} · every candidate costs{" "}
-            <span className="font-mono text-fg">{fmtMs(totalMs)}</span> across{" "}
-            {enabled.length} bands.
-          </p>
+        {extrasOpen && (
+          <ul className="mt-1.5 -mx-2">
+            {others.map((b) => {
+              const on = enabled.includes(b.id);
+              return (
+                <li key={b.id}>
+                  <label
+                    title={`${fmtMs(solveMs(b))} per solve`}
+                    className={`flex items-center gap-2.5 rounded-md px-2 py-1.5 transition ${
+                      running ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-ink-850"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      disabled={running}
+                      onChange={() => toggleBand(b.id)}
+                      className="accent-accent"
+                    />
+                    <span
+                      className="h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ background: on ? b.color : "var(--ink-600)" }}
+                    />
+                    <span className="min-w-0 flex-1 truncate text-[12px] text-fg">{b.name}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
         )}
 
-        {extrasOpen && (
-          <>
-            <ul className="mt-2 -mx-2">
-              {others.map((b) => {
-                const on = enabled.includes(b.id);
-                return (
-                  <li key={b.id}>
-                    <label
-                      className={`flex items-center gap-2 rounded-md px-2 py-1.5 transition ${
-                        running ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-ink-850"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={on}
-                        disabled={running}
-                        onChange={() => toggleBand(b.id)}
-                        className="accent-accent"
-                      />
-                      <span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ background: on ? b.color : "var(--ink-600)" }}
-                      />
-                      <span className="min-w-0 flex-1 truncate text-[11px] text-fg">{b.name}</span>
-                      <span className="shrink-0 font-mono text-[10px] text-fg-muted">
-                        {fmtMs(solveMs(b))}
-                      </span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-fg-muted">
-              Each added band is a full extra solve on every candidate the agent tries.
-            </p>
-          </>
+        {extras.length > 0 && (
+          <p className="mt-1.5 pl-[18px] text-[11px] text-fg-muted">
+            {enabled.length} bands · {fmtMs(totalMs)} per candidate
+          </p>
         )}
       </div>
     </section>

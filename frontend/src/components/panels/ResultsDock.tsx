@@ -185,10 +185,8 @@ export function ResultsDock() {
 
   if (!candidates.length) {
     return (
-      <p className="px-4 py-3 text-[11px] text-fg-muted">
-        {running
-          ? "Planning placements. Candidates appear here as the agent proposes them."
-          : "This run produced no candidates. The agent feed says why."}
+      <p className="px-4 py-3 text-[12px] text-fg-muted">
+        {running ? "Planning placements…" : "No candidates — see the agent transcript."}
       </p>
     );
   }

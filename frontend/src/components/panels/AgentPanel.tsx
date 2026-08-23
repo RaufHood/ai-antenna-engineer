@@ -5,27 +5,20 @@ import { useApp, type AgentKind } from "@/lib/store";
 import type { AgentMessage } from "@/lib/types";
 
 /**
- * The right rail is the agent's work: the spec the engineer writes, who runs
- * it, and everything the run says back.
+ * The right rail is the conversation: the spec goes in at the top, the
+ * agent's reasoning comes back underneath. Nothing in between explains the
+ * app — the controls are labelled, the trade-offs live in tooltips, and the
+ * only text that stays on screen is text the engineer wrote or the agent
+ * said.
  *
- * Three things carry the design here.
- *
- * 1. The prompt is the spec, so it is the first thing in the rail and the
- *    biggest input in the app. Once a run starts it collapses to a recap —
- *    the transcript is what matters then — and comes back on "Edit spec".
- * 2. The reasoning is ambient. Prose sits at --fg-muted (7.5:1 on the ground:
- *    recessive, never unreadable), 12px on a 24px rhythm, fading in with
- *    .think-in as each line lands. Measurements are the only monospace.
- * 3. The three message kinds the backend emits read as three different
- *    things: orchestrator narration is a hairline break in the timeline, a
- *    solve landing is a measurement block with its verdict, and a decision is
- *    a labelled statement in full text colour. Nothing else is emphasised.
+ * The three message kinds the backend emits still read as three things:
+ * orchestrator narration is a hairline break, a solve landing is a
+ * measurement block with its verdict, a decision is a labelled statement.
  */
 
-const LABEL = "text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-muted";
+const LABEL = "text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-faint";
 
 /* ------------------------------------------------------------------ marks */
-/* Drawn, single 1.5 stroke. No glyph icons anywhere in this panel. */
 
 function AlertMark({ className }: { className?: string }) {
   return (
@@ -71,31 +64,14 @@ function Spinner({ className }: { className?: string }) {
 interface AgentChoice {
   id: AgentKind;
   name: string;
-  /** The trade-off, stated where the choice is made. */
-  blurb: string;
-  /** Time and cost, aligned across the three so they compare at a glance. */
+  /** One line: what it is and what it costs. Shown for the selected choice. */
   meta: string;
 }
 
 const AGENT_CHOICES: AgentChoice[] = [
-  {
-    id: "mock",
-    name: "Mock",
-    blurb: "Heuristic placement, real PyNEC solves. No agent reasoning in the transcript.",
-    meta: "seconds · free",
-  },
-  {
-    id: "replay",
-    name: "Replay",
-    blurb: "A recorded live Devin run, played back — the real agent's reasoning, no quota.",
-    meta: "instant · free",
-  },
-  {
-    id: "devin",
-    name: "Devin",
-    blurb: "The live agent, reasoning on this device now. Metered, and slow enough to watch.",
-    meta: "~2.5 min · uses quota",
-  },
+  { id: "mock", name: "Mock", meta: "Heuristic placement, real solves · seconds, free" },
+  { id: "replay", name: "Replay", meta: "A recorded Devin run, played back · instant, free" },
+  { id: "devin", name: "Devin", meta: "Live Devin reasoning on this device · ~2.5 min, uses quota" },
 ];
 
 const agentName = (id: AgentKind) => AGENT_CHOICES.find((a) => a.id === id)?.name ?? id;
@@ -168,23 +144,21 @@ function read(m: AgentMessage): Line {
 function TranscriptLine({ line }: { line: Line }) {
   switch (line.t) {
     case "step":
-      // Orchestrator narration: a break in the timeline, not something to read
-      // twice. The rule does the separating; the words stay small.
       return (
         <div className="think-in pt-1">
           <div className="h-px bg-ink-800" />
-          <p className="pt-2 text-[11px] leading-5 text-fg-muted">{line.text}</p>
+          <p className="pt-2 text-[11px] leading-5 text-fg-faint">{line.text}</p>
         </div>
       );
 
     case "prose":
-      return <p className="think-in text-[12px] leading-6 text-fg-muted">{line.text}</p>;
+      return <p className="think-in text-[12.5px] leading-6 text-fg-muted">{line.text}</p>;
 
     case "decision":
       return (
         <div className="think-in border-l border-ink-600 pl-3">
           <p className="text-[11px] font-semibold text-fg">{line.label}</p>
-          <p className="mt-1 text-[12px] leading-6 text-fg-muted">{line.body}</p>
+          <p className="mt-1 text-[12.5px] leading-6 text-fg-muted">{line.body}</p>
         </div>
       );
 
@@ -196,7 +170,7 @@ function TranscriptLine({ line }: { line: Line }) {
           }`}
         >
           <p className="text-[11px] font-semibold text-fg">{line.label}</p>
-          <p className="mt-1 text-[12px] leading-6 text-fg">{line.body}</p>
+          <p className="mt-1 text-[12.5px] leading-6 text-fg">{line.body}</p>
         </div>
       );
 
@@ -204,20 +178,19 @@ function TranscriptLine({ line }: { line: Line }) {
       return (
         <div className="think-in border-l border-fail pl-3">
           <p className="text-[11px] font-semibold text-fail">Run failed</p>
-          <p className="mt-1 text-[12px] leading-6 text-fg-muted">{line.body}</p>
+          <p className="mt-1 text-[12.5px] leading-6 text-fg-muted">{line.body}</p>
         </div>
       );
 
     case "note":
       return (
         <div className="think-in border-l border-accent-dim pl-3">
-          <p className={LABEL}>Your note</p>
-          <p className="mt-1 text-[12px] leading-6 text-fg">{line.text}</p>
+          <p className={LABEL}>You</p>
+          <p className="mt-1 text-[12.5px] leading-6 text-fg">{line.text}</p>
         </div>
       );
 
     case "result":
-      // A solve landing. Monospace because every token is a measurement.
       return (
         <div
           className={`think-in border-l pl-3 ${
@@ -278,7 +251,6 @@ export function AgentPanel() {
   const running = useApp((s) => s.running);
   const planning = useApp((s) => s.planning);
   const messages = useApp((s) => s.messages);
-  const jobs = useApp((s) => s.jobs);
   const error = useApp((s) => s.error);
   const runId = useApp((s) => s.runId);
   const agent = useApp((s) => s.agent);
@@ -287,7 +259,6 @@ export function AgentPanel() {
   const tapeOtherDevice = useApp((s) => s.tapeOtherDevice);
   const sendNote = useApp((s) => s.sendNote);
   const enabledBands = useApp((s) => s.enabledBands);
-  const bands = useApp((s) => s.spec.requirements.bands);
 
   const [note, setNote] = useState("");
   const [editingSpec, setEditingSpec] = useState(false);
@@ -295,9 +266,8 @@ export function AgentPanel() {
   const feedRef = useRef<HTMLDivElement>(null);
 
   // The study finishing is not the end of the run: the evidence renders after
-  // run_finished so it can never gate the result, which means `running` goes
-  // false while artifacts are still landing. Keep polling — more slowly — until
-  // the media stage is done too, or the gallery stays empty forever.
+  // run_finished, so `running` goes false while artifacts are still landing.
+  // Keep polling — more slowly — until the media stage is done too.
   const stage = useApp((s) => s.stage);
   const rendering = stage === "media";
   useEffect(() => {
@@ -317,29 +287,24 @@ export function AgentPanel() {
   }, [running, runId]);
 
   useEffect(() => {
-    // Only chase the transcript once there is one. The spec editor lives in
-    // this same scroller, so an unguarded scroll-to-bottom on mount pushes the
-    // primary input — the thing the engineer is meant to type into first —
-    // off the top of the panel.
+    // Only chase the transcript once there is one; the spec editor shares
+    // this scroller and must not be pushed off the top on mount.
     if (!messages.length) return;
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length]);
 
   // The spec is echoed into the feed as message u0; it already has a home at
-  // the top of the rail, so it does not open the transcript as well.
+  // the top of the rail.
   const transcript = messages.filter((m) => m.id !== "u0");
   const started = !!runId || messages.length > 0;
   const specOpen = !started || editingSpec;
-  const bandShorts = bands.filter((b) => enabledBands.includes(b.id)).map((b) => b.short);
-  const canRun = !running && !!prompt.trim() && bandShorts.length > 0;
-  const solved = jobs.filter((j) => j.status === "complete").length;
-  const failedJobs = jobs.filter((j) => j.status === "failed").length;
+  const canRun = !running && !!prompt.trim() && enabledBands.length > 0;
+  const choice = AGENT_CHOICES.find((a) => a.id === agent) ?? AGENT_CHOICES[0];
 
-  // Disabled controls have to say why, and name the way out.
   const blocker = !prompt.trim()
-    ? "Write the spec first — one line naming the band and the limits is enough."
-    : !bandShorts.length
-      ? "Enable a band in the device panel — the study has nothing to solve for."
+    ? "Write the spec first."
+    : !enabledBands.length
+      ? "Pick a band first."
       : null;
 
   const run = () => {
@@ -350,7 +315,7 @@ export function AgentPanel() {
 
   return (
     <div className="flex h-full flex-col bg-ink-950">
-      <header className="flex h-11 shrink-0 items-center gap-3 border-b border-ink-800 px-4">
+      <header className="flex h-12 shrink-0 items-center gap-3 border-b border-ink-800 px-5">
         <h2 className={LABEL}>Agent</h2>
         {started && (
           <div className="ml-auto flex items-center gap-2">
@@ -368,71 +333,55 @@ export function AgentPanel() {
       {/* The spec, once a run owns the rail: still legible, no longer the
           thing you are looking at. */}
       {started && !editingSpec && (
-        <div className="shrink-0 border-b border-ink-800 px-4 py-3">
+        <div className="shrink-0 border-b border-ink-800 px-5 py-3.5">
           <div className="flex items-baseline gap-3">
-            <h3 className={LABEL}>Spec</h3>
-            <span className="ml-auto text-[11px] text-fg-muted">{agentName(agent)}</span>
+            <span className="text-[11px] text-fg-muted">{agentName(agent)}</span>
             {!running && (
               <button
                 type="button"
                 onClick={() => setEditingSpec(true)}
-                className="text-[11px] text-accent transition hover:brightness-110"
+                className="ml-auto text-[11px] text-accent transition hover:brightness-110"
               >
                 Edit spec
               </button>
             )}
           </div>
-          <p className="mt-1.5 line-clamp-2 text-[12px] leading-5 text-fg-muted">{prompt}</p>
+          <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-5 text-fg">{prompt}</p>
         </div>
       )}
 
       {tapeOtherDevice && (
-        // A recording is worth replaying — it is a real Devin run at no cost —
-        // but its prose describes the phone it was recorded against. The
-        // solves are re-run live; the commentary is not. Label it.
-        <div className="shrink-0 px-4 pt-3">
-          <div className="flex gap-2.5 rounded-md border border-ink-600 bg-ink-850 px-3 py-2.5">
+        // A recording's solves are re-run live against this device; its
+        // commentary describes the phone it was captured on. Say so.
+        <div className="shrink-0 px-5 pt-3">
+          <div className="flex gap-2.5 rounded-md border border-ink-700 bg-ink-900 px-3 py-2.5">
             <AlertMark className="mt-px shrink-0 text-fg-faint" />
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-fg-muted">
-                Recorded transcript — from a run on a different device
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-fg-faint">
-                Every result below is a live PyNEC solve against the device you have
-                loaded. The commentary is the recording&apos;s, and it reasons about the
-                phone it was captured on, so its anchor names and clearances are that
-                run&apos;s, not this one&apos;s.
-              </p>
-            </div>
+            <p className="min-w-0 text-[11px] leading-5 text-fg-muted">
+              Recorded on a different device. The solves below are live for this one; the
+              commentary is the recording&apos;s.
+            </p>
           </div>
         </div>
       )}
 
       {agentFellBack && (
-        // The orchestrator restarts a dead agent channel on the built-in
-        // heuristic so a demo always ends with a result. Saying so is the
-        // whole point: a run that looks like Devin's but isn't is worse than
-        // no run at all.
-        <div className="shrink-0 px-4 pt-3">
+        // The orchestrator restarts a dead agent channel on the heuristic so a
+        // demo always ends with a result. A run that looks like Devin's but
+        // isn't is worse than no run at all, so this stays loud.
+        <div className="shrink-0 px-5 pt-3">
           <div className="flex gap-2.5 rounded-md border border-warn/45 bg-warn/10 px-3 py-2.5">
             <AlertMark className="mt-px shrink-0 text-warn" />
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-warn">
-                Devin did not run — the heuristic finished this study
-              </p>
-              <p className="mt-1 text-[11px] leading-5 text-fg-muted">
-                The Devin channel failed before the first solve, so the built-in heuristic
-                proposed the placements below. The simulations are real PyNEC solves; the
-                reasoning that chose them is not Devin&apos;s. The API error is in the
-                transcript.
-              </p>
-            </div>
+            <p className="min-w-0 text-[11px] leading-5 text-fg">
+              <span className="font-semibold text-warn">Devin did not run.</span> The heuristic
+              finished this study; the solves are real, the reasoning is not Devin&apos;s. The API
+              error is in the transcript.
+            </p>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="shrink-0 px-4 pt-3">
+        <div className="shrink-0 px-5 pt-3">
           <div className="flex gap-2.5 rounded-md border border-fail/45 bg-fail/10 px-3 py-2.5">
             <AlertMark className="mt-px shrink-0 text-fail" />
             <p className="min-w-0 text-[11px] leading-5 text-fg">{error}</p>
@@ -442,9 +391,9 @@ export function AgentPanel() {
 
       <div ref={feedRef} className="min-h-0 flex-1 overflow-y-auto">
         {specOpen && (
-          <div className="border-b border-ink-800 px-4 pb-4 pt-4">
+          <div className={`px-5 pb-5 pt-5 ${started ? "border-b border-ink-800" : ""}`}>
             <label htmlFor="antenna-spec" className={LABEL}>
-              Antenna spec
+              Spec
             </label>
             <textarea
               id="antenna-spec"
@@ -454,81 +403,40 @@ export function AgentPanel() {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run();
               }}
               spellCheck={false}
-              placeholder={
-                "2.4 GHz Wi-Fi antenna on the bottom edge. 6 mm clear of the battery, VSWR under 2 in band, efficiency above 55%."
-              }
-              className="mt-2 min-h-[7.5rem] w-full resize-y rounded-md border border-ink-700 bg-ink-900 px-3 py-2.5 text-[12px] leading-6 text-fg outline-none transition placeholder:text-fg-muted focus:border-accent"
+              placeholder="2.4 GHz Wi-Fi antenna on the bottom edge. 6 mm clear of the battery, VSWR under 2 in band, efficiency above 55%."
+              className="mt-2.5 min-h-[8.5rem] w-full resize-y rounded-lg border border-ink-700 bg-ink-900 px-3.5 py-3 text-[13px] leading-6 text-fg outline-none transition placeholder:text-fg-faint focus:border-accent"
             />
-            <p className="mt-2 text-[11px] leading-5 text-fg-muted">
-              Solved as wire antennas — monopole or IFA over the chassis ground plane — so a
-              candidate comes back in under a second. State the target, the clearance and the
-              limits; a spec, not an essay.
-            </p>
 
-            <h3 className={`mt-5 ${LABEL}`}>Run with</h3>
             <div
               role="radiogroup"
               aria-label="Agent that runs the study"
-              className="mt-2 divide-y divide-ink-800 overflow-hidden rounded-md border border-ink-800"
+              className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-md border border-ink-700 bg-ink-700"
             >
-              {AGENT_CHOICES.map((choice) => {
-                const on = agent === choice.id;
+              {AGENT_CHOICES.map((c) => {
+                const on = agent === c.id;
                 return (
                   <button
-                    key={choice.id}
+                    key={c.id}
                     type="button"
                     role="radio"
                     aria-checked={on}
                     disabled={running}
-                    onClick={() => setAgent(choice.id)}
-                    className={`flex w-full gap-2.5 px-3 py-2.5 text-left transition disabled:cursor-not-allowed ${
-                      on ? "bg-ink-850" : "hover:bg-ink-900"
+                    onClick={() => setAgent(c.id)}
+                    title={c.meta}
+                    className={`py-1.5 text-[12px] transition disabled:cursor-not-allowed ${
+                      on ? "bg-ink-800 font-medium text-fg" : "bg-ink-950 text-fg-muted hover:text-fg"
                     }`}
                   >
-                    <span
-                      className={`mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
-                        on ? "border-accent" : "border-ink-600"
-                      }`}
-                    >
-                      {on && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-baseline gap-2">
-                        <span className="text-[12px] font-medium text-fg">{choice.name}</span>
-                        <span className="ml-auto shrink-0 font-mono text-[10px] text-fg-muted">
-                          {choice.meta}
-                        </span>
-                      </span>
-                      <span className="mt-0.5 block text-[11px] leading-5 text-fg-muted">
-                        {choice.blurb}
-                      </span>
-                    </span>
+                    {c.name}
                   </button>
                 );
               })}
             </div>
-            {agent === "devin" && (
-              <p className="mt-2 text-[11px] leading-5 text-fg-muted">
-                A live run spends a run of quota and holds this rail for about two and a half
-                minutes. Replay plays back the same agent&apos;s reasoning, instantly and free.
-              </p>
-            )}
+            <p className="mt-2 text-[11px] leading-5 text-fg-muted">{choice.meta}</p>
 
-            {!!bandShorts.length && (
-              <p className="mt-4 text-[11px] leading-5 text-fg-muted">
-                Studying <span className="font-mono text-fg">{bandShorts.join(" · ")}</span> — the
-                bands enabled on the device.
-              </p>
-            )}
-
-            {/* The study answers "where"; this decides whether it also draws
-                the answer. Kept beside the spec because it is part of what you
-                are asking for, and it costs seconds the run has already spent
-                by the time it matters. */}
             <label
-              className={`mt-4 flex cursor-pointer gap-2.5 rounded-md border px-3 py-2.5 transition ${
-                wantMedia ? "border-ink-600 bg-ink-850" : "border-ink-800 hover:bg-ink-900"
-              }`}
+              className="mt-4 flex cursor-pointer items-center gap-2.5 text-[12px] text-fg"
+              title="After the study: a placement map per band, the winner inside the mesh, its response, and the field leaving it."
             >
               <input
                 type="checkbox"
@@ -539,7 +447,7 @@ export function AgentPanel() {
               />
               <span
                 aria-hidden
-                className={`mt-px flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent ${
+                className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent ${
                   wantMedia ? "border-accent bg-accent" : "border-ink-600"
                 }`}
               >
@@ -549,22 +457,16 @@ export function AgentPanel() {
                   </svg>
                 )}
               </span>
-              <span className="min-w-0">
-                <span className="text-[12px] font-medium text-fg">Render evidence</span>
-                <span className="mt-0.5 block text-[11px] leading-5 text-fg-muted">
-                  Draw a placement map for each band, the winner inside the mesh, its response,
-                  and the field leaving it — for this device, after the study concludes.
-                </span>
-              </span>
+              Render evidence
             </label>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-4 flex items-center gap-3">
               <button
                 type="button"
                 onClick={run}
                 disabled={!canRun}
                 title="Run the placement study (Cmd + Enter)"
-                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-accent px-3 py-2.5 text-[12px] font-semibold text-ink-950 transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-muted"
+                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-accent px-3 py-2.5 text-[13px] font-semibold text-ink-950 transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:bg-ink-800 disabled:text-fg-muted"
               >
                 {running ? (
                   <>
@@ -572,7 +474,7 @@ export function AgentPanel() {
                     Running
                   </>
                 ) : (
-                  `Run study · ${agentName(agent)}`
+                  "Run study"
                 )}
               </button>
               {started && (
@@ -591,79 +493,27 @@ export function AgentPanel() {
           </div>
         )}
 
-        {!started ? (
-          <div className="px-4 py-6">
-            <h3 className="text-[12px] font-semibold text-fg">What happens when you run</h3>
-            <ol className="mt-3 space-y-3">
-              {[
-                "Kevin reads the loaded device — board, battery, keep-outs — and proposes a placement for every enabled band.",
-                "PyNEC solves each candidate against the chassis and returns S11, bandwidth, efficiency and VSWR.",
-                "Candidates that miss the spec are re-tuned and re-solved until they hold, and the winning placement lands in the viewport with its report.",
-              ].map((text, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="w-3 shrink-0 font-mono text-[11px] leading-6 text-fg-muted">
-                    {i + 1}
-                  </span>
-                  <p className="text-[12px] leading-6 text-fg-muted">{text}</p>
-                </li>
-              ))}
-            </ol>
-            <p className="mt-4 text-[11px] leading-5 text-fg-muted">
-              The agent&apos;s reasoning appears here as it happens; the numbers go to Results.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3 px-4 py-4">
+        {started && (
+          <div className="space-y-3.5 px-5 py-5">
             {transcript.map((m) => (
               <TranscriptLine key={m.id} line={read(m)} />
             ))}
             {planning && (
               <div className="think-in flex items-center gap-2 pt-1">
                 <Spinner className="text-accent" />
-                <span className="text-[11px] text-fg-muted">Planning candidate placements…</span>
+                <span className="text-[11px] text-fg-muted">Planning placements…</span>
               </div>
             )}
             {!transcript.length && !planning && (
-              <p className="text-[11px] leading-5 text-fg-muted">
-                Waiting for the agent&apos;s first message.
-              </p>
+              <p className="text-[11px] leading-5 text-fg-muted">Waiting for the agent.</p>
             )}
           </div>
         )}
       </div>
 
-      {!!jobs.length && (
-        <div className="shrink-0 border-t border-ink-800 px-4 py-2.5">
-          <div className="flex items-baseline justify-between">
-            <span className="text-[11px] text-fg-muted">Solves</span>
-            <span className="font-mono text-[11px] text-fg-muted">
-              {solved}/{jobs.length}
-              {failedJobs > 0 && <span className="text-fail"> · {failedJobs} failed</span>}
-            </span>
-          </div>
-          <div className="mt-1.5 flex gap-px" aria-hidden="true">
-            {jobs.map((j) => (
-              <span
-                key={j.job_id}
-                title={`${j.candidate_id} — ${j.status}`}
-                className={`h-1 flex-1 rounded-[1px] ${
-                  j.status === "complete"
-                    ? "bg-accent-dim"
-                    : j.status === "failed"
-                      ? "bg-fail"
-                      : j.status === "running"
-                        ? "animate-pulse bg-accent"
-                        : "bg-ink-700"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
       {running && (
         <form
-          className="shrink-0 border-t border-ink-800 px-4 py-3"
+          className="shrink-0 border-t border-ink-800 px-5 py-3"
           onSubmit={(e) => {
             e.preventDefault();
             const t = note.trim();
@@ -672,17 +522,16 @@ export function AgentPanel() {
             void sendNote(t);
           }}
         >
-          <label htmlFor="agent-note" className={LABEL}>
-            Note to the agent
-          </label>
-          <div className="mt-2 flex gap-2">
+          <div className="flex gap-2">
             <input
               id="agent-note"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="e.g. prefer the bottom edge, the top is crowded"
-              className="min-w-0 flex-1 rounded-md border border-ink-700 bg-ink-900 px-2.5 py-2 text-[12px] text-fg outline-none transition placeholder:text-fg-muted focus:border-accent"
+              aria-label="Note to the agent"
+              title="Lands with the agent's next iteration; it does not restart the run."
+              placeholder="Note to the agent…"
+              className="min-w-0 flex-1 rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-[12.5px] text-fg outline-none transition placeholder:text-fg-faint focus:border-accent"
             />
             <button
               type="submit"
@@ -692,9 +541,6 @@ export function AgentPanel() {
               Send
             </button>
           </div>
-          <p className="mt-1.5 text-[11px] leading-5 text-fg-muted">
-            Lands with the agent&apos;s next iteration; it does not restart the run.
-          </p>
         </form>
       )}
     </div>

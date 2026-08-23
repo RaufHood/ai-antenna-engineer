@@ -14,10 +14,10 @@ import type {
 import { Chevron, SectionTitle } from "./SpecPanel";
 
 /**
- * The device's parts, summarised as the brief needs them rather than listed
- * as reference: how many conductors the solver has to work around, and which
- * parts crowd the places an antenna can go. The full list — with the EM class,
- * bounds and the viewer's hide/isolate controls — stays one click away.
+ * The device's parts. Closed by default — the brief is the device and the
+ * band, not its bill of materials — and one click opens the parts that crowd
+ * the antenna, then the full list with hide/isolate. A part selected in the
+ * viewer shows its card regardless, because that click was a question.
  */
 
 const EM_LABEL: Record<string, string> = {
@@ -43,10 +43,8 @@ function minGap(bbox: Bbox, sites: Vec3[]) {
 
 /**
  * The enclosure: a part that spans nearly the whole device in plan — frame,
- * cover glass, back glass. It is adjacent to every candidate site by
- * definition, so ranking it by proximity says nothing. Ranking the parts
- * inside it does. Measured rather than read off `shape`, so an extracted
- * .blend behaves the same way.
+ * cover glass, back glass. Adjacent to every site by definition, so ranking
+ * it by proximity says nothing.
  */
 function isEnclosure(c: DeviceComponent, device: Vec3) {
   const s = sizeOf(c.bbox_mm);
@@ -58,11 +56,6 @@ function preferredRegions(b: BandRequirement): RegionId[] {
   const prefs = Object.entries(b.region_pref) as [RegionId, number][];
   const best = Math.max(...prefs.map(([, v]) => v));
   return prefs.filter(([, v]) => v >= best - 0.02).map(([k]) => k);
-}
-
-function edgeWords(regions: RegionId[]) {
-  if (regions.length === 1) return `the ${regions[0]} edge`;
-  return `the ${regions.slice(0, -1).join(", ")} and ${regions[regions.length - 1]} edges`;
 }
 
 /** One part. Hover and click drive the 3D viewer, in both lists. */
@@ -89,7 +82,7 @@ function PartRow({
       onMouseEnter={() => hoverComponent(c.name)}
       onMouseLeave={() => hoverComponent(null)}
       onClick={() => selectComponent(isSel ? null : c.name)}
-      className={`group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[11px] transition ${
+      className={`group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[12px] transition ${
         isSel ? "bg-accent/10" : "hover:bg-ink-850"
       }`}
     >
@@ -107,7 +100,7 @@ function PartRow({
             e.stopPropagation();
             toggleHidden(c.name);
           }}
-          className={`w-8 shrink-0 text-right text-[10px] transition ${
+          className={`w-8 shrink-0 text-right text-[11px] transition ${
             isHidden
               ? "text-fg-muted hover:text-fg"
               : "text-fg-muted opacity-0 hover:text-fg focus-visible:opacity-100 group-hover:opacity-100"
@@ -135,6 +128,7 @@ export function ComponentTree() {
   const isolateComponent = useApp((s) => s.isolateComponent);
 
   const [open, setOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(false);
 
   const conductors = components.filter((c) => isConductor(c.em)).length;
   const dielectrics = components.filter((c) => c.em === "dielectric").length;
@@ -149,26 +143,17 @@ export function ComponentTree() {
 
   // Measure against the placements the agent settled on once a run has
   // produced them; before that, against the anchors in the region the target
-  // band prefers — the whole perimeter would put every part next to an
-  // antenna and say nothing.
-  const { sites, placed, where } = useMemo(() => {
+  // band prefers.
+  const { sites, placed } = useMemo(() => {
     const chosen = Object.values(placements)
       .map((id) => candidates.find((c) => c.candidate_id === id))
       .filter((c): c is Candidate => !!c);
     if (chosen.length) {
-      return {
-        sites: chosen.map((c) => c.position_mm),
-        placed: true,
-        where: "the chosen placements",
-      };
+      return { sites: chosen.map((c) => c.position_mm), placed: true };
     }
     const regions = driving ? preferredRegions(driving) : [];
     const scoped = regions.length ? anchors.filter((a) => regions.includes(a.region)) : [];
-    return {
-      sites: (scoped.length ? scoped : anchors).map((a) => a.pos_mm),
-      placed: false,
-      where: scoped.length ? edgeWords(regions) : "the perimeter",
-    };
+    return { sites: (scoped.length ? scoped : anchors).map((a) => a.pos_mm), placed: false };
   }, [placements, candidates, anchors, driving]);
 
   const ranked = useMemo(
@@ -182,90 +167,58 @@ export function ComponentTree() {
   );
 
   const inKeepout = driving ? ranked.filter((r) => r.gap <= driving.clearance_mm) : [];
-  const near = ranked.slice(0, 3);
+  const near = ranked.slice(0, 4);
 
   const sel = components.find((c) => c.name === selected) ?? null;
   const selHidden = !!sel && hidden.includes(sel.name);
 
   return (
-    <section className="px-4 pb-6 pt-5">
-      <div className="flex items-baseline justify-between">
+    <section className="border-t border-ink-800 px-4 pb-6 pt-5">
+      <button
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2 text-left"
+      >
         <SectionTitle>Components</SectionTitle>
-        {hidden.length > 0 && (
-          <button
-            onClick={() => isolateComponent(null)}
-            className="text-[11px] text-accent transition hover:text-fg"
-          >
-            Show all {hidden.length} hidden
-          </button>
-        )}
-      </div>
-
-      <p className="mt-2.5 flex items-center gap-3 text-[11px] text-fg-muted">
-        <span className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-em-metal" />
-          {conductors} conductors
+        <span className="font-mono text-[11px] text-fg-muted">{components.length}</span>
+        <span className="ml-auto flex items-center gap-3">
+          {hidden.length > 0 && (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                isolateComponent(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  isolateComponent(null);
+                }
+              }}
+              className="text-[11px] text-accent transition hover:text-fg"
+            >
+              Show {hidden.length} hidden
+            </span>
+          )}
+          <span className="text-fg-muted">
+            <Chevron open={open} />
+          </span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-em-dielectric" />
-          {dielectrics} dielectrics
-        </span>
-      </p>
-
-      {near.length > 0 && (
-        <div className="mt-3">
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="min-w-0 truncate text-[11px] text-fg-muted">
-              Internals near {where}
-            </p>
-            {driving && (
-              <span className="shrink-0 font-mono text-[10px] text-fg-muted">
-                {inKeepout.length} inside {driving.clearance_mm} mm
-              </span>
-            )}
-          </div>
-
-          <ul className="-mx-2 mt-1">
-            {near.map(({ c, gap }) => (
-              <li key={c.name}>
-                <PartRow
-                  c={c}
-                  trailing={
-                    <span className="shrink-0 font-mono text-[10px] text-fg-muted">
-                      {gap.toFixed(1)} mm
-                    </span>
-                  }
-                />
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-1 text-[11px] leading-relaxed text-fg-muted">
-            Gap to the nearest{" "}
-            {placed ? "antenna Kevin placed" : `${driving ? driving.short : "candidate"} site`}. The
-            enclosure wraps every site, so it is not ranked
-            {driving && enabled.length > 1
-              ? `; ${driving.short} sets the widest keep-out of your bands.`
-              : "."}
-          </p>
-        </div>
-      )}
+      </button>
 
       {sel && (
-        <div className="mt-3 rounded-md border border-ink-800 bg-ink-900 px-2.5 py-2">
+        <div className="mt-3 rounded-md border border-ink-800 bg-ink-900 px-3 py-2.5">
           <div className="flex items-baseline gap-2">
             <span
               className="h-2 w-2 shrink-0 translate-y-px rounded-sm ring-1 ring-white/15"
               style={{ background: sel.color }}
             />
             <span className="min-w-0 flex-1 truncate text-[12px] text-fg">{sel.label}</span>
-            <span className="shrink-0 text-[10px] text-fg-muted">{EM_LABEL[sel.em]}</span>
+            <span className="shrink-0 text-[11px] text-fg-muted">{EM_LABEL[sel.em]}</span>
           </div>
-          <dl className="mt-1.5 space-y-0.5 font-mono text-[10px] text-fg-muted">
-            <div>
-              <dt className="inline">node </dt>
-              <dd className="inline text-fg">{sel.name}</dd>
-            </div>
+          <dl className="mt-1.5 space-y-0.5 font-mono text-[11px] text-fg-muted">
             <div>
               <dt className="inline">size </dt>
               <dd className="inline text-fg">
@@ -276,7 +229,7 @@ export function ComponentTree() {
               </dd>
             </div>
             <div>
-              <dt className="inline">origin </dt>
+              <dt className="inline">at </dt>
               <dd className="inline text-fg">
                 {sel.bbox_mm[0].map((v) => v.toFixed(1)).join(", ")} mm
               </dd>
@@ -313,29 +266,83 @@ export function ComponentTree() {
         </div>
       )}
 
-      <button
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className="mt-3 flex w-full items-center gap-1.5 text-[11px] text-fg-muted transition hover:text-fg"
-      >
-        <Chevron open={open} />
-        <span>All {components.length} parts, with EM class</span>
-      </button>
-
       {open && (
-        <ul className="-mx-2 mt-1">
-          {components.map((c) => (
-            <li key={c.name}>
-              <PartRow
-                c={c}
-                hideControl
-                trailing={
-                  <span className="shrink-0 text-[10px] text-fg-muted">{EM_LABEL[c.em]}</span>
-                }
-              />
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className="mt-3 flex items-center gap-3 text-[11px] text-fg-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-em-metal" />
+              {conductors} conductors
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-em-dielectric" />
+              {dielectrics} dielectrics
+            </span>
+          </p>
+
+          {near.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <p
+                  className="min-w-0 truncate text-[11px] text-fg-muted"
+                  title={
+                    placed
+                      ? "Gap to the nearest antenna the agent placed"
+                      : `Gap to the nearest ${driving?.short ?? "candidate"} site`
+                  }
+                >
+                  {placed ? "Nearest the antenna" : "Nearest the candidate sites"}
+                </p>
+                {driving && (
+                  <span
+                    className="shrink-0 font-mono text-[11px] text-fg-muted"
+                    title={`Parts inside the ${driving.clearance_mm} mm keep-out`}
+                  >
+                    {inKeepout.length} in keep-out
+                  </span>
+                )}
+              </div>
+              <ul className="-mx-2 mt-1">
+                {near.map(({ c, gap }) => (
+                  <li key={c.name}>
+                    <PartRow
+                      c={c}
+                      trailing={
+                        <span className="shrink-0 font-mono text-[11px] text-fg-muted">
+                          {gap.toFixed(1)} mm
+                        </span>
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <button
+            aria-expanded={allOpen}
+            onClick={() => setAllOpen((o) => !o)}
+            className="mt-3 flex w-full items-center gap-1.5 text-[12px] text-fg-muted transition hover:text-fg"
+          >
+            <Chevron open={allOpen} />
+            <span>All parts</span>
+          </button>
+
+          {allOpen && (
+            <ul className="-mx-2 mt-1">
+              {components.map((c) => (
+                <li key={c.name}>
+                  <PartRow
+                    c={c}
+                    hideControl
+                    trailing={
+                      <span className="shrink-0 text-[11px] text-fg-muted">{EM_LABEL[c.em]}</span>
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </section>
   );

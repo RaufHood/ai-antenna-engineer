@@ -66,14 +66,11 @@ export function BandCoverage() {
   const met = cells.filter((c) => c.verdict === "pass").length;
 
   return (
-    <section className="border-b border-ink-800 px-4 pb-2 pt-2.5">
+    <section className="border-b border-ink-800 px-4 pb-2 pt-2.5" title="Each track spans its own band window. Ticks are simulated resonances; the bold tick is the best candidate.">
       <div className="mb-2 flex items-baseline gap-3">
         <h2 className="text-[11px] font-medium text-fg">
           {met} of {cells.length} bands met
         </h2>
-        <span className="ml-auto truncate font-mono text-[10px] text-fg-muted">
-          each track spans its own band · tick = simulated resonance
-        </span>
       </div>
 
       <div className="flex items-stretch gap-1">

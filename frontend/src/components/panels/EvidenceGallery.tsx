@@ -136,17 +136,13 @@ export function EvidenceGallery() {
     const rendering = stage === "media" || running;
     return (
       <div className="flex h-full items-center justify-center px-6">
-        <p className="max-w-[52ch] text-center text-[11px] leading-5 text-fg-muted">
+        <p className="max-w-[40ch] text-center text-[12px] leading-5 text-fg-muted">
           {rendering ? (
-            <>
-              Rendering this run&apos;s evidence — a placement map per band, the winner inside the
-              mesh, its response, and the field leaving it. They appear here as each one lands.
-            </>
+            "Rendering evidence…"
           ) : (
             <>
-              No evidence rendered for this run. Tick{" "}
-              <span className="text-fg">Render evidence</span> beside the spec to draw the
-              placement maps and the field animation for the device you have loaded.
+              No evidence for this run. Tick <span className="text-fg">Render evidence</span>{" "}
+              before running.
             </>
           )}
         </p>

@@ -4,12 +4,11 @@ import { KevinLockup } from "@/components/Logo";
 import { useApp } from "@/lib/store";
 
 /**
- * Orientation only: what device is loaded, what the run is doing right now,
- * and the one way back to a clean slate. Everything an engineer would act on
- * lives in the panel that owns it.
+ * Orientation only: the mark, how far the run has got, and the one way back
+ * to a clean slate. The device has its card in the left rail; it is not
+ * repeated here. Solve progress lives here and nowhere else.
  */
 export function TopBar() {
-  const spec = useApp((s) => s.spec);
   const running = useApp((s) => s.running);
   const planning = useApp((s) => s.planning);
   const runId = useApp((s) => s.runId);
@@ -21,24 +20,17 @@ export function TopBar() {
   const done = jobs.filter((j) => j.status === "complete").length;
   const failed = jobs.filter((j) => j.status === "failed").length;
   const settled = done + failed;
-  const [w, h, t] = spec.board.size_mm;
-  // The catalogue name carries its own dimensions; they are shown once.
-  const device = spec.name.replace(/\s*\([^)]*\)\s*$/, "");
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-3 border-b border-ink-800 px-4">
       <KevinLockup height={18} className="text-fg" />
-      <span className="h-4 w-px bg-ink-700" aria-hidden />
-      <div className="flex min-w-0 items-baseline gap-2">
-        <span className="truncate text-[12px] text-fg">{device}</span>
-        <span className="shrink-0 font-mono text-[10px] text-fg-muted">
-          {w} × {h} × {t} mm
-        </span>
-      </div>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-4">
         {runId && (
-          <div className="flex items-center gap-2.5 text-[11px]">
+          <div
+            className="flex items-center gap-2.5 text-[11px]"
+            title={engine ? `Solver: ${engine}` : undefined}
+          >
             <span
               aria-hidden
               className={`h-1.5 w-1.5 rounded-full ${
@@ -74,11 +66,6 @@ export function TopBar() {
                 )}
               </>
             )}
-            {engine && (
-              <span className="font-mono text-[10px] text-fg-muted" title="Solver engine">
-                {engine}
-              </span>
-            )}
           </div>
         )}
 
@@ -91,7 +78,7 @@ export function TopBar() {
                 ? "Clears this run from the workspace. The solve keeps running on the backend."
                 : "Clears this run's candidates, results and report."
             }
-            className="rounded-sm border border-ink-700 px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
+            className="rounded-md border border-ink-700 px-2.5 py-1 text-[11px] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
           >
             Clear run
           </button>
