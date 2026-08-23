@@ -72,8 +72,13 @@ async def default_device(bands: str = "wifi24") -> dict:
     ids = [b for b in bands.split(",") if b]
     if bad := bands_mod.unknown(ids):
         raise HTTPException(400, f"unknown bands {bad}")
+    # `requirements.bands` is the MENU the panel offers, not the selection —
+    # the selection is the client's `enabledBands`, and a run narrows the spec
+    # itself at creation. Returning only the requested ids collapsed the menu
+    # to whatever happened to be enabled, so every other band vanished from the
+    # panel and could never be switched back on.
     spec = default_spec(ids).model_copy(
-        update={"requirements": bands_mod.requirements_for(ids)})
+        update={"requirements": bands_mod.requirements_for()})
     anchors, source = anchors_for(spec, ids)
     return {"spec": spec.model_dump(),
             "anchors": [a.model_dump() for a in anchors],
