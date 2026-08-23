@@ -1,0 +1,1 @@
+and what it this Agent and spec thig here, does ti even make sense to have any titele there, its already clear waht it is. and make the mock / replay / davin be a drop down with davin default like the model selection in vlaude code. rende evidence is default always, why wouldnt you render it?
