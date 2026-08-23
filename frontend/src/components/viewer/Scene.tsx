@@ -64,6 +64,7 @@ function CameraRig() {
 }
 
 export default function Scene() {
+  const explode = useApp((s) => s.explode);
   const selectComponent = useApp((s) => s.selectComponent);
   const selectCandidate = useApp((s) => s.selectCandidate);
 
@@ -104,7 +105,13 @@ export default function Scene() {
           <Lightformer intensity={0.8} position={[0, -3, -2]} scale={[6, 3, 1]} color="#a78bfa" />
         </Environment>
 
-        <group>
+        {/* The assembly grows as it comes apart, so the whole scene is scaled
+            back by the same amount and keeps the framing the intact phone had
+            — otherwise the outer layers leave the viewport at half travel.
+            Applied here and not inside the device: the antenna pins and
+            keep-outs live in the same frame and have to travel with it, or the
+            placement stops sitting where it was placed. */}
+        <group scale={1 / (1 + 0.55 * explode)}>
           <PhoneModel />
           <Keepouts />
           <Antennas />

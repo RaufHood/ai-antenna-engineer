@@ -115,7 +115,11 @@ export function Viewport() {
           </div>
         )}
 
-        {/* exploded view only makes sense for the procedural handset */}
+        {/* Pulls the real 191-part stack apart along its thinnest axis, which
+            is how a teardown lays a phone out — and the only view where you
+            can see which layer the antenna is actually fighting. Hidden for an
+            uploaded model: that path draws a shaded mesh, not per-part line
+            art, so there is nothing to separate. */}
         {!modelUrl && (
           <div className="pointer-events-auto absolute bottom-3 left-3 flex w-56 items-center gap-3 rounded-md bg-ink-850/80 px-3 py-2 backdrop-blur">
             <span className="text-[11px] text-fg-muted">Explode</span>
