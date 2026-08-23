@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.10.2",
+  "checkpoint_id": "01M0PY509R3MMD4GMZW7J61493",
+  "strategy": "manual-commit",
+  "branch": "pitch-deck-v3",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "pitch-deck/README.md",
+    "pitch-deck/assets/ui-idle.png",
+    "pitch-deck/assets/ui-result.png",
+    "pitch-deck/index.html",
+    "pitch-deck/kevin-pitch.pdf",
+    "pitch-deck/png/slide-01.png",
+    "pitch-deck/png/slide-02.png",
+    "pitch-deck/png/slide-03.png",
+    "pitch-deck/png/slide-04.png",
+    "pitch-deck/png/slide-05.png",
+    "pitch-deck/png/slide-06.png",
+    "pitch-deck/png/slide-07.png",
+    "pitch-deck/png/slide-08.png",
+    "pitch-deck/png/slide-09.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 72,
+    "cache_creation_tokens": 28445,
+    "cache_read_tokens": 4333834,
+    "output_tokens": 24566,
+    "api_call_count": 36
+  }
+}
