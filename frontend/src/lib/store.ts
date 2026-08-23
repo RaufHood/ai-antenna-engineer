@@ -35,6 +35,8 @@ interface AppState {
   enabledBands: string[];
   focusBand: string | null;
   viewMode: ViewMode;
+  /** The right rail: how the device is drawn, and its parts. Hidable. */
+  inspectorOpen: boolean;
   explode: number;
   hidden: string[];
   selectedComponent: string | null;
@@ -86,6 +88,7 @@ interface AppState {
   toggleBand: (id: string) => void;
   setFocusBand: (id: string | null) => void;
   setViewMode: (m: ViewMode) => void;
+  toggleInspector: () => void;
   setExplode: (v: number) => void;
   toggleHidden: (name: string) => void;
   isolateComponent: (name: string | null) => void;
@@ -107,7 +110,9 @@ interface AppState {
   reset: () => void;
 }
 
-const DEFAULT_BANDS = ["lte_low", "gps_l1", "wifi24", "n78"];
+// One band by default: the cheapest useful target. Multi-band is a full
+// extra solve on every candidate, so it is asked for, never assumed.
+const DEFAULT_BANDS = ["wifi24"];
 
 const EMPTY_RUN = {
   runId: null,
@@ -139,6 +144,7 @@ export const useApp = create<AppState>((set, get) => ({
   enabledBands: DEFAULT_BANDS,
   focusBand: null,
   viewMode: "system",
+  inspectorOpen: true,
   explode: 0,
   hidden: [],
   selectedComponent: null,
@@ -208,6 +214,7 @@ export const useApp = create<AppState>((set, get) => ({
   },
 
   setFocusBand: (id) => set({ focusBand: id, viewMode: id ? "focus" : "system" }),
+  toggleInspector: () => set({ inspectorOpen: !get().inspectorOpen }),
   setViewMode: (m) =>
     set({
       viewMode: m,

@@ -118,10 +118,16 @@ body {
   background-clip: content-box;
 }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 3px;
+/* In @layer base for the same reason as the form reset below: unlayered,
+   this beat every focus-visible:outline-* utility, and a textarea inside an
+   overflow-hidden box showed only the bottom edge of a ring nothing could
+   remove. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
 }
 
 /* In @layer base so utilities can override it. Unlayered, this rule beat

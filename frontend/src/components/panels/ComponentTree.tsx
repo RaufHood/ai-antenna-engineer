@@ -11,7 +11,7 @@ import type {
   RegionId,
   Vec3,
 } from "@/lib/types";
-import { Chevron, SectionTitle } from "./SpecPanel";
+import { Chevron, SectionTitle } from "./primitives";
 
 /**
  * The device's parts. Closed by default — the brief is the device and the

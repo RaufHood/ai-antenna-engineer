@@ -2,7 +2,7 @@
 
 import { useApp, type Layer } from "@/lib/store";
 import { VIEW_PRESETS } from "@/components/viewer/Scene";
-import { SectionTitle } from "./SpecPanel";
+import { SectionTitle } from "./primitives";
 
 /**
  * Everything that changes how the device is drawn, in one place: the camera,
@@ -18,6 +18,16 @@ const LAYERS: [Layer, string][] = [
   ["showLabels", "Labels"],
   ["showShaded", "Shaded"],
 ];
+
+/** Points the way the panel goes when it closes. */
+export function ArrowRight() {
+  return (
+    <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 8h10" />
+      <path d="M9 4l4 4-4 4" />
+    </svg>
+  );
+}
 
 function Chip({
   active,
@@ -70,10 +80,22 @@ export function ViewPanel() {
   const setViewMode = useApp((s) => s.setViewMode);
   const modelUrl = useApp((s) => s.modelUrl);
   const candidates = useApp((s) => s.candidates);
+  const toggleInspector = useApp((s) => s.toggleInspector);
 
   return (
-    <section className="border-t border-ink-800 px-4 pb-5 pt-5">
-      <SectionTitle>View</SectionTitle>
+    <section className="px-4 pb-5 pt-4">
+      <div className="flex items-center">
+        <SectionTitle>View</SectionTitle>
+        <button
+          type="button"
+          onClick={toggleInspector}
+          aria-label="Hide the inspector"
+          title="Hide the inspector"
+          className="-mr-1.5 ml-auto rounded-md p-1 text-fg-muted transition hover:bg-ink-850 hover:text-fg"
+        >
+          <ArrowRight />
+        </button>
+      </div>
 
       <Row label="Camera">
         {Object.keys(VIEW_PRESETS).map((k) => (

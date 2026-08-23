@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRef } from "react";
+import { useApp } from "@/lib/store";
 import { DeviceBadge, useDeviceDrop, useDeviceLoad } from "./DeviceBadge";
 
 const Scene = dynamic(() => import("./Scene"), {
@@ -23,6 +24,8 @@ export function Viewport() {
   const fileRef = useRef<HTMLInputElement>(null);
   const { load, clear, problem } = useDeviceLoad();
   const { dragging, handlers } = useDeviceDrop((f) => void load(f));
+  const inspectorOpen = useApp((s) => s.inspectorOpen);
+  const toggleInspector = useApp((s) => s.toggleInspector);
 
   return (
     <div {...handlers} className="relative h-full w-full overflow-hidden bg-[#070a12]">
@@ -30,6 +33,20 @@ export function Viewport() {
 
       <div className="pointer-events-none absolute inset-0 p-4">
         <DeviceBadge onPick={() => fileRef.current?.click()} onClear={clear} problem={problem} />
+        {!inspectorOpen && (
+          <button
+            type="button"
+            onClick={toggleInspector}
+            aria-label="Show the inspector"
+            title="Show the inspector — view and parts"
+            className="pointer-events-auto absolute right-4 top-4 rounded-md border border-ink-800 bg-ink-900/80 p-1.5 text-fg-muted backdrop-blur transition hover:border-ink-600 hover:text-fg"
+          >
+            <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M13 8H3" />
+              <path d="M7 4 3 8l4 4" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {dragging && (

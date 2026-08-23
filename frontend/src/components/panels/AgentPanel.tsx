@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp, type AgentKind } from "@/lib/store";
 import type { AgentMessage } from "@/lib/types";
+import { KevinLockup } from "@/components/Logo";
+import { BandMenu } from "./BandMenu";
+import { Dropdown, MenuItem } from "./primitives";
 
 /**
  * The right rail is the conversation: the spec goes in at the top, the
@@ -328,14 +331,6 @@ function TranscriptLine({ line }: { line: Line }) {
 
 /* -------------------------------------------------------------- agent menu */
 
-function ChevronDown() {
-  return (
-    <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 6.5 8 10.5 12 6.5" />
-    </svg>
-  );
-}
-
 function ArrowUp() {
   return (
     <svg viewBox="0 0 16 16" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -345,16 +340,8 @@ function ArrowUp() {
   );
 }
 
-function Check() {
-  return (
-    <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 8.5 6.5 12 13 4.5" />
-    </svg>
-  );
-}
-
-/** Who runs the study. A small button naming the current choice; the menu
- *  carries the trade-off for each, so it is read at the moment of choosing. */
+/** Who runs the study. The menu carries each choice's trade-off, so it is
+ *  read at the moment of choosing. */
 function AgentMenu({
   value,
   onChange,
@@ -364,78 +351,24 @@ function AgentMenu({
   onChange: (id: AgentKind) => void;
   disabled: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
   const current = AGENT_CHOICES.find((a) => a.id === value) ?? AGENT_CHOICES[0];
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label="Agent that runs the study"
-        disabled={disabled}
-        onClick={() => setOpen((o) => !o)}
-        title={current.meta}
-        className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] text-fg-muted transition hover:bg-ink-850 hover:text-fg disabled:cursor-not-allowed disabled:hover:bg-transparent"
-      >
-        {current.name}
-        <ChevronDown />
-      </button>
-
-      {open && (
-        <ul
-          role="listbox"
-          aria-label="Agent"
-          className="absolute left-0 top-full z-20 mt-1.5 w-72 rounded-lg border border-ink-700 bg-ink-900 p-1 shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
-        >
-          {AGENT_CHOICES.map((c) => {
-            const on = c.id === value;
-            return (
-              <li key={c.id} role="option" aria-selected={on}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange(c.id);
-                    setOpen(false);
-                  }}
-                  className={`flex w-full flex-col rounded-md px-2.5 py-2 text-left transition ${
-                    on ? "bg-ink-850" : "hover:bg-ink-850"
-                  }`}
-                >
-                  <span className="flex items-center gap-2 text-[12.5px] text-fg">
-                    {c.name}
-                    {on && (
-                      <span className="text-accent">
-                        <Check />
-                      </span>
-                    )}
-                  </span>
-                  <span className="mt-0.5 text-[11px] leading-4 text-fg-muted">{c.meta}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+    <Dropdown ariaLabel="Agent that runs the study" label={current.name} title={current.meta} disabled={disabled}>
+      {(close) =>
+        AGENT_CHOICES.map((c) => (
+          <MenuItem
+            key={c.id}
+            on={c.id === value}
+            onClick={() => {
+              onChange(c.id);
+              close();
+            }}
+            name={c.name}
+            meta={c.meta}
+          />
+        ))
+      }
+    </Dropdown>
   );
 }
 
@@ -463,6 +396,9 @@ export function AgentPanel() {
   const tapeOtherDevice = useApp((s) => s.tapeOtherDevice);
   const sendNote = useApp((s) => s.sendNote);
   const enabledBands = useApp((s) => s.enabledBands);
+  const jobs = useApp((s) => s.jobs);
+  const engine = useApp((s) => s.engine);
+  const reset = useApp((s) => s.reset);
 
   const [note, setNote] = useState("");
   const [editingSpec, setEditingSpec] = useState(false);
@@ -518,9 +454,17 @@ export function AgentPanel() {
   };
 
   const status = running ? (planning ? "Planning" : "Simulating") : rendering ? "Rendering" : "Finished";
+  const solved = jobs.filter((j) => j.status === "complete").length;
+  const failed = jobs.filter((j) => j.status === "failed").length;
 
   return (
     <div className="flex h-full flex-col bg-ink-950">
+      {/* The mark, where a sidebar keeps it. Spacing sets it apart from the
+          conversation; no rule needed. */}
+      <div className="shrink-0 px-5 pb-2 pt-4">
+        <KevinLockup height={18} className="text-fg" />
+      </div>
+
       {/* The spec, once a run owns the rail: the run's status, then what was
           asked, still legible but no longer the thing you are looking at. */}
       {started && !editingSpec && (
@@ -535,15 +479,38 @@ export function AgentPanel() {
             {elapsed > 0 && (
               <span className="font-mono text-[11px] text-fg-muted">{elapsedLabel(elapsed)}</span>
             )}
-            {!running && (
+            {jobs.length > 0 && (
+              <span
+                className="font-mono text-[11px] text-fg-muted"
+                title={engine ? `Solver: ${engine}` : undefined}
+              >
+                · {solved}/{jobs.length} solved
+                {failed > 0 && <span className="text-fail"> · {failed} failed</span>}
+              </span>
+            )}
+            <span className="ml-auto flex items-center gap-3">
+              {!running && (
+                <button
+                  type="button"
+                  onClick={() => setEditingSpec(true)}
+                  className="text-[11px] text-accent transition hover:brightness-110"
+                >
+                  Edit spec
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => setEditingSpec(true)}
-                className="ml-auto text-[11px] text-accent transition hover:brightness-110"
+                onClick={reset}
+                title={
+                  running
+                    ? "Clears this run from the workspace. The solve keeps running on the backend."
+                    : "Clears this run's candidates, results and report."
+                }
+                className="text-[11px] text-fg-muted transition hover:text-fg"
               >
-                Edit spec
+                Clear
               </button>
-            )}
+            </span>
           </div>
           <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-5 text-fg">{prompt}</p>
         </div>
@@ -593,7 +560,7 @@ export function AgentPanel() {
           <div className={`px-5 pb-5 pt-5 ${started ? "border-b border-ink-800" : ""}`}>
             {/* The box resizes as a whole, so the grip sits at its corner
                 beside Run rather than in the middle above it. */}
-            <div className="flex min-h-[11rem] resize-y flex-col overflow-hidden rounded-lg border border-ink-700 bg-ink-900 transition focus-within:border-accent">
+            <div className="flex min-h-[11rem] resize-y flex-col overflow-hidden rounded-lg border border-ink-700 bg-ink-900 transition focus-within:border-ink-600">
               <textarea
                 id="antenna-spec"
                 aria-label="Antenna spec"
@@ -604,10 +571,11 @@ export function AgentPanel() {
                 }}
                 spellCheck={false}
                 placeholder="2.4 GHz Wi-Fi antenna on the bottom edge. 6 mm clear of the battery, VSWR under 2 in band, efficiency above 55%."
-                className="block min-h-0 w-full flex-1 resize-none bg-transparent px-3.5 py-3 text-[13px] leading-6 text-fg outline-none placeholder:text-fg-faint"
+                className="block min-h-0 w-full flex-1 resize-none bg-transparent px-3.5 py-3 text-[13px] leading-6 text-fg outline-none placeholder:text-fg-faint focus-visible:outline-none"
               />
               <div className="flex shrink-0 items-center gap-2 px-2 pb-2">
                 <AgentMenu value={agent} onChange={setAgent} disabled={running} />
+                <BandMenu disabled={running} />
                 {started && (
                   <button
                     type="button"
@@ -686,7 +654,7 @@ export function AgentPanel() {
               aria-label="Note to the agent"
               title="Lands with the agent's next iteration; it does not restart the run."
               placeholder="Note to the agent…"
-              className="min-w-0 flex-1 rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-[12.5px] text-fg outline-none transition placeholder:text-fg-faint focus:border-accent"
+              className="min-w-0 flex-1 rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-[12.5px] text-fg outline-none transition placeholder:text-fg-faint focus:border-ink-600 focus-visible:outline-none"
             />
             <button
               type="submit"
